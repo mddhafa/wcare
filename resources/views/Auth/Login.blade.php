@@ -30,58 +30,58 @@
     </div>
 
 <script>
-function showSnackbar(message, type = 'info') {
-  const snackbar = document.getElementById('snackbar');
-  snackbar.textContent = message;
-  snackbar.classList.remove('bg-gray-800', 'bg-green-600', 'bg-red-600');
-  snackbar.classList.add(type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800');
-  snackbar.classList.remove('hidden');
-  snackbar.classList.add('opacity-100');
-  setTimeout(() => {
-    snackbar.classList.remove('opacity-100');
-    setTimeout(() => snackbar.classList.add('hidden'), 500);
-  }, 3000);
-}
-
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const form = e.target;
-  const formData = new FormData(form);
-
-  const res = await fetch(form.action, {
-    method: 'POST',
-    headers: {
-      'Accept': 'application/json',
-      'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
-    },
-    body: formData,
-    credentials: 'same-origin'
-  });
-
-  let result = {};
-  try {
-    result = await res.json();
-  } catch (err) {
-    showSnackbar('Terjadi kesalahan pada server', 'error');
-    return;
+  function showSnackbar(message, type = 'info') {
+    const snackbar = document.getElementById('snackbar');
+    snackbar.textContent = message;
+    snackbar.classList.remove('bg-gray-800', 'bg-green-600', 'bg-red-600');
+    snackbar.classList.add(type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800');
+    snackbar.classList.remove('hidden');
+    snackbar.classList.add('opacity-100');
+    setTimeout(() => {
+      snackbar.classList.remove('opacity-100');
+      setTimeout(() => snackbar.classList.add('hidden'), 500);
+    }, 3000);
   }
 
-  if (res.status === 200) {
-    showSnackbar(result.message || 'Login berhasil!', 'success');
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-    const role = result.data?.role; // ✅ gunakan data.role
+    const form = e.target;
+    const formData = new FormData(form);
 
-    if (role === 'admin') {
-      setTimeout(() => window.location.href = '/admin/dashboard', 1200);
-    } else {
-      setTimeout(() => window.location.href = '/dashboard', 1200);
+    const res = await fetch(form.action, {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value
+      },
+      body: formData,
+      credentials: 'same-origin'
+    });
+
+    let result = {};
+    try {
+      result = await res.json();
+    } catch (err) {
+      showSnackbar('Terjadi kesalahan pada server', 'error');
+      return;
     }
 
-  } else {
-    showSnackbar(result.message || 'Gagal login (' + res.status + ')', 'error');
-  }
-});
+    if (res.status === 200) {
+      showSnackbar(result.message || 'Login berhasil!', 'success');
+
+      const role = result.data?.role; 
+
+      if (role === 'admin') {
+        setTimeout(() => window.location.href = '/admin/dashboard', 1200);
+      } else {
+        setTimeout(() => window.location.href = '/dashboard', 1200);
+      }
+
+    } else {
+      showSnackbar(result.message || 'Gagal login (' + res.status + ')', 'error');
+    }
+  });
 </script>
 
 

@@ -28,6 +28,12 @@
       <a href="/admin/settings" class="block py-2 px-3 rounded-lg hover:bg-blue-100 text-gray-700 font-medium">
         ⚙️ Pengaturan
       </a>
+      <a href="/tambah/selfhealing" class="block py-2 px-3 rounded-lg hover:bg-blue-100 text-gray-700 font-medium">
+        📚 Tambah Konten Self-Healing
+      </a>
+      <a href="/selfhealing" class="block py-2 px-3 rounded-lg hover:bg-blue-100 text-gray-700 font-medium">
+        🦾 Konten Self-Healing
+      </a>
     </nav>
 
     <div class="absolute bottom-5 left-0 right-0 px-5">
@@ -45,7 +51,7 @@
     <header class="flex justify-between items-center mb-8">
       <div>
         <h1 class="text-3xl font-bold text-blue-700">Dashboard Admin</h1>
-        <p class="text-gray-600">Halo, {{ Auth::user()->name }} 👋</p>
+        <p class="text-gray-600">Halo, {{ Auth::user()->name }} </p>
       </div>
       <div class="bg-white px-4 py-2 rounded-lg shadow text-gray-600">
         Role: <strong>{{ Auth::user()->role->name ?? 'Admin' }}</strong>

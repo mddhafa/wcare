@@ -25,7 +25,7 @@
       <!-- <input type="dropdown" name="role" placeholder="Pilih Role" required class="w-full border rounded-lg p-2"> -->
 
       <!-- role_id default (contoh: 3 = korban) -->
-      <input type="hidden" name="role_id" value="1">
+      <input type="hidden" name="role_id" value="3">
 
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg">Daftar</button>
     </form>

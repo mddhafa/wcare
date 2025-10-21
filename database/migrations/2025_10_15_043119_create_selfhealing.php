@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('jenis_konten');
             $table->string('judul');
             $table->string('link_konten');
+            $table->text('deskripsi');
+            $table->string('gambar')->nullable();
             $table->timestamps();
         });
     }
