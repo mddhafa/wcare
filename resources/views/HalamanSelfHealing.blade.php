@@ -4,29 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daftar Konten Self-Healing</title>
-  <style> 
-   header {
-      background-color: #fff;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-      padding: 15px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    header h1 { font-size: 22px; font-weight: 600; color: #2b4b80; }
-    .logout-btn {
-      background-color: #ff4d4f;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .logout-btn:hover { background-color: #d9363e; }
-  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ asset('css/selfhealing.css') }}">
+  <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 </head>
 <body class="bg-gray-100 min-h-screen">
 
@@ -106,6 +88,14 @@
                 @endforeach
             </div>
         @endif
+    </div>
+
+    <div class="button-tambah"> 
+        <a href="{{ route('admin.tambahkontensh') }}">
+            <button class="fixed bottom-10 right-10 bg-blue-600 text-white p-5 rounded-full shadow-lg hover:bg-blue-700 transition">
+                <icon class="fas fa-plus"></icon>
+            </button>
+        </a>
     </div>
 
   </main>
