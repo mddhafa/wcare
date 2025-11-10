@@ -34,7 +34,7 @@ class AuthController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'status_code' => 500,
-                'message' => 'User creation failed',
+                'message' => 'User creation failed: ' . $e->getMessage(),
                 'error'   => $e->getMessage(),
             ], 500);
         }

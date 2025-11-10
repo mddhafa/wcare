@@ -39,8 +39,6 @@ class SelfHealingController extends Controller
             'data'    => $selfHealing,
         ], 200);
     }
-    
-
     public function store(SelfHealingRequest $request)
     {
         // Cek role user
@@ -52,7 +50,6 @@ class SelfHealingController extends Controller
 
         try {
             $selfHealing = new SelfHealing();
-
             // Isi data teks
             $selfHealing->jenis_konten = $request->jenis_konten;
             $selfHealing->judul = $request->judul;
