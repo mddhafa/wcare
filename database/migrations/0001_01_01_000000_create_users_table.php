@@ -6,6 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+<<<<<<< HEAD
+=======
+    /**
+     * Run the migrations.
+     */
+>>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -14,10 +20,13 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+<<<<<<< HEAD
 
             $table->unsignedBigInteger('role_id')->default(3);
             $table->foreign('role_id')->references('id')->on('roles')->cascadeOnDelete();
 
+=======
+>>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
             $table->rememberToken();
             $table->timestamps();
         });
@@ -38,6 +47,7 @@ return new class extends Migration
         });
     }
 
+<<<<<<< HEAD
     public function down(): void
     {
         // Drop foreign key dulu sebelum drop tabel
@@ -48,5 +58,15 @@ return new class extends Migration
         Schema::dropIfExists('sessions');
         Schema::dropIfExists('password_reset_tokens');
         Schema::dropIfExists('users');
+=======
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('users');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('sessions');
+>>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
     }
 };

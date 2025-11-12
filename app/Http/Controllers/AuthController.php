@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Models\Admin;
 use App\Models\Psikolog;
 use App\Models\Korban;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Log;
 
 
@@ -20,10 +21,19 @@ class AuthController extends Controller
 public function register(RegisterRequest $request)
 {
     try {
+=======
+
+class AuthController extends Controller
+{
+    public function register(RegisterRequest $request)
+    {
+        try{
+>>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
         $user = new User();
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
+<<<<<<< HEAD
         $user->role_id = 3;
         $user->save();
 
@@ -42,6 +52,71 @@ public function register(RegisterRequest $request)
 }
 
 
+=======
+        $user->role_id = $request->role_id;
+        $user->save();
+
+        return response()->json([
+                // 'status_code' => 201,
+                'message' => 'User created successfully',
+                'data'    => $user,
+
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status_code' => 500,
+                'message' => 'User creation failed: ' . $e->getMessage(),
+                'error'   => $e->getMessage(),
+            ], 500);
+        }
+
+    //     $user = User::create([
+    //     'name' => $request->name,
+    //     'email' => $request->email,
+    //     'password' => bcrypt($request->password),
+    //     'role_id' => $request->role_id,
+    // ]);
+
+    // Cek role dan buat data sesuai tabel relasinya
+//     if ($request->role_id == 1) { 
+//         // Admin
+//         $user->admin()->create([
+//             'name' => $request->name,
+//             'email' => $request->email,
+//             'password' => bcrypt($request->password),
+//         ]);
+//     } 
+//     elseif ($request->role_id == 2) { 
+//         // Psikolog
+//         $user->psikolog()->create([
+//             'name' => $request->name,
+//             // 'license_number' => $request->license_number ?? null, // contoh field tambahan
+//             // 'specialization' => $request->specialization ?? null,
+//             'email' => $request->email,
+//             'password' => bcrypt($request->password),
+//             // 'jadwal_tersedia' => $request->jadwal_tersedia ?? 'Belum ditentukan',
+//         ]);
+//     } 
+//     elseif ($request->role_id == 3) { 
+//         // Korban
+//         $user->korban()->create([
+//             'name' => $request->name,
+//             'email' => $request->email,
+//             'password' => bcrypt($request->password),
+//             'umur' => $request->umur ?? null,
+//             'jenis_kelamin' => $request->jenis_kelamin ?? null,
+//             // 'phone' => $request->phone ?? null,
+//         ]);
+//     }
+
+//     return response()->json([
+//         'message' => 'User registered successfully',
+//         'user' => $user
+//     ], 201);
+// }
+
+    }
+>>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
 
     public function showregister()
     {
