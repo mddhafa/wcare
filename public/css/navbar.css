@@ -1,0 +1,58 @@
+/* === Header === */
+header {
+  width: 100%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  padding: 16px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+header h1 a {
+  text-decoration: none;
+  color: #1e293b;
+  font-weight: 700;
+  transition: color 0.3s;
+}
+
+header h1 a:hover {
+  color: #2563eb; /* biru */
+}
+
+/* === Auth Buttons === */
+.auth-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.auth-buttons span {
+  font-weight: 500;
+  color: #374151;
+}
+
+.logout-btn,
+.login-btn,
+.register-btn {
+  background-color: #eb2525;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  margin-left: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.3s, transform 0.1s;
+}
+
+.logout-btn:hover,
+.login-btn:hover,
+.register-btn:hover {
+  background-color: #d81d1d;
+  transform: scale(1.05);
+}

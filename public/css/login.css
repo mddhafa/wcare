@@ -1,0 +1,276 @@
+* {
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #f4f7fb;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+/* Wrapper agar tidak full screen */
+.page-wrapper {
+  width: 100%;
+  max-width: 1100px; /* batas kanan kiri */
+  margin: 40px auto;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 6px 25px rgba(0,0,0,0.1);
+}
+
+/* Container dua kolom */
+.login-container {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Kiri */
+.left-side {
+  flex: 1;
+  background-color: #186ec4;
+  color: white;
+  padding: 60px 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.left-side .logo {
+  width: 100px;
+  margin-bottom: 40px;
+}
+
+.left-side h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.left-side p {
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.left-side small {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Kanan */
+/* .right-side {
+  flex: 1;
+  background-color: #f8f9fb;
+  padding: 60px 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-card {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.1);
+}
+
+.logo-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.logo-header img {
+  width: 40px;
+}
+
+.logo-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.logo-header p {
+  font-size: 12px;
+  color: #666;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+}
+
+form label {
+  margin: 10px 0 5px;
+  font-weight: 500;
+}
+
+form input {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+button {
+  background: #0066ff;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 20px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #004ecc;
+}
+
+.forgot {
+  font-size: 13px;
+  color: #0066ff;
+  text-align: right;
+  margin-top: 5px;
+}
+
+.register {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.register a {
+  color: #0066ff;
+  text-decoration: none;
+}
+
+.footer-links {
+  font-size: 12px;
+  color: #888;
+  margin-top: 10px;
+} */
+
+.right-side {
+  flex: 1;
+  background-color: #f8f9fb;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.login-content {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.logo-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.logo-header img {
+  width: 45px;
+  height: auto;
+}
+
+.logo-header h3 {
+  margin: 0;
+  color: #333;
+}
+
+.logo-header p {
+  font-size: 12px;
+  color: #666;
+}
+
+.login-content h2 {
+  margin-bottom: 10px;
+  color: #222;
+}
+
+.login-content p {
+  color: #555;
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.login-form input {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.login-form button {
+  background-color: #186ec4;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+.login-form button:hover {
+  background-color: #004ecc;  
+}
+
+.register {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+.register a {
+  color: #0066ff;
+  text-decoration: none;
+}
+
+.footer-links {
+  font-size: 12px;
+  color: #888;
+  margin-top: 10px;
+}
+
+.field-icon {
+  position: absolute;
+  top: 35px; /* posisi vertikal sejajar dengan input */
+  right: 10px; /* di sisi kanan input */
+  cursor: pointer;
+  color: #888;
+}
+
+.field-icon:hover {
+  color: #2563eb;
+}
+
+
+/* Responsif */
+@media (max-width: 900px) {
+  .login-container {
+    flex-direction: column;
+  }
+
+  .left-side, .right-side {
+    flex: none;
+    width: 100%;
+  }
+
+  .left-side {
+    text-align: center;
+  }
+}
