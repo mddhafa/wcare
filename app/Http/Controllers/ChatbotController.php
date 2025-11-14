@@ -13,8 +13,13 @@ class ChatbotController extends Controller
             'user_input' => $request->message
         ]);
 
+        // return response()->json([
+        //     'response' => $response->json()['response'] ?? $response->body()
+        // ]);
+
         return response()->json([
-            'response' => $response->json()['response'] ?? $response->body()
+            'response' => $response->json()['response'] ?? 'Maaf, terjadi kesalahan pada server chatbot.'
         ]);
     }
+
 }
