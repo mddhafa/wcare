@@ -22,20 +22,11 @@
       <input type="email" name="email" placeholder="Email" required class="w-full border rounded-lg p-2">
       <input type="password" name="password" placeholder="Password" required class="w-full border rounded-lg p-2">
       <input type="password" name="password_confirmation" placeholder="Konfirmasi Password" required class="w-full border rounded-lg p-2">
-<<<<<<< HEAD
 
       <!-- role_id default (3 = korban) -->
       <input type="hidden" name="role_id" value="3">
 
       <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">Daftar</button>
-=======
-      <!-- <input type="dropdown" name="role" placeholder="Pilih Role" required class="w-full border rounded-lg p-2"> -->
-
-      <!-- role_id default (contoh: 3 = korban) -->
-      <input type="hidden" name="role_id" value="3">
-
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg">Daftar</button>
->>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
     </form>
 
     <p class="text-center mt-4 text-gray-600">
@@ -50,15 +41,11 @@
       const snackbar = document.getElementById('snackbar');
       snackbar.textContent = message;
       snackbar.classList.remove('bg-gray-800', 'bg-green-600', 'bg-red-600');
-<<<<<<< HEAD
       snackbar.classList.add(
         type === 'success' ? 'bg-green-600' :
         type === 'error' ? 'bg-red-600' :
         'bg-gray-800'
       );
-=======
-      snackbar.classList.add(type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-800');
->>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
       snackbar.classList.remove('hidden');
       snackbar.classList.add('opacity-100');
       setTimeout(() => {
@@ -72,7 +59,6 @@
       e.preventDefault();
 
       const form = e.target;
-<<<<<<< HEAD
       const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
       // Gunakan FormData agar Laravel bisa membaca request body
@@ -91,45 +77,11 @@
         const result = await res.json().catch(() => ({ message: 'Terjadi kesalahan pada server.' }));
 
         if (res.ok) {
-=======
-      const data = {
-        name: form.name.value,
-        email: form.email.value,
-        password: form.password.value,
-        password_confirmation: form.password_confirmation.value,
-        role_id: form.role_id.value
-      };
-
-      const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-      try {
-        const res = await fetch('{{ route('register') }}', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRF-TOKEN': token
-          },
-          body: JSON.stringify(data)
-        });
-
-        let result = {};
-        try {
-          result = await res.json();
-        } catch {
-          result = { message: 'Terjadi kesalahan pada server.' };
-        }
-
-        if (res.status === 200 || res.status === 201) {
->>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
           showSnackbar(result.message || 'Registrasi berhasil!', 'success');
           setTimeout(() => window.location.href = '/login', 2000);
         } else {
           showSnackbar(result.message || 'Terjadi kesalahan saat registrasi.', 'error');
-<<<<<<< HEAD
           console.error(result);
-=======
->>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
         }
       } catch (error) {
         console.error(error);

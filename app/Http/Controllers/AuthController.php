@@ -12,63 +12,64 @@ use App\Models\User;
 use App\Models\Admin;
 use App\Models\Psikolog;
 use App\Models\Korban;
-<<<<<<< HEAD
+// <<<<<<< HEAD
 use Illuminate\Support\Facades\Log;
 
 
-class AuthController extends Controller
-{
-public function register(RegisterRequest $request)
-{
-    try {
-=======
+// class AuthController extends Controller
+// {
+// public function register(RegisterRequest $request)
+// {
+//     try {
+// =======
 
 class AuthController extends Controller
 {
     public function register(RegisterRequest $request)
     {
         try{
->>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = bcrypt($request->password);
-<<<<<<< HEAD
-        $user->role_id = 3;
-        $user->save();
+// >>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = bcrypt($request->password);
+    // <<<<<<< HEAD
+            $user->role_id = 3;
+            $user->save();
 
-        return response()->json([
-            'message' => 'Registrasi berhasil!',
-            'data'    => $user,
-        ], 201);
-    } catch (\Exception $e) {
-        \Log::error('Register error: ' . $e->getMessage());
-
-        return response()->json([
-            'message' => 'User creation failed',
-            'error'   => $e->getMessage(),
-        ], 500);
-    }
-}
-
-
-=======
-        $user->role_id = $request->role_id;
-        $user->save();
-
-        return response()->json([
-                // 'status_code' => 201,
-                'message' => 'User created successfully',
+            return response()->json([
+                'message' => 'Registrasi berhasil!',
                 'data'    => $user,
-
             ], 201);
         } catch (\Exception $e) {
+            \Log::error('Register error: ' . $e->getMessage());
+
             return response()->json([
-                'status_code' => 500,
-                'message' => 'User creation failed: ' . $e->getMessage(),
+                'message' => 'User creation failed',
                 'error'   => $e->getMessage(),
             ], 500);
         }
+    }
+    
+
+
+// =======
+        // $user->role_id = $request->role_id;
+        // $user->save();
+
+        // return response()->json([
+        //         // 'status_code' => 201,
+        //         'message' => 'User created successfully',
+        //         'data'    => $user,
+
+        //     ], 201);
+        // } catch (\Exception $e) {
+        //     return response()->json([
+        //         'status_code' => 500,
+        //         'message' => 'User creation failed: ' . $e->getMessage(),
+        //         'error'   => $e->getMessage(),
+        //     ], 500);
+        // }
 
     //     $user = User::create([
     //     'name' => $request->name,
@@ -115,8 +116,8 @@ class AuthController extends Controller
 //     ], 201);
 // }
 
-    }
->>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
+    
+// >>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
 
     public function showregister()
     {
