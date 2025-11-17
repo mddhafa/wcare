@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('selfhealing', function (Blueprint $table) {
             $table->id('id_selfhealing');
             // $table->foreignId('id_admin')->constrained('admin');
-            $table->string('jenis_konten');
+            // $table->string('jenis_konten');
             $table->string('judul');
             $table->string('link_konten');
             $table->text('deskripsi');
