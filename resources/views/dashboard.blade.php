@@ -11,20 +11,6 @@
 </head>
 
 <style>
-  .navbar {
-    position: relative;
-    z-index: 1055;
-    /* pastikan di atas banner/carousel */
-  }
-
-  .navbar form button {
-    position: relative;
-    z-index: 1060;
-    /* biar klik-nya tidak ketimpa */
-  }
-</style>
-
-<style>
   .banner-left img,
   .banner-right img,
   .banner-img {
@@ -45,51 +31,27 @@
       height: 200px;
     }
   }
+
+  .emosi-card {
+    transition: 0.2s;
+    cursor: pointer;
+  }
+  .emosi-card:hover {
+    transform: translateY(-4px);
+    background: #f0fdf4;
+    border-color: #16a34a;
+  }
+  input[type="radio"]:checked + .emosi-card {
+    background: #bbf7d0;
+    border-color: #16a34a;
+    transform: scale(1.02);
+  }
 </style>
+
 
 <body class="bg-light text-dark">
   <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color:#14532d;">
-    <div class="container-fluid px-4"> <!-- 🔹 ubah di sini -->
-      <a class="navbar-brand fw-bold d-flex align-items-center" href="#">
-        <img src="{{ asset('images/Umy-logo.gif') }}"
-          alt="Logo"
-          width="40"
-          height="40"
-          class="me-2 rounded-circle">
-        UMY CURHAT
-      </a>
-
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-
-      <div class="collapse navbar-collapse justify-content-end" id="navbarNav"> <!-- 🔹 dan ini -->
-        <ul class="navbar-nav align-items-center">
-          @auth
-          <li class="nav-item me-3 text-white">
-            Halo, {{ Auth::user()->name }}
-          </li>
-          <li class="nav-item">
-            <form action="{{ route('logout') }}" method="POST">
-              @csrf
-              <button class="btn btn-light btn-sm text-dark">Logout</button>
-            </form>
-          </li>
-          @endauth
-
-          @guest
-          <li class="nav-item me-2">
-            <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">Login</a>
-          </li>
-          <li class="nav-item">
-            <a href="{{ route('register') }}" class="btn btn-success btn-sm">Register</a>
-          </li>
-          @endguest
-        </ul>
-      </div>
-    </div>
-  </nav>
+  @include('components.navbar')  
 
   <!-- 🌿 CAROUSEL BANNER -->
   <!-- SECTION: Banner Sejajar -->
@@ -161,8 +123,8 @@
           <p class="text-muted mb-4">
             Jelajahi fitur-fitur untuk mengelola emosi, berbagi cerita, dan menjaga kesehatan mentalmu.
           </p>
-          <a href="#" class="btn btn-success btn-lg px-4">
-            Measure Emotions
+          <a href="#" class="btn btn-success btn-lg px-4" data-bs-toggle="modal" data-bs-target="#modalEmosi">
+              Measure Emotions
           </a>
         </div>
         <div class="col-lg-5 mt-4 mt-lg-0">
@@ -171,6 +133,78 @@
       </div>
     </div>
   </section>
+
+  <!-- Modal Pilih Emosi -->
+   <form action="{{ route('emosi.pilih') }}" method="POST">
+  @csrf
+    <div class="modal fade" id="modalEmosi" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold">Bagaimana perasaanmu hari ini?</h5>
+          </div>
+
+          <div class="modal-body">
+            <div class="row g-3">
+
+              <!-- Emosi Senang -->
+              <div class="col-6 col-md-3">
+                <label for="senang" class="w-100">
+                  <input type="radio" name="emosi_id" id="senang" value="1" class="d-none">
+                  <div class="p-3 border rounded-4 text-center shadow-sm emosi-card">
+                    <div class="fs-1">😊</div>
+                    <div class="fw-semibold mt-2">Senang</div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Emosi Sedih -->
+              <div class="col-6 col-md-3">
+                <label for="sedih" class="w-100">
+                  <input type="radio" name="emosi_id" id="sedih" value="3" class="d-none">
+                  <div class="p-3 border rounded-4 text-center shadow-sm emosi-card">
+                    <div class="fs-1">😢</div>
+                    <div class="fw-semibold mt-2">Sedih</div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Emosi Marah -->
+              <div class="col-6 col-md-3">
+                <label for="marah" class="w-100">
+                  <input type="radio" name="emosi_id" id="marah" value="2" class="d-none">
+                  <div class="p-3 border rounded-4 text-center shadow-sm emosi-card">
+                    <div class="fs-1">😡</div>
+                    <div class="fw-semibold mt-2">Marah</div>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Emosi Takut -->
+              <div class="col-6 col-md-3">
+                <label for="takut" class="w-100">
+                  <input type="radio" name="emosi_id" id="takut" value="4" class="d-none">
+                  <div class="p-3 border rounded-4 text-center shadow-sm emosi-card">
+                    <div class="fs-1">😨</div>
+                    <div class="fw-semibold mt-2">Takut</div>
+                  </div>
+                </label>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="submit" class="btn btn-success">Simpan</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </form>
+
 
   <!-- FITUR SECTION -->
   <section class="py-5 bg-light">
@@ -348,15 +382,14 @@
 
 
   <!-- FOOTER -->
-  <footer class="text-center text-white py-4 mt-4" style="background-color:#14532d;">
-    &copy; 2025 Universitas Muhammadiyah Yogyakarta
-  </footer>
+  @include ('components.footer')
 
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
 </body>
 
 </html>
