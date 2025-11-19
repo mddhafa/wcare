@@ -37,14 +37,14 @@ class AuthController extends Controller
 
         return response()->json([
                 // 'status_code' => 201,
-                'message' => 'User created successfully',
+                'message' => 'Berhasil melakukan registrasi',
                 'data'    => $user,
 
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'status_code' => 500,
-                'message' => 'User creation failed',
+                'message' => 'Gagal melakukan registrasi',
                 'error'   => $e->getMessage(),
             ], 500);
         }
