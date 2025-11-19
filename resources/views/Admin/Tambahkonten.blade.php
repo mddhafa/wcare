@@ -58,6 +58,20 @@
       </div>
 
       <div class="mb-4">
+        <label class="block text-gray-600 font-medium mb-1">Pilih Emosi</label>
+        <select name="id_emosi" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring focus:ring-blue-300">
+            <option value="">-- Pilih Emosi --</option>
+
+            @foreach ($emosis as $emosi)
+                <option value="{{ $emosi->id_emosi }}">
+                    {{ $emosi->jenis_emosi }}
+                </option>
+            @endforeach
+
+        </select>
+    </div>
+
+      <div class="mb-4">
         <label class="block text-gray-600 font-medium mb-1">Judul</label>
         <input type="text" name="judul" class="w-full border border-gray-300 rounded p-2 focus:outline-none focus:ring focus:ring-blue-300">
       </div>
