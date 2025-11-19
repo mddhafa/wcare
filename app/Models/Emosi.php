@@ -9,13 +9,11 @@ class Emosi extends Model
     protected $table = 'emosi';
     protected $primaryKey = 'id_emosi';
     protected $fillable = [
-        'id_korban',
-        'skor',
-        'jenis_emosi',
+        'jenis_emosi', 
     ];
 
-    public function korban()
+    public function jenisKonten()
     {
-        return $this->belongsTo(Korban::class, 'id_korban');
+        return $this->hasMany(JenisKonten::class, 'id_emosi');
     }
 }
