@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('selfhealing', function (Blueprint $table) {
-            $table->unsignedBigInteger('jenis_konten')->nullable();
-            $table->foreign('jenis_konten')->references('id')->on('jenis_konten')->onDelete('cascade');
+            $table->unsignedBigInteger('id_emosi')->nullable();
+            $table->foreign('id_emosi')->references('id_emosi')->on('emosi')->onDelete('cascade');
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('selfhealing', function (Blueprint $table) {
-            $table->dropForeign(['jenis_konten']);
-            $table->dropColumn('jenis_konten');
+            $table->dropForeign(['id_emosi']);
+            $table->dropColumn('id_emosi');
         });
     }
 };
