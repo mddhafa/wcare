@@ -91,4 +91,10 @@ class User extends Authenticatable
     {
         return $this->hasOne(Korban::class);
     }
+
+    public function emosiSekarang()
+    {
+        return $this->belongsTo(Emosi::class, 'current_emosi_id', 'id_emosi');
+    }
+
 }
