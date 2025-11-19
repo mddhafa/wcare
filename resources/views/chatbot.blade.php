@@ -10,7 +10,7 @@
         body {
             margin: 0;
             padding: 0;
-            background: #ffff; /* hijau muda lembut */
+            background: #ffff; 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
@@ -229,22 +229,22 @@
         }
 
         button {
-            /* Hapus margin-left: 15px; */
-            margin-left: 0; /* Pastikan tidak ada margin kiri */
-            padding: 8px; /* Sesuaikan padding agar ikon pas */
-            width: 40px; /* Ukuran tombol ikon */
-            height: 40px; /* Ukuran tombol ikon */
+            
+            margin-left: 0;
+            padding: 8px; 
+            width: 40px; 
+            height: 40px; 
             background: #43a047;
             color: white;
             border: none;
-            border-radius: 50%; /* Tombol bulat */
+            border-radius: 50%; 
             cursor: pointer;
             font-weight: 600;
             transition: 0.3s ease;
-            display: flex; /* Untuk menengahkan SVG ikon */
+            display: flex; 
             justify-content: center;
             align-items: center;
-            flex-shrink: 0; /* Mencegah tombol mengecil */
+            flex-shrink: 0; 
         }
 
         button:hover {
@@ -259,50 +259,6 @@
             stroke: currentColor;
             display: block;
         }
-
-        /* Hapus atau komentari bagian input::placeholder, input:focus, textarea::placeholder, textarea:focus jika sudah dipindahkan ke .message-input-wrapper:focus-within */
-        /* input::placeholder, textarea::placeholder {
-            color: #6d6d6d;
-        } */
-
-        /* input {
-            flex: 1;
-            padding: 14px 18px;
-            border-radius: 25px;
-            border: 2px solid #c8e6c9;
-            background: #f1f8e9;
-            color: #1b5e20;
-            font-size: 16px;
-            outline: none;
-        }
-
-        input::placeholder {
-            color: #6d6d6d;
-        }
-
-        input:focus {
-            border-color: #66bb6a;
-            box-shadow: 0 0 10px rgba(102, 187, 106, 0.4);
-        } */
-
-        /* button {
-            margin-left: 15px;
-            padding: 14px 20px;
-            background: #43a047;
-            color: white;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: 0.3s ease;
-        }
-
-        button:hover {
-            background: #2e7d32;
-            transform: translateY(-2px);
-        } */
-
-        /* Typing indicator */
         .typing {
             background: #ffffff;
             padding: 15px 20px;
