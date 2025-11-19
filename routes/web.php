@@ -4,22 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SelfHealingController;
 use App\Http\Controllers\ChatbotController;
-
-Route::get('/', function () {
-    return redirect('/dashboard');
-});
-
-// Tampilkan halaman login & register
-// Route::view('/login', 'auth.login')->name('login');
-// Route::view('/register', 'auth.register')->name('register');
-// // Route::view('/dashboard', 'dashboard')->name('dashboard');
-
-
-// Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// })->middleware('web');
+use App\Http\Controllers\EmosiController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -42,10 +27,9 @@ Route::get('/admin/dashboard', function () {
 //     Route::get('/admin/dashboard', [AdminController::class, 'dashboardadmin'])->name('dashboard-admin');
 // });
 
-Route::get('/dashboard', [SelfHealingController::class, 'indexdash'])->name('dashboard');
 
+    Route::get('/dashboard', [SelfHealingController::class, 'indexdash'])->name('dashboard');
 
-// Route::get('/selfhealing', [SelfHealingController::class, 'index'])->name('halamanselfhealing');
 Route::middleware(['auth'])->group(function () {
     Route::get('/selfhealing', [SelfHealingController::class, 'index'])->name('halamanselfhealing');
     Route::get('/tambah/selfhealing', [SelfHealingController::class, 'tambahkonten'])->name('admin.tambahkontensh');
@@ -55,7 +39,8 @@ Route::middleware(['auth'])->group(function () {
         return view('chatbot');
     });
     Route::post('/chat/generate', [ChatbotController::class, 'generate']);
+
+    Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');
+
 });
-// Route::get('/dashboard', function () {
-//     return view('dashboard');
-// }); 
+ 
