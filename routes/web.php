@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SelfHealingController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\EmosiController;
+use App\Http\Controllers\ProfileController;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -41,6 +42,12 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/chat/generate', [ChatbotController::class, 'generate']);
 
     Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');
+
+    Route::get('/profile', [ProfileController::class, 'index'])->name('korban.profilekorban');
+
+    Route::get('/profile/korban/add', [ProfileController::class, 'createKorban'])->name('korban.korban-create');
+
+    Route::post('/profile/korban/add', [ProfileController::class, 'addprofilekorban'])->name('profile.korban.store');
 
 });
  
