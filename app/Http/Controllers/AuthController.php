@@ -28,48 +28,26 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         try{
-// >>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
-            $user = new User();
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = bcrypt($request->password);
-    // <<<<<<< HEAD
-            $user->role_id = 3;
-            $user->save();
+        $user = new User();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = bcrypt($request->password);
+        $user->role_id = $request->role_id;
+        $user->save();
 
-            return response()->json([
-                'message' => 'Registrasi berhasil!',
+        return response()->json([
+                // 'status_code' => 201,
+                'message' => 'User created successfully',
                 'data'    => $user,
+
             ], 201);
         } catch (\Exception $e) {
-            \Log::error('Register error: ' . $e->getMessage());
-
             return response()->json([
+                'status_code' => 500,
                 'message' => 'User creation failed',
                 'error'   => $e->getMessage(),
             ], 500);
         }
-    }
-    
-
-
-// =======
-        // $user->role_id = $request->role_id;
-        // $user->save();
-
-        // return response()->json([
-        //         // 'status_code' => 201,
-        //         'message' => 'User created successfully',
-        //         'data'    => $user,
-
-        //     ], 201);
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'status_code' => 500,
-        //         'message' => 'User creation failed: ' . $e->getMessage(),
-        //         'error'   => $e->getMessage(),
-        //     ], 500);
-        // }
 
     //     $user = User::create([
     //     'name' => $request->name,
@@ -116,8 +94,7 @@ class AuthController extends Controller
 //     ], 201);
 // }
 
-    
-// >>>>>>> 9f19b2d005664097d4bde2ffd86e7f22eea44af3
+    }
 
     public function showregister()
     {
@@ -125,39 +102,39 @@ class AuthController extends Controller
     }
 
     public function login(LoginRequest $request)
-{
-    $credentials = $request->only('email', 'password');
+    {
+        $credentials = $request->only('email', 'password');
 
-    if (Auth::attempt($credentials)) {
-        $user = Auth::guard('web')->user();
+        if (Auth::attempt($credentials)) {
+            $user = Auth::guard('web')->user();
 
-        // Jika AJAX (fetch)
+            // Jika AJAX (fetch)
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Login berhasil',
+                    'data' => [
+                        'user_id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role' => $user->role->name ?? $user->role, // admin / korban
+                    ]
+                ]);
+            }
+
+            // Login biasa
+            if (($user->role->name ?? $user->role) === 'admin') {
+                return redirect('/admin/dashboard');
+            }
+
+            return redirect('/dashboard');
+        }
+
         if ($request->expectsJson()) {
-            return response()->json([
-                'message' => 'Login berhasil',
-                'data' => [
-                    'user_id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'role' => $user->role->name ?? $user->role, // admin / korban
-                ]
-            ]);
+            return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
-        // Login biasa
-        if (($user->role->name ?? $user->role) === 'admin') {
-            return redirect('/admin/dashboard');
-        }
-
-        return redirect('/dashboard');
+        return back()->withErrors(['email' => 'Email atau password salah']);
     }
-
-    if ($request->expectsJson()) {
-        return response()->json(['message' => 'Email atau password salah'], 401);
-    }
-
-    return back()->withErrors(['email' => 'Email atau password salah']);
-}
 
     public function showlogin()
     {
