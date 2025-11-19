@@ -10,11 +10,17 @@ class SelfHealing extends Model
     protected $primaryKey = 'id_selfhealing';
     protected $fillable = [
         // 'id_admin',
-        'jenis_konten',
+        // 'jenis_konten',
         'judul',
         'link_konten',
         'deskripsi',
-        'gambar'
+        'gambar',
+        'emosi_id'
     ];
+
+       public function emosi()
+    {
+        return $this->belongsTo(Emosi::class, 'emosi_id', 'id_emosi');
+    }
 
 }
