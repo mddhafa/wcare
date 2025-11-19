@@ -4,101 +4,159 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Daftar Konten Self-Healing</title>
+  
+  <!-- jQuery -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  
+  <!-- Custom CSS -->
   <link rel="stylesheet" href="{{ asset('css/selfhealing.css') }}">
-  <link rel="stylesheet" href="{{ asset('css/navbar.css') }}">
 </head>
-<body class="bg-gray-100 min-h-screen">
+
+<body>
 
   <!-- Navbar -->
-  <header>
-    <h1 class="text-2xl font-bold text-gray-700 hover:text-blue-600 transition">
-        <a href="@auth
-            @if(Auth::user()->role == 'admin')
-                {{ url('dashboard-admin') }}
-            @elseif(Auth::user()->role == 'psikolog')
-                {{ url('dashboard') }}
-            @elseif(Auth::user()->role == 'korban')
-                {{ url('dashboard') }}
-            @else
-                {{ route('halamanselfhealing') }}
-            @endif
-        @else
-            {{ route('halamanselfhealing') }}
-        @endauth" 
-        class="hover:text-blue-600 transition">
-            Sistem Curhat
-        </a>
-    </h1>
-    <div class="auth-buttons">
-      @auth
-        <span style="margin-right: 10px;">Halo, {{ Auth::user()->name }}</span>
-        <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-          @csrf
-          <button type="submit" class="logout-btn">Logout</button>
-        </form>
-      @endauth
-<!-- 
-      @guest
-        <a href="{{ route('login') }}"><button class="login-btn">Login</button></a>
-        <a href="{{ route('register') }}"><button class="register-btn">Register</button></a>
-      @endguest -->
-    </div>
-  </header>
+  @include('components.navbar')
 
   <!-- Konten Utama -->
-  <main class="px-4">
+  <main class="container py-4">
+    <!-- Alert Success -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show alert-custom" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
 
-    <div class="max-w-6xl mx-auto">
-        <h1 class="text-2xl font-bold mb-6 text-gray-700">Daftar Konten Self-Healing</h1>
+    <!-- Info Emosi Terpilih -->
+    @auth
+    @if(auth()->user()->current_emosi_id && isset($currentEmosi))
+        <div class="alert alert-info-custom alert-custom mb-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <i class="fas fa-filter"></i>
+                <span>Menampilkan konten untuk emosi:</span>
+                <strong class="text-uppercase">{{ $currentEmosi->nama_emosi }}</strong>
+                
+                <span style="font-size: 1.5rem;">
+                @if($currentEmosi->id_emosi == 3)
+                    😡
+                @elseif($currentEmosi->id_emosi == 1)
+                    😊
+                @elseif($currentEmosi->id_emosi == 2)
+                    😢
+                @elseif($currentEmosi->id_emosi == 4)
+                    😨
+                @endif
+                </span>
+                
+                <span class="badge-count">{{ $selfHealings->count() }} konten</span>
+            </div>
+            <a href="{{ route('dashboard') }}" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-edit me-1"></i>Ubah Emosi
+            </a>
+        </div>
+    @else
+        <div class="alert alert-warning-custom alert-custom mb-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Anda belum memilih emosi. 
+            <a href="{{ route('dashboard') }}" class="alert-link fw-bold">Pilih emosi sekarang</a> 
+            untuk mendapatkan konten yang sesuai dengan perasaan Anda.
+        </div>
+    @endif
+    @endauth
 
-        @if($selfHealings->isEmpty())
-            <p class="text-gray-500">Belum ada konten self-healing yang tersedia.</p>
-        @else
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                @foreach($selfHealings as $content)
-                    <div class="bg-white shadow rounded-lg overflow-hidden hover:shadow-lg transition">
-                        
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1 class="page-title">
+        <i class="fas fa-heart-pulse"></i>
+        Daftar Konten Self-Healing
+      </h1>
+    </div>
+
+    @if($selfHealings->isEmpty())
+        <div class="empty-state">
+            <i class="fas fa-inbox fa-4x"></i>
+            <p>Belum ada konten self-healing yang tersedia untuk emosi ini.</p>
+            @auth
+            @if(auth()->user()->role == 'admin')
+                <a href="{{ route('admin.tambahkontensh') }}" class="btn btn-success btn-lg">
+                    <i class="fas fa-plus me-2"></i>Tambah Konten
+                </a>
+            @endif
+            @endauth
+        </div>
+    @else
+        <div class="content-grid">
+            @foreach($selfHealings as $content)
+                <div class="content-card">
+                    
+                    <div class="card-image-wrapper">
                         @if($content->gambar)
                             <img src="{{ asset('storage/' . $content->gambar) }}" 
                                 alt="{{ $content->judul }}" 
-                                class="w-full h-48 object-cover">
+                                class="card-image">
                         @else
-                            <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-500">
-                                Tidak ada gambar
+                            <div class="card-image-placeholder">
+                                <i class="fas fa-image"></i>
                             </div>
                         @endif
+                    </div>
 
-                        <div class="p-4">
-                            <h2 class="text-lg font-semibold text-gray-800 mb-1">{{ $content->judul }}</h2>
-                            <p class="text-sm text-gray-600 mb-2">{{ $content->jenis_konten }}</p>
-                            <p class="text-gray-700 text-sm mb-3">{{ Str::limit($content->deskripsi, 100) }}</p>
+                    <div class="card-body-content">
+                        <!-- Badge Emosi -->
+                        @if($content->emosi)
+                            <span class="badge-emosi">
+                                {{ $content->emosi->nama_emosi }}
+                            </span>
+                        @endif
+                        
+                        <h2 class="card-title">{{ $content->judul }}</h2>
+                        
+                        <div class="card-meta">
+                            <i class="fas fa-tag"></i>
+                            <span>{{ $content->jenis_konten }}</span>
+                        </div>
+                        
+                        <p class="card-description">{{ Str::limit($content->deskripsi, 120) }}</p>
 
+                        <div class="card-footer-custom">
                             @if($content->link_konten)
                                 <a href="{{ $content->link_konten }}" 
-                                target="_blank" 
-                                class="text-blue-600 hover:underline text-sm">
-                                Lihat Konten
+                                   target="_blank" 
+                                   class="btn-view-content">
+                                    <i class="fas fa-external-link-alt"></i>
+                                    <span>Lihat Konten</span>
                                 </a>
                             @endif
                         </div>
                     </div>
-                @endforeach
-            </div>
-        @endif
-    </div>
+                </div>
+            @endforeach
+        </div>
+    @endif
 
-    <div class="button-tambah"> 
+    @auth
+    @if(auth()->user()->role == 'admin')
         <a href="{{ route('admin.tambahkontensh') }}">
-            <button class="fixed bottom-10 right-10 bg-blue-600 text-white p-5 rounded-full shadow-lg hover:bg-blue-700 transition">
-                <icon class="fas fa-plus"></icon>
+            <button class="btn-floating">
+                <i class="fas fa-plus"></i>
             </button>
         </a>
-    </div>
+    @endif
+    @endauth
 
   </main>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Footer -->
+  @include('components.footer')
 
 </body>
 </html>
