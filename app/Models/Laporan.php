@@ -2,15 +2,27 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class Laporan extends Model
 {
-    protected $fillable = ['lokasi', 'jenis', 'kronologi', 'status', 'tanggal'];
+    use HasFactory;
+
     protected $table = 'laporan';
 
-    public function admin()
+    protected $fillable = [
+        'user_id',
+        'lokasi',
+        'jenis',
+        'kronologi',
+        'status',
+        'tanggal',
+    ];
+
+    public function korban()
     {
-        return $this->belongsTo(Admin::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 }

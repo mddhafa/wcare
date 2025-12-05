@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Sistem Curhat</title>
 
-  <!-- Bootstrap -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
@@ -36,12 +35,14 @@
     transition: 0.2s;
     cursor: pointer;
   }
+
   .emosi-card:hover {
     transform: translateY(-4px);
     background: #f0fdf4;
     border-color: #16a34a;
   }
-  input[type="radio"]:checked + .emosi-card {
+
+  input[type="radio"]:checked+.emosi-card {
     background: #bbf7d0;
     border-color: #16a34a;
     transform: scale(1.02);
@@ -50,16 +51,12 @@
 
 
 <body class="bg-light text-dark">
-  <!-- NAVBAR -->
-  @include('components.navbar')  
+  @include('components.navbar')
 
-  <!-- 🌿 CAROUSEL BANNER -->
-  <!-- SECTION: Banner Sejajar -->
   <section class="py-4">
     <div class="container">
       <div class="row g-3 align-items-stretch">
 
-        <!-- Banner kiri (Carousel) -->
         <div class="col-lg-8">
           <div id="bannerCarousel" class="carousel slide h-100" data-bs-ride="carousel">
             <div class="carousel-inner rounded-4 overflow-hidden shadow-sm">
@@ -74,7 +71,6 @@
               </div>
             </div>
 
-            <!-- Kontrol panah -->
             <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
               <span class="carousel-control-prev-icon"></span>
             </button>
@@ -82,7 +78,6 @@
               <span class="carousel-control-next-icon"></span>
             </button>
 
-            <!-- Indikator (bulatan di bawah) -->
             <div class="carousel-indicators">
               <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="0" class="active"></button>
               <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="1"></button>
@@ -91,7 +86,6 @@
           </div>
         </div>
 
-        <!-- Banner kanan (statis) -->
         <div class="col-lg-4">
           <div class="banner-right rounded-4 overflow-hidden shadow-sm h-100">
             <img src="{{ asset('images/banner1.png') }}" alt="Dukungan UMY" class="img-fluid w-100 banner-img">
@@ -112,7 +106,6 @@
   </div>
 
 
-  <!-- HERO / BANNER -->
   <section class="py-5 bg-white border-bottom">
     <div class="container text-center">
       <div class="row align-items-center justify-content-center">
@@ -124,7 +117,7 @@
             Jelajahi fitur-fitur untuk mengelola emosi, berbagi cerita, dan menjaga kesehatan mentalmu.
           </p>
           <a href="#" class="btn btn-success btn-lg px-4" data-bs-toggle="modal" data-bs-target="#modalEmosi">
-              Measure Emotions
+            Measure Emotions
           </a>
         </div>
         <div class="col-lg-5 mt-4 mt-lg-0">
@@ -134,9 +127,8 @@
     </div>
   </section>
 
-  <!-- Modal Pilih Emosi -->
-   <form action="{{ route('emosi.pilih') }}" method="POST">
-  @csrf
+  <form action="{{ route('emosi.pilih') }}" method="POST">
+    @csrf
     <div class="modal fade" id="modalEmosi" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
       <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -148,7 +140,6 @@
           <div class="modal-body">
             <div class="row g-3">
 
-              <!-- Emosi Senang -->
               <div class="col-6 col-md-3">
                 <label for="senang" class="w-100">
                   <input type="radio" name="emosi_id" id="senang" value="1" class="d-none">
@@ -159,7 +150,6 @@
                 </label>
               </div>
 
-              <!-- Emosi Sedih -->
               <div class="col-6 col-md-3">
                 <label for="sedih" class="w-100">
                   <input type="radio" name="emosi_id" id="sedih" value="3" class="d-none">
@@ -170,7 +160,6 @@
                 </label>
               </div>
 
-              <!-- Emosi Marah -->
               <div class="col-6 col-md-3">
                 <label for="marah" class="w-100">
                   <input type="radio" name="emosi_id" id="marah" value="2" class="d-none">
@@ -181,7 +170,6 @@
                 </label>
               </div>
 
-              <!-- Emosi Takut -->
               <div class="col-6 col-md-3">
                 <label for="takut" class="w-100">
                   <input type="radio" name="emosi_id" id="takut" value="4" class="d-none">
@@ -206,14 +194,14 @@
   </form>
 
 
-  <!-- FITUR SECTION -->
   <section class="py-5 bg-light">
     <div class="container">
       <h3 class="fw-bold text-center mb-5" style="color:#14532d;">
         Solusi Kesehatan Emosional di Tanganmu
       </h3>
 
-      <div class="row g-4">
+      <div class="row g-4 justify-content-center">
+
         <div class="col-md-6 col-lg-3">
           <div class="card text-center border-0 shadow-sm h-100">
             <div class="card-body">
@@ -244,11 +232,24 @@
           <div class="card text-center border-0 shadow-sm h-100">
             <div class="card-body">
               <div class="mb-3">
-                <i class="bi bi-file-earmark-text fs-1 text-success"></i>
+                <i class="bi bi-pencil-square fs-1 text-success"></i>
               </div>
-              <h5 class="card-title fw-semibold">Report</h5>
-              <p class="text-muted small mb-3">Lihat laporan perkembangan emosimu secara berkala.</p>
-              <a href="#" class="btn btn-outline-success btn-sm">Lihat</a>
+              <h5 class="card-title fw-semibold">Buat Laporan</h5>
+              <p class="text-muted small mb-3">Ajukan laporan baru terkait masalah yang kamu alami secara aman.</p>
+              <a href="{{ route('lapor.create') }}" class="btn btn-outline-success btn-sm">Buat Laporan</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-6 col-lg-3">
+          <div class="card text-center border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="mb-3">
+                <i class="bi bi-clock-history fs-1 text-success"></i>
+              </div>
+              <h5 class="card-title fw-semibold">Riwayat Laporan</h5>
+              <p class="text-muted small mb-3">Pantau status dan perkembangan laporan yang telah kamu kirim.</p>
+              <a href="{{ route('lapor.index') }}" class="btn btn-outline-success btn-sm">Lihat Riwayat</a>
             </div>
           </div>
         </div>
@@ -265,11 +266,11 @@
             </div>
           </div>
         </div>
+
       </div>
     </div>
   </section>
 
-  <!-- TENTANG UMY CURHAT -->
   <section class="py-5 bg-white border-top">
     <div class="container">
       <div class="row align-items-center">
@@ -293,7 +294,6 @@
     </div>
   </section>
 
-  <!-- REVIEW SECTION -->
   <section class="py-5 bg-light border-top">
     <div class="container">
       <h3 class="fw-bold text-center mb-5" style="color:#14532d;">
@@ -353,7 +353,6 @@
         </div>
       </div>
 
-      <!-- Ahli/Psikolog -->
       <div class="text-center mt-5">
         <h4 class="fw-bold mb-4" style="color:#14532d;">Tim Psikolog Kami</h4>
         <div class="row justify-content-center g-4">
@@ -381,13 +380,10 @@
   </section>
 
 
-  <!-- FOOTER -->
   @include ('components.footer')
 
 
-  <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
 </body>
