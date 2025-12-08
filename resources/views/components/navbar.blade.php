@@ -1,104 +1,99 @@
-<!-- NAVBAR Component -->
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
   <div class="container">
-    <!-- Logo / Brand -->
-    <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url('/') }}" style="color:#14532d;">
-      <img src="{{ asset('images/Umy-logo.gif') }}" width="40" height="40" class="me-2 rounded-circle" alt="Logo">
-      <span>UMY Curhat</span>
+    <!-- LOGO & BRAND -->
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url('/dashboard') }}" style="color: #059669;">
+      <i class="bi bi-heart-pulse-fill me-2 fs-4"></i>
+      <span>Sistem Curhat</span>
     </a>
 
-    <!-- Tombol Toggle untuk Mobile -->
-    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
-            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Menu Navbar -->
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav ms-auto align-items-lg-center">
-        
-        <!-- Home -->
-        <li class="nav-item">
-          <a class="nav-link {{ Request::is('/') ? 'active fw-semibold' : '' }}" 
-             href="{{ url('/') }}" style="color:#14532d;">
-            <i class="bi bi-house-door me-1"></i> 
-          </a>
-        </li>
+      <ul class="navbar-nav ms-auto align-items-center">
 
-        <!-- Chat Bot -->
-        <li class="nav-item">
-          <a class="nav-link {{ Request::is('chatbot*') ? 'active fw-semibold' : '' }}" 
-             href="{{ url('/chatbot') }}" style="color:#14532d;">
-            <i class="bi bi-chat-dots me-1"></i> 
-          </a>
-        </li>
-
-        <!-- Chat Psychologist -->
-        <li class="nav-item">
-          <a class="nav-link {{ Request::is('psychologist*') ? 'active fw-semibold' : '' }}" 
-             href="{{ url('/') }}" style="color:#14532d;">
-            <i class="bi bi-person-heart me-1"></i> 
-          </a>
-        </li>
-
-        <!-- Self Healing -->
-        <li class="nav-item">
-          <a class="nav-link {{ Request::is('selfhealing*') ? 'active fw-semibold' : '' }}" 
-             href="{{ url('/selfhealing') }}" style="color:#14532d;">
-            <i class="bi bi-lightbulb me-1"></i>
-          </a>
-        </li>
-
-        <!-- Report -->
-        <li class="nav-item">
-          <a class="nav-link {{ Request::is('report*') ? 'active fw-semibold' : '' }}" 
-             href="{{ url('/') }}" style="color:#14532d;">
-            <i class="bi bi-file-earmark-text me-1"></i> 
-          </a>
-        </li>
-
-        <!-- Dropdown User (jika sudah login) -->
         @auth
-        <li class="nav-item dropdown ms-lg-3">
-          <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" 
-             role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color:#14532d;">
-            <img src="{{ Auth::user()->avatar ?? asset('images/default-avatar.png') }}" 
-                 alt="Avatar" width="32" height="32" class="rounded-circle me-2">
-            <span class="d-none d-lg-inline">{{ Auth::user()->name }}</span>
+        <!-- MENU USER DROPDOWN -->
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+            <!-- LOGIKA FOTO PROFIL -->
+            @if(Auth::user()->avatar && Auth::user()->avatar != 'avatar.png')
+            <!-- Jika ada foto -->
+            <img src="{{ asset('storage/' . Auth::user()->avatar) }}"
+              alt="Foto Profil"
+              class="rounded-circle border border-2 border-success"
+              style="width: 35px; height: 35px; object-fit: cover;">
+            @else
+            <!-- Jika tidak ada foto (Pakai Inisial) -->
+            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold"
+              style="width: 35px; height: 35px; font-size: 14px;">
+              {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+            </div>
+            @endif
+
+            <!-- NAMA USER -->
+            <span class="fw-semibold text-dark">{{ Auth::user()->name }}</span>
           </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
+
+          <!-- DROPDOWN ITEMS -->
+          <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3" aria-labelledby="navbarDropdown">
+
+            <!-- Header Role -->
             <li>
-              <a class="dropdown-item" href="{{ url('/profile') }}">
-                <i class="bi bi-person-circle me-2"></i> Profil
+              <h6 class="dropdown-header text-uppercase small text-muted">
+                @if(Auth::user()->role_id == 1) Administrator
+                @elseif(Auth::user()->role_id == 2) Psikolog
+                @else Mahasiswa
+                @endif
+              </h6>
+            </li>
+
+            <!-- Menu Profil -->
+            <li>
+              <a class="dropdown-item py-2" href="{{ route('korban.profilekorban') }}">
+                <i class="bi bi-person-circle me-2 text-primary"></i> Profil Saya
               </a>
             </li>
+
+            <!-- Menu Dashboard Sesuai Role -->
+            @if(Auth::user()->role_id == 1)
             <li>
-              <a class="dropdown-item" href="{{ url('/settings') }}">
-                <i class="bi bi-gear me-2"></i> Pengaturan
+              <a class="dropdown-item py-2" href="{{ route('admin.dashboard') }}">
+                <i class="bi bi-speedometer2 me-2 text-info"></i> Dashboard Admin
               </a>
             </li>
-            <li><hr class="dropdown-divider"></li>
+            @elseif(Auth::user()->role_id == 2)
+            <li>
+              <a class="dropdown-item py-2" href="{{ route('dashboard.psikolog') }}">
+                <i class="bi bi-grid-fill me-2 text-info"></i> Dashboard Psikolog
+              </a>
+            </li>
+            @endif
+
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+
+            <!-- Logout -->
             <li>
               <form action="{{ route('logout') }}" method="POST">
                 @csrf
-                <button type="submit" class="dropdown-item text-danger">
-                  <i class="bi bi-box-arrow-right me-2"></i> Logout
+                <button type="submit" class="dropdown-item py-2 text-danger">
+                  <i class="bi bi-box-arrow-right me-2"></i> Keluar
                 </button>
               </form>
             </li>
           </ul>
         </li>
         @else
-        <!-- Tombol Login/Register jika belum login -->
-        <li class="nav-item ms-lg-3">
-          <a href="{{ url('/login') }}" class="btn btn-outline-success btn-sm me-2">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Masuk
-          </a>
-        </li>
+        <!-- JIKA BELUM LOGIN -->
         <li class="nav-item">
-          <a href="{{ url('/register') }}" class="btn btn-success btn-sm">
-            <i class="bi bi-person-plus me-1"></i> Daftar
-          </a>
+          <a class="nav-link fw-semibold text-primary" href="{{ route('login') }}">Masuk</a>
+        </li>
+        <li class="nav-item ms-2">
+          <a class="btn btn-success rounded-pill px-4" href="{{ route('register') }}">Daftar</a>
         </li>
         @endauth
 
@@ -106,32 +101,3 @@
     </div>
   </div>
 </nav>
-
-<!-- Bootstrap Icons -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
-
-<!-- Script untuk efek scroll pada navbar -->
-<script>
-  // Menambahkan class 'scrolled' saat user scroll
-  window.addEventListener('scroll', function() {
-    const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 50) {
-      navbar.classList.add('scrolled');
-    } else {
-      navbar.classList.remove('scrolled');
-    }
-  });
-
-  // Auto-close navbar saat menu diklik (mobile)
-  document.querySelectorAll('.navbar-nav .nav-link').forEach(link => {
-    link.addEventListener('click', function() {
-      const navbarToggler = document.querySelector('.navbar-toggler');
-      const navbarCollapse = document.querySelector('.navbar-collapse');
-      
-      if (window.innerWidth < 992 && navbarCollapse.classList.contains('show')) {
-        navbarToggler.click();
-      }
-    });
-  });
-</script>

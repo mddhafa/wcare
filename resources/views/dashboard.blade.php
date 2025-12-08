@@ -6,371 +6,406 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Sistem Curhat</title>
 
+  <!-- Fonts: Poppins -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #059669;
+      /* Emerald 600 */
+      --primary-dark: #047857;
+      --primary-light: #d1fae5;
+      --text-dark: #1f2937;
+      --bg-light: #f9fafb;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-dark);
+      overflow-x: hidden;
+    }
+
+    /* Banner & Hero */
+    .banner-img {
+      height: 320px;
+      object-fit: cover;
+      border-radius: 20px;
+    }
+
+    .carousel-inner {
+      border-radius: 20px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .hero-section {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 3rem;
+    }
+
+    /* Feature Cards */
+    .feature-card {
+      border: none;
+      border-radius: 16px;
+      background: white;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+      height: 100%;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .feature-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      w-100;
+      h-100;
+      background: var(--primary-color);
+      width: 100%;
+      height: 0%;
+      z-index: -1;
+      transition: all 0.3s ease;
+      opacity: 0.05;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      border-bottom: 4px solid var(--primary-color);
+    }
+
+    .feature-card:hover::before {
+      height: 100%;
+    }
+
+    .icon-wrapper {
+      width: 64px;
+      height: 64px;
+      background-color: var(--primary-light);
+      color: var(--primary-color);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 1.75rem;
+      transition: all 0.3s;
+    }
+
+    .feature-card:hover .icon-wrapper {
+      background-color: var(--primary-color);
+      color: white;
+      transform: rotateY(180deg);
+    }
+
+    /* Psikolog Cards */
+    .psikolog-card {
+      border: none;
+      border-radius: 20px;
+      background: white;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s;
+    }
+
+    .psikolog-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .psikolog-img-wrapper {
+      height: 220px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .psikolog-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .psikolog-card:hover .psikolog-img {
+      transform: scale(1.05);
+    }
+
+    .status-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Buttons */
+    .btn-custom-primary {
+      background-color: var(--primary-color);
+      color: white;
+      border-radius: 50px;
+      padding: 10px 28px;
+      font-weight: 600;
+      border: none;
+      box-shadow: 0 4px 14px 0 rgba(5, 150, 105, 0.39);
+      transition: all 0.2s;
+    }
+
+    .btn-custom-primary:hover {
+      background-color: var(--primary-dark);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .btn-custom-outline {
+      background-color: transparent;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      border-radius: 50px;
+      padding: 8px 24px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .btn-custom-outline:hover {
+      background-color: var(--primary-color);
+      color: white;
+    }
+
+    /* Emotion Modal */
+    input[type="radio"]:checked+.emosi-card {
+      background-color: var(--primary-light);
+      border: 2px solid var(--primary-color);
+      color: var(--primary-dark);
+      transform: scale(1.05);
+    }
+
+    .emosi-card {
+      cursor: pointer;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.2s;
+    }
+
+    .emosi-card:hover {
+      border-color: var(--primary-color);
+    }
+  </style>
 </head>
 
-<style>
-  .banner-left img,
-  .banner-right img,
-  .banner-img {
-    height: 260px;
-    object-fit: cover;
-    border-radius: 12px;
-  }
+<body>
 
-  .carousel-indicators [data-bs-target] {
-    background-color: #14532d;
-  }
-
-  @media (max-width: 768px) {
-
-    .banner-left img,
-    .banner-right img,
-    .banner-img {
-      height: 200px;
-    }
-  }
-
-  .emosi-card {
-    transition: 0.2s;
-    cursor: pointer;
-  }
-
-  .emosi-card:hover {
-    transform: translateY(-4px);
-    background: #f0fdf4;
-    border-color: #16a34a;
-  }
-
-  input[type="radio"]:checked+.emosi-card {
-    background: #bbf7d0;
-    border-color: #16a34a;
-    transform: scale(1.02);
-  }
-</style>
-
-
-<body class="bg-light text-dark">
+  <!-- NAVBAR -->
   @include('components.navbar')
 
-  <section class="py-4">
+  <!-- 1. HERO SECTION -->
+  <section class="hero-section pt-5">
     <div class="container">
-      <div class="row g-3 align-items-stretch">
+      <div class="row align-items-center">
+        <!-- Text Side -->
+        <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
+          <div class="d-inline-block px-3 py-1 mb-3 text-xs font-semibold tracking-wider text-success text-uppercase bg-green-100 rounded-full">
+            👋 Welcome back
+          </div>
+          <h1 class="display-5 fw-bold mb-3 lh-sm text-dark">
+            Kesehatan Mentalmu <br> Adalah <span style="color: var(--primary-color);">Prioritas Kami</span>
+          </h1>
+          <p class="lead text-muted mb-4">
+            Jangan biarkan beban pikiran mengganggumu. Kami menyediakan ruang aman untuk bercerita, berkonsultasi, dan memulihkan diri.
+          </p>
 
-        <div class="col-lg-8">
-          <div id="bannerCarousel" class="carousel slide h-100" data-bs-ride="carousel">
-            <div class="carousel-inner rounded-4 overflow-hidden shadow-sm">
-              <div class="carousel-item active">
-                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img" alt="Banner 1">
-              </div>
-              <div class="carousel-item">
-                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img" alt="Banner 2">
-              </div>
-              <div class="carousel-item">
-                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img" alt="Banner 3">
-              </div>
-            </div>
-
-            <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
-              <span class="carousel-control-prev-icon"></span>
+          <div class="d-flex flex-wrap gap-3">
+            <button class="btn btn-custom-primary btn-lg" data-bs-toggle="modal" data-bs-target="#modalEmosi">
+              <i class="bi bi-emoji-smile me-2"></i> Cek Mood Hari Ini
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
-              <span class="carousel-control-next-icon"></span>
-            </button>
+            <a href="{{ route('lapor.create') }}" class="btn btn-custom-outline btn-lg">
+              <i class="bi bi-pencil-square me-2"></i> Buat Laporan
+            </a>
+          </div>
+        </div>
 
+        <!-- Carousel Side -->
+        <div class="col-lg-6">
+          <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
               <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="0" class="active"></button>
               <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="1"></button>
               <button type="button" data-bs-target="#bannerCarousel" data-bs-slide-to="2"></button>
             </div>
-          </div>
-        </div>
-
-        <div class="col-lg-4">
-          <div class="banner-right rounded-4 overflow-hidden shadow-sm h-100">
-            <img src="{{ asset('images/banner1.png') }}" alt="Dukungan UMY" class="img-fluid w-100 banner-img">
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </section>
-
-
-  <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-    <span class="carousel-control-prev-icon"></span>
-  </button>
-  <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-    <span class="carousel-control-next-icon"></span>
-  </button>
-  </div>
-
-
-  <section class="py-5 bg-white border-bottom">
-    <div class="container text-center">
-      <div class="row align-items-center justify-content-center">
-        <div class="col-lg-6">
-          <h1 class="fw-bold mb-3" style="color:#14532d;">
-            Temukan Keseimbangan Emosimu di <span class="text-success">Sistem Curhat</span>
-          </h1>
-          <p class="text-muted mb-4">
-            Jelajahi fitur-fitur untuk mengelola emosi, berbagi cerita, dan menjaga kesehatan mentalmu.
-          </p>
-          <a href="#" class="btn btn-success btn-lg px-4" data-bs-toggle="modal" data-bs-target="#modalEmosi">
-            Measure Emotions
-          </a>
-        </div>
-        <div class="col-lg-5 mt-4 mt-lg-0">
-          <img src="/path/to/illustration.png" alt="Ilustrasi Emosi" class="img-fluid rounded-4 shadow-sm">
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <form action="{{ route('emosi.pilih') }}" method="POST">
-    @csrf
-    <div class="modal fade" id="modalEmosi" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-      <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-
-          <div class="modal-header">
-            <h5 class="modal-title fw-bold">Bagaimana perasaanmu hari ini?</h5>
-          </div>
-
-          <div class="modal-body">
-            <div class="row g-3">
-
-              <div class="col-6 col-md-3">
-                <label for="senang" class="w-100">
-                  <input type="radio" name="emosi_id" id="senang" value="1" class="d-none">
-                  <div class="p-3 border rounded-4 text-center shadow-sm emosi-card">
-                    <div class="fs-1">😊</div>
-                    <div class="fw-semibold mt-2">Senang</div>
-                  </div>
-                </label>
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 1">
               </div>
-
-              <div class="col-6 col-md-3">
-                <label for="sedih" class="w-100">
-                  <input type="radio" name="emosi_id" id="sedih" value="3" class="d-none">
-                  <div class="p-3 border rounded-4 text-center shadow-sm emosi-card">
-                    <div class="fs-1">😢</div>
-                    <div class="fw-semibold mt-2">Sedih</div>
-                  </div>
-                </label>
+              <div class="carousel-item">
+                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 2">
               </div>
-
-              <div class="col-6 col-md-3">
-                <label for="marah" class="w-100">
-                  <input type="radio" name="emosi_id" id="marah" value="2" class="d-none">
-                  <div class="p-3 border rounded-4 text-center shadow-sm emosi-card">
-                    <div class="fs-1">😡</div>
-                    <div class="fw-semibold mt-2">Marah</div>
-                  </div>
-                </label>
+              <div class="carousel-item">
+                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 3">
               </div>
-
-              <div class="col-6 col-md-3">
-                <label for="takut" class="w-100">
-                  <input type="radio" name="emosi_id" id="takut" value="4" class="d-none">
-                  <div class="p-3 border rounded-4 text-center shadow-sm emosi-card">
-                    <div class="fs-1">😨</div>
-                    <div class="fw-semibold mt-2">Takut</div>
-                  </div>
-                </label>
-              </div>
-
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-          <div class="modal-footer">
-            <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button type="submit" class="btn btn-success">Simpan</button>
+  <!-- MODAL PILIH EMOSI -->
+  <form action="{{ route('emosi.pilih') }}" method="POST">
+    @csrf
+    <div class="modal fade" id="modalEmosi" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+          <div class="modal-header border-0 pb-0 ps-4 pt-4">
+            <h5 class="modal-title fw-bold">Apa yang kamu rasakan sekarang?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-
+          <div class="modal-body p-4">
+            <div class="row g-3">
+              <div class="col-6 col-md-3">
+                <label class="w-100">
+                  <input type="radio" name="emosi_id" value="1" class="d-none">
+                  <div class="emosi-card text-center">
+                    <div class="display-4 mb-2">😊</div>
+                    <div class="fw-bold">Senang</div>
+                  </div>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="w-100">
+                  <input type="radio" name="emosi_id" value="3" class="d-none">
+                  <div class="emosi-card text-center">
+                    <div class="display-4 mb-2">😢</div>
+                    <div class="fw-bold">Sedih</div>
+                  </div>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="w-100">
+                  <input type="radio" name="emosi_id" value="2" class="d-none">
+                  <div class="emosi-card text-center">
+                    <div class="display-4 mb-2">😡</div>
+                    <div class="fw-bold">Marah</div>
+                  </div>
+                </label>
+              </div>
+              <div class="col-6 col-md-3">
+                <label class="w-100">
+                  <input type="radio" name="emosi_id" value="4" class="d-none">
+                  <div class="emosi-card text-center">
+                    <div class="display-4 mb-2">😨</div>
+                    <div class="fw-bold">Takut</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer border-0 pe-4 pb-4">
+            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Tutup</button>
+            <button type="submit" class="btn btn-custom-primary">Simpan Mood</button>
+          </div>
         </div>
       </div>
     </div>
   </form>
 
-
-  <section class="py-5 bg-light">
-    <div class="container">
-      <h3 class="fw-bold text-center mb-5" style="color:#14532d;">
-        Solusi Kesehatan Emosional di Tanganmu
-      </h3>
-
-      <div class="row g-4 justify-content-center">
-
-        <div class="col-md-6 col-lg-3">
-          <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-              <div class="mb-3">
-                <i class="bi bi-emoji-smile fs-1 text-success"></i>
-              </div>
-              <h5 class="card-title fw-semibold">Chat With Bot</h5>
-              <p class="text-muted small mb-3">Curhat cepat dan anonim dengan bot pendengar.</p>
-              <a href="{{url('/chatbot')}}" class="btn btn-outline-success btn-sm">Mulai</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-          <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-              <div class="mb-3">
-                <i class="bi bi-person-heart fs-1 text-success"></i>
-              </div>
-              <h5 class="card-title fw-semibold">Chat With Psychologist</h5>
-              <p class="text-muted small mb-3">Konsultasi langsung dengan psikolog profesional.</p>
-              <a href="#" class="btn btn-outline-success btn-sm">Mulai</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-          <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-              <div class="mb-3">
-                <i class="bi bi-pencil-square fs-1 text-success"></i>
-              </div>
-              <h5 class="card-title fw-semibold">Buat Laporan</h5>
-              <p class="text-muted small mb-3">Ajukan laporan baru terkait masalah yang kamu alami secara aman.</p>
-              <a href="{{ route('lapor.create') }}" class="btn btn-outline-success btn-sm">Buat Laporan</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-          <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-              <div class="mb-3">
-                <i class="bi bi-clock-history fs-1 text-success"></i>
-              </div>
-              <h5 class="card-title fw-semibold">Riwayat Laporan</h5>
-              <p class="text-muted small mb-3">Pantau status dan perkembangan laporan yang telah kamu kirim.</p>
-              <a href="{{ route('lapor.index') }}" class="btn btn-outline-success btn-sm">Lihat Riwayat</a>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-6 col-lg-3">
-          <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-              <div class="mb-3">
-                <i class="bi bi-lightbulb fs-1 text-success"></i>
-              </div>
-              <h5 class="card-title fw-semibold">Self Healing</h5>
-              <p class="text-muted small mb-3">Dapatkan konten menarik dan menginspirasi dari sini.</p>
-              <a href="{{url('/selfhealing')}}" class="btn btn-outline-success btn-sm">Lihat Konten</a>
-            </div>
-          </div>
-        </div>
-
+  <!-- 2. LAYANAN SECTION -->
+  <section class="py-5">
+    <div class="container py-4">
+      <div class="text-center mb-5">
+        <h6 class="text-success fw-bold text-uppercase ls-1">Fitur Unggulan</h6>
+        <h2 class="fw-bold">Apa yang Bisa Kamu Lakukan?</h2>
       </div>
-    </div>
-  </section>
-
-  <section class="py-5 bg-white border-top">
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6 mb-4 mb-lg-0">
-          <img src="{{ asset('images/banner1.png') }}" alt="Tentang UMY Curhat" class="img-fluid rounded-4 shadow-sm">
-        </div>
-        <div class="col-lg-6">
-          <h3 class="fw-bold mb-3" style="color:#14532d;">Tentang UMY Curhat</h3>
-          <p class="text-muted">
-            <strong>UMY Curhat</strong> adalah platform dukungan emosional yang dikembangkan oleh Universitas Muhammadiyah Yogyakarta.
-            Kami hadir untuk membantu mahasiswa dan masyarakat dalam menjaga kesehatan mental, berbagi cerita,
-            dan mendapatkan bantuan profesional secara aman dan rahasia.
-          </p>
-          <p class="text-muted mb-4">
-            Dengan berbagai fitur seperti konsultasi dengan psikolog, bot curhat, dan laporan emosi, kami ingin memastikan
-            setiap pengguna merasa didengar dan dimengerti.
-          </p>
-          <a href="#" class="btn btn-success px-4">Pelajari Lebih Lanjut</a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="py-5 bg-light border-top">
-    <div class="container">
-      <h3 class="fw-bold text-center mb-5" style="color:#14532d;">
-        Apa Kata Pengguna Kami
-      </h3>
 
       <div class="row g-4">
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-              <p class="text-muted fst-italic">
-                “Sangat membantu ketika saya sedang stres menghadapi kuliah. Bot-nya responsif dan bisa membuat saya merasa lebih tenang.”
-              </p>
-              <div class="d-flex align-items-center mt-3">
-                <img src="{{ asset('images/user1.jpg') }}" alt="User 1" width="50" height="50" class="rounded-circle me-3">
-                <div>
-                  <h6 class="mb-0 fw-semibold">Aulia Rahman</h6>
-                  <small class="text-muted">Mahasiswa Psikologi</small>
-                </div>
-              </div>
-            </div>
+        <!-- Chatbot -->
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card text-center">
+            <div class="icon-wrapper"><i class="bi bi-robot"></i></div>
+            <h5 class="fw-bold mb-2">AI Chatbot</h5>
+            <p class="text-muted small mb-4">Teman curhat virtual yang siap mendengarkanmu kapan saja tanpa menghakimi.</p>
+            <a href="{{ url('/chatbot') }}" class="btn btn-custom-outline btn-sm w-100 stretched-link">Mulai Chat</a>
           </div>
         </div>
 
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-              <p class="text-muted fst-italic">
-                “Konsultasi dengan psikolog di sini benar-benar membantu saya memahami diri sendiri. Terima kasih UMY Curhat!”
-              </p>
-              <div class="d-flex align-items-center mt-3">
-                <img src="{{ asset('images/user2.jpg') }}" alt="User 2" width="50" height="50" class="rounded-circle me-3">
-                <div>
-                  <h6 class="mb-0 fw-semibold">Rizky Putri</h6>
-                  <small class="text-muted">Mahasiswa Ekonomi</small>
-                </div>
-              </div>
-            </div>
+        <!-- Konsultasi -->
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card text-center">
+            <div class="icon-wrapper"><i class="bi bi-person-heart"></i></div>
+            <h5 class="fw-bold mb-2">Konseling Ahli</h5>
+            <p class="text-muted small mb-4">Terhubung langsung dengan psikolog profesional untuk penanganan lebih lanjut.</p>
+            <a href="#" class="btn btn-custom-outline btn-sm w-100 stretched-link">Hubungi</a>
           </div>
         </div>
 
-        <div class="col-md-4">
-          <div class="card border-0 shadow-sm h-100">
-            <div class="card-body">
-              <p class="text-muted fst-italic">
-                “Fitur laporan emosinya keren! Bisa lihat perkembangan perasaan saya setiap minggu.”
-              </p>
-              <div class="d-flex align-items-center mt-3">
-                <img src="{{ asset('images/user3.jpg') }}" alt="User 3" width="50" height="50" class="rounded-circle me-3">
-                <div>
-                  <h6 class="mb-0 fw-semibold">Dewi Anggraini</h6>
-                  <small class="text-muted">Mahasiswi Hukum</small>
-                </div>
-              </div>
-            </div>
+        <!-- Lapor -->
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card text-center">
+            <div class="icon-wrapper"><i class="bi bi-shield-exclamation"></i></div>
+            <h5 class="fw-bold mb-2">Lapor Masalah</h5>
+            <p class="text-muted small mb-4">Laporkan tindak bullying atau kekerasan seksual di lingkungan kampus secara aman.</p>
+            <a href="{{ route('lapor.create') }}" class="btn btn-custom-outline btn-sm w-100 stretched-link">Buat Laporan</a>
+          </div>
+        </div>
+
+        <!-- Self Healing -->
+        <div class="col-md-6 col-lg-3">
+          <div class="feature-card text-center">
+            <div class="icon-wrapper"><i class="bi bi-journal-album"></i></div>
+            <h5 class="fw-bold mb-2">Self Healing</h5>
+            <p class="text-muted small mb-4">Konten video dan artikel relaksasi yang dikurasi khusus untuk mood kamu.</p>
+            <a href="{{ url('/selfhealing') }}" class="btn btn-custom-outline btn-sm w-100 stretched-link">Jelajahi</a>
           </div>
         </div>
       </div>
 
-      <div class="text-center mt-5">
-        <h4 class="fw-bold mb-4" style="color:#14532d;">Tim Psikolog Kami</h4>
-        <div class="row justify-content-center g-4">
-          <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-              <img src="{{ asset('images/psikolog1.jpg') }}" class="card-img-top" alt="Psikolog 1">
-              <div class="card-body text-center">
-                <h6 class="fw-semibold mb-0">Dr. Siti Nurhaliza, M.Psi</h6>
-                <small class="text-muted">Psikolog Klinis</small>
+      <div class="text-center mt-4">
+        <a href="{{ route('lapor.index') }}" class="text-decoration-none text-muted small fw-medium">
+          <i class="bi bi-clock-history me-1"></i> Lihat riwayat laporan saya
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. TENTANG KAMI -->
+  <section class="py-5 bg-white border-top">
+    <div class="container py-3">
+      <div class="row align-items-center">
+        <div class="col-lg-5 mb-4 mb-lg-0">
+          <img src="{{ asset('images/banner1.png') }}" alt="About" class="img-fluid rounded-4 shadow-lg w-100">
+        </div>
+        <div class="col-lg-7 ps-lg-5">
+          <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill">Tentang UMY Curhat</span>
+          <h2 class="fw-bold mb-3" style="color: var(--text-dark);">Ruang Aman Bagi Mahasiswa</h2>
+          <p class="text-muted lead fs-6 mb-4">
+            Kami hadir sebagai jembatan bagi mahasiswa Universitas Muhammadiyah Yogyakarta untuk mendapatkan dukungan mental yang layak, mudah diakses, dan terpercaya.
+          </p>
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                <span class="fw-medium">100% Rahasia & Aman</span>
               </div>
             </div>
-          </div>
-          <div class="col-md-3">
-            <div class="card border-0 shadow-sm">
-              <img src="{{ asset('images/psikolog2.jpg') }}" class="card-img-top" alt="Psikolog 2">
-              <div class="card-body text-center">
-                <h6 class="fw-semibold mb-0">Bapak Ahmad Fauzan, M.Psi</h6>
-                <small class="text-muted">Konselor Kesehatan Mental</small>
+            <div class="col-sm-6">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-check-circle-fill text-success fs-4 me-3"></i>
+                <span class="fw-medium">Psikolog Tersertifikasi</span>
               </div>
             </div>
           </div>
@@ -379,12 +414,91 @@
     </div>
   </section>
 
+  <!-- 4. TIM PSIKOLOG (DINAMIS) -->
+  <section class="py-5" style="background-color: #f3f4f6;">
+    <div class="container py-4">
+      <div class="d-flex justify-content-between align-items-end mb-5">
+        <div>
+          <h6 class="text-success fw-bold text-uppercase ls-1">Tim Ahli</h6>
+          <h2 class="fw-bold">Psikolog Profesional</h2>
+        </div>
+        <!-- Tombol Lihat Semua (Opsional) -->
+        <!-- <a href="#" class="btn btn-outline-dark rounded-pill">Lihat Semua</a> -->
+      </div>
 
-  @include ('components.footer')
+      <!-- LOGIKA PHP: Mengambil data Psikolog langsung dari DB -->
+      @php
+      // Mengambil 4 user dengan role_id 2 (Psikolog) terbaru
+      $team_psikolog = \App\Models\User::where('role_id', 2)->with('psikolog')->latest()->take(4)->get();
+      @endphp
 
+      <div class="row g-4">
+        @forelse($team_psikolog as $psi)
+        <div class="col-md-6 col-lg-3">
+          <div class="psikolog-card h-100">
+            <div class="psikolog-img-wrapper">
+              <!-- Cek Foto: Jika ada pakai storage, jika tidak pakai inisial/default -->
+              @if($psi->avatar && $psi->avatar != 'avatar.png')
+              <img src="{{ asset('storage/' . $psi->avatar) }}" alt="{{ $psi->name }}" class="psikolog-img">
+              @else
+              <!-- Placeholder Image Generator jika tidak ada foto -->
+              <img src="https://ui-avatars.com/api/?name={{ urlencode($psi->name) }}&background=059669&color=fff&size=512" alt="{{ $psi->name }}" class="psikolog-img">
+              @endif
 
+              <div class="status-badge">
+                <i class="bi bi-circle-fill text-success small me-1"></i> Available
+              </div>
+            </div>
+            <div class="card-body p-4 text-center">
+              <h5 class="fw-bold text-dark mb-1">{{ $psi->name }}</h5>
+              <p class="text-muted small mb-3">Psikolog Klinis</p>
+
+              <!-- Jadwal (jika ada data relasi) -->
+              @if($psi->psikolog && $psi->psikolog->jadwal_tersedia)
+              <div class="badge bg-light text-dark border mb-3">
+                <i class="bi bi-clock me-1"></i>
+                {{ \Carbon\Carbon::parse($psi->psikolog->jadwal_tersedia)->format('d M, H:i') }}
+              </div>
+              @else
+              <div class="badge bg-light text-muted border mb-3">
+                <i class="bi bi-calendar-x me-1"></i> Jadwal belum diatur
+              </div>
+              @endif
+
+              <div class="d-grid">
+                <button class="btn btn-sm btn-outline-success rounded-pill">Buat Janji</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        @empty
+        <div class="col-12 text-center py-5">
+          <p class="text-muted">Belum ada data psikolog yang ditampilkan.</p>
+        </div>
+        @endforelse
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  @include('components.footer')
+
+  <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  @if(session('success'))
+  <script>
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil!',
+      text: '{{ session('
+      success ') }}',
+      confirmButtonColor: '#059669',
+      timer: 3000
+    });
+  </script>
+  @endif
 
 </body>
 

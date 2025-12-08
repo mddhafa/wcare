@@ -17,7 +17,7 @@
     <div class="login-container">
       <!-- Bagian kiri -->
       <div class="left-side" style="background-color:#14532d;">
-        <img src="{{ asset('images/Umy-logo.gif') }}" alt="Logo" class="logo"> 
+        <img src="{{ asset('images/Umy-logo.gif') }}" alt="Logo" class="logo">
         <h2>Ruang Aman dan Rahasia untuk Suara Anda.</h2>
         <p>UMY CURHAT berkomitmen untuk menyediakan platform yang aman bagi setiap anggota komunitas universitas kami.</p>
         <small>© 2025 Universitas Muhammadiyah Yogyakarta</small>
@@ -79,7 +79,6 @@
   }
 
   $(".toggle-password").click(function() {
-
     $(this).toggleClass("fa-eye fa-eye-slash");
     var input = $($(this).attr("toggle"));
     if (input.attr("type") == "password") {
@@ -116,11 +115,18 @@
     if (res.status === 200) {
       showSnackbar(result.message || 'Login berhasil!', 'success');
 
-      const role = result.data?.role;
+      // PERBAIKAN DISINI: Ambil role_id, bukan role
+      const roleId = result.data?.role_id;
 
-      if (role === 'admin') {
+      // Logika Redirect sesuai Role ID
+      if (roleId == 1) {
+        // Admin
         setTimeout(() => window.location.href = '/admin/dashboard', 1200);
+      } else if (roleId == 2) {
+        // Psikolog (Tambahkan ini)
+        setTimeout(() => window.location.href = '/dashboard-psikolog', 1200);
       } else {
+        // Korban / User Biasa
         setTimeout(() => window.location.href = '/dashboard', 1200);
       }
 
