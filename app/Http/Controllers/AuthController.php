@@ -4,136 +4,71 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Requests\RegisterRequest;
-use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Auth;
 use Exception;
 use App\Models\User;
-use App\Models\Admin;
-use App\Models\Psikolog;
-use App\Models\Korban;
-// <<<<<<< HEAD
-use Illuminate\Support\Facades\Log;
-
-
-// class AuthController extends Controller
-// {
-// public function register(RegisterRequest $request)
-// {
-//     try {
-// =======
+use App\Models\Korban; 
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class AuthController extends Controller
 {
-    public function register(RegisterRequest $request)
-    {
-        try{
-        $user = new User();
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->password = bcrypt($request->password);
-        $user->role_id = $request->role_id;
-        $user->save();
-
-        return response()->json([
-                // 'status_code' => 201,
-                'message' => 'Berhasil melakukan registrasi',
-                'data'    => $user,
-
-            ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status_code' => 500,
-                'message' => 'Gagal melakukan registrasi',
-                'error'   => $e->getMessage(),
-            ], 500);
-        }
-
-    //     $user = User::create([
-    //     'name' => $request->name,
-    //     'email' => $request->email,
-    //     'password' => bcrypt($request->password),
-    //     'role_id' => $request->role_id,
-    // ]);
-
-    // Cek role dan buat data sesuai tabel relasinya
-//     if ($request->role_id == 1) { 
-//         // Admin
-//         $user->admin()->create([
-//             'name' => $request->name,
-//             'email' => $request->email,
-//             'password' => bcrypt($request->password),
-//         ]);
-//     } 
-//     elseif ($request->role_id == 2) { 
-//         // Psikolog
-//         $user->psikolog()->create([
-//             'name' => $request->name,
-//             // 'license_number' => $request->license_number ?? null, // contoh field tambahan
-//             // 'specialization' => $request->specialization ?? null,
-//             'email' => $request->email,
-//             'password' => bcrypt($request->password),
-//             // 'jadwal_tersedia' => $request->jadwal_tersedia ?? 'Belum ditentukan',
-//         ]);
-//     } 
-//     elseif ($request->role_id == 3) { 
-//         // Korban
-//         $user->korban()->create([
-//             'name' => $request->name,
-//             'email' => $request->email,
-//             'password' => bcrypt($request->password),
-//             'umur' => $request->umur ?? null,
-//             'jenis_kelamin' => $request->jenis_kelamin ?? null,
-//             // 'phone' => $request->phone ?? null,
-//         ]);
-//     }
-
-//     return response()->json([
-//         'message' => 'User registered successfully',
-//         'user' => $user
-//     ], 201);
-// }
-
-    }
-
     public function showregister()
     {
         return view('auth.register');
     }
 
-    public function login(LoginRequest $request)
+    public function register(Request $request)
     {
-        $credentials = $request->only('email', 'password');
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+            'umur' => 'required|integer|min:10',
+            'jenis_kelamin' => 'required|string|in:Laki-laki,Perempuan',
+            'role_id' => 'sometimes|integer'
+        ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::guard('web')->user();
+        DB::beginTransaction(); 
 
-            // Jika AJAX (fetch)
-            if ($request->expectsJson()) {
-                return response()->json([
-                    'message' => 'Login berhasil',
-                    'data' => [
-                        'user_id' => $user->id,
-                        'name' => $user->name,
-                        'email' => $user->email,
-                        'role' => $user->role->name ?? $user->role, // admin / korban
-                    ]
+        try {
+            $user = new User();
+            $user->name = $request->name;
+            $user->email = $request->email;
+            $user->password = Hash::make($request->password);
+            $user->role_id = $request->role_id ?? 3;
+            $user->active_status = 0; 
+            $user->save(); 
+
+            if ($user->role_id == 3) {
+                Korban::create([
+                    'user_id' => $user->user_id, 
+                    'umur' => $request->umur,
+                    'jenis_kelamin' => $request->jenis_kelamin
                 ]);
             }
 
-            // Login biasa
-            if (($user->role->name ?? $user->role) === 'admin') {
-                return redirect('/admin/dashboard');
+            DB::commit(); 
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Registrasi berhasil! Silakan login.',
+                    'data'    => $user,
+                ], 201);
             }
 
-            return redirect('/dashboard');
-        }
+            return redirect('/login')->with('success', 'Registrasi berhasil! Silakan login.');
+        } catch (\Exception $e) {
+            DB::rollBack(); 
 
-        if ($request->expectsJson()) {
-            return response()->json(['message' => 'Email atau password salah'], 401);
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Gagal melakukan registrasi',
+                    'error'   => $e->getMessage(),
+                ], 500);
+            }
+            return back()->withErrors(['error' => 'Gagal registrasi: ' . $e->getMessage()]);
         }
-
-        return back()->withErrors(['email' => 'Email atau password salah']);
     }
 
     public function showlogin()
@@ -141,92 +76,73 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function dashboard()
+    public function login(Request $request)
     {
-        return view('dashboard');
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
+            $user = Auth::guard('web')->user();
+            $user->update(['active_status' => 1]);
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'Login berhasil',
+                    'data' => [
+                        'user_id' => $user->user_id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'role_id' => $user->role_id,
+                    ]
+                ]);
+            }
+
+            if ($user->role_id == 2) {
+                return redirect()->route('dashboard.psikolog');
+            }
+            if ($user->role_id == 1 || ($user->role->name ?? '') === 'admin') {
+                return redirect()->route('admin.dashboard');
+            }
+            return redirect()->route('dashboard');
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Email atau password salah'], 401);
+        }
+
+        return back()->withErrors(['email' => 'Email atau password salah'])->onlyInput('email');
     }
 
-    public function dashoardadmin()
+    public function logout(Request $request)
     {
-        return view('dashboard-admin');
+        if (Auth::guard('web')->check()) {
+            $user = Auth::guard('web')->user();
+            $user->update(['active_status' => 0]);
+        }
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        if ($request->expectsJson()) {
+            return response()->json(['message' => 'Logout berhasil'], 200);
+        }
+
+        return redirect('/login')->with('message', 'Berhasil logout');
     }
 
     public function me()
     {
         $user = Auth::guard('web')->user();
-
-        if (!$user) {
-            return response()->json([
-                'message' => 'User tidak ditemukan',
-                // 'status_code' => 404,
-                'data' => null
-            ], 404);
-        }
-
-        $formatedUser = [
-            'user_id' => $user->user_id,
-            'name' => $user->name,
-            'email' => $user->email,
-            'role' => $user->role->name,
-        ];
-
-        return response()->json([
-            'message' => 'User ditemukan',
-            // 'status_code' => 200,
-            'data' => $formatedUser
-        ], 200);
+        if (!$user) return response()->json(['message' => 'User tidak ditemukan'], 404);
+        return response()->json(['message' => 'User ditemukan', 'data' => $user], 200);
     }
 
     public function refresh()
     {
-        try {
-            $newToken = Auth::guard('web')->refresh();
-
-            return response()->json([
-                'message' => 'Token refreshed successfully',
-                // 'status_code' => 200,
-                'data' => ['token' => $newToken]
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'message' => 'Could not refresh token: ' . $e->getMessage(),
-                // 'status_code' => 500,
-                'data' => null
-            ], 500);
-        }
+        return response()->json(['message' => 'Session refreshed'], 200);
     }
-
-    public function logout(Request $request)
-    {
-        // Auth::guard('web')->logout();
-
-        // return response()->json([
-        //     'message' => 'Logout berhasil',
-        //     // 'status_code' => 200,
-        //     'data' => null
-        // ], 200);
-
-    Auth::guard('web')->logout();
-
-    // Logout dari guard web (supaya Blade @auth jadi guest lagi)
-    Auth::guard('web')->logout();
-
-    // Hapus session
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    return redirect('/login')->with('message', 'Berhasil logout');
-    }
-
-//     public function logout(Request $request)
-// {
-//     Auth::guard('web')->logout();
-//     Auth::guard('web')->logout();
-
-//     $request->session()->invalidate();
-//     $request->session()->regenerateToken();
-
-//     return redirect()->route('login');
-// }
-
 }

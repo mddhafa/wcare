@@ -2,15 +2,24 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Korban extends Model
 {
-    protected $fillable = ['user_id', 'name', 'email', 'password', 'umur', 'jenis_kelamin' ];
-    protected $table = 'korban';
+    use HasFactory;
 
-    public function laporan ()
+    protected $table = 'korban';
+    protected $primaryKey = 'id_korban';
+
+    protected $fillable = [
+        'user_id',
+        'umur',
+        'jenis_kelamin'
+    ];
+
+    public function user()
     {
-        return $this->hasMany(Laporan::class);
+        return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 }
