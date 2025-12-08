@@ -46,7 +46,12 @@
         <div class="row">
 
             <div class="col-lg-8 mb-4">
+                {{-- LOGIKA TOMBOL KEMBALI --}}
+                @if($laporan->status == 'selesai' && Auth::user()->role_id == 2)
+                <a href="{{ route('lapor.arsip') }}" class="btn btn-light mb-3 text-muted"><i class="bi bi-arrow-left"></i> Kembali ke Arsip</a>
+                @else
                 <a href="{{ route('lapor.index') }}" class="btn btn-light mb-3 text-muted"><i class="bi bi-arrow-left"></i> Kembali</a>
+                @endif
 
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                     <div class="card-header bg-white p-4 border-bottom">
@@ -128,9 +133,12 @@
                                 @endif
 
                                 @if($laporan->status == 'selesai')
-                                <div class="alert alert-success text-center mb-0">
+                                <div class="alert alert-success text-center mb-2">
                                     <i class="bi bi-check-circle-fill me-1"></i> Kasus Selesai
                                 </div>
+                                <button name="status" value="proses" class="btn btn-outline-warning py-2 fw-semibold btn-sm">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i> Buka Kembali Kasus
+                                </button>
                                 @endif
                             </div>
                         </form>

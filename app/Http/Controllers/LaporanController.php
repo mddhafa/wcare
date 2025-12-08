@@ -23,7 +23,7 @@ class LaporanController extends Controller
         ]);
 
         Laporan::create([
-            'user_id' => Auth::id(), 
+            'user_id' => Auth::id(),
             'lokasi' => $request->lokasi,
             'jenis' => $request->jenis,
             'kronologi' => $request->kronologi,
@@ -43,10 +43,27 @@ class LaporanController extends Controller
                 ->latest()
                 ->get();
         } else {
-            $laporan = Laporan::with('korban')->latest()->get();
+            $laporan = Laporan::with('korban')
+                ->where('status', '!=', 'selesai') // Default index tidak menampilkan yang selesai
+                ->latest()
+                ->get();
         }
 
         return view('lapor.index', compact('laporan'));
+    }
+
+    public function arsip()
+    {
+        if (!in_array(Auth::user()->role_id, [1, 2])) {
+            abort(403, 'Akses Ditolak');
+        }
+
+        $laporan = Laporan::with('korban')
+            ->where('status', 'selesai')
+            ->latest()
+            ->get();
+
+        return view('lapor.arsip', compact('laporan'));
     }
 
     public function show($id)
