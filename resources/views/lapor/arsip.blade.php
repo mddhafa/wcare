@@ -60,7 +60,7 @@
                     <h2 class="fw-bold mb-1" style="color: #059669;">Arsip Laporan Selesai</h2>
                     <p class="text-muted mb-0">Riwayat kasus yang telah ditangani dan diselesaikan.</p>
                 </div>
-                <a href="{{ url('/dashboard-psikolog') }}" class="btn btn-outline-secondary btn-sm">
+                <a href="{{ url('/psikolog/dashboard') }}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-grid me-1"></i> Dashboard
                 </a>
             </div>
