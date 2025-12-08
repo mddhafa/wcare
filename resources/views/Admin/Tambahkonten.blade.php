@@ -37,8 +37,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex-shrink-0 flex items-center">
-          <a href="{{ url('/dashboard') }}" class="flex items-center gap-2 text-2xl font-bold text-primary hover:text-secondary transition">
-            <i class="fa-solid fa-heart-pulse"></i>
+          <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 text-2xl font-bold text-primary hover:text-secondary transition">
+            <img src="{{ asset('images/Umy-logo.gif') }}" width="40" height="40" class="me-2 rounded-circle" alt="Logo">
             <span>Sistem Curhat</span>
           </a>
         </div>

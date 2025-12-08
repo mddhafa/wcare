@@ -1,9 +1,24 @@
 <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+
+@php
+    $dashboardUrl = route('dashboard');
+    $roleLabel = 'Dashboard';
+    if(auth()->check()) {
+        $roleId = auth()->user()->role_id;
+        if($roleId == 1) {
+            $dashboardUrl = route('admin.dashboard');
+            $roleLabel = 'Admin Panel';
+        } elseif($roleId == 2) {
+            $dashboardUrl = route('psikolog.dashboard-psikolog');
+            $roleLabel = 'Dashboard Psikolog';
+        }
+    }
+    @endphp
   <div class="container">
     <!-- LOGO & BRAND -->
-    <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ url('/dashboard') }}" style="color: #059669;">
-      <i class="bi bi-heart-pulse-fill me-2 fs-4"></i>
-      <span>Sistem Curhat</span>
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="{{ $dashboardUrl }}" style="color: #059669;">
+      <img src="{{ asset('images/Umy-logo.gif') }}" width="40" height="40" class="me-2 rounded-circle" alt="Logo">
+      <span>Wcare</span>
     </a>
 
     <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
