@@ -4,141 +4,102 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Http\Requests\SelfHealingRequest;
 use App\Models\SelfHealing;
-use Illuminate\Support\Facades\Schema;
-use Illuminatr\Support\Facades\Log;
 use App\Models\Emosi;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SelfHealingController extends Controller
 {
-
     public function index()
     {
-        $user = auth()->user();
-        
-        // Debug: Log user info
-        \Log::info('=== START DEBUG SELF HEALING ===');
-        \Log::info('User: ' . ($user ? $user->id : 'Guest'));
-        \Log::info('Current Emosi ID: ' . ($user ? $user->current_emosi_id : 'NULL'));
+        $user = Auth::user();
 
-        try {
-            if ($user && $user->current_emosi_id) {
-                \Log::info('User memiliki emosi ID: ' . $user->current_emosi_id);
-                
-                // Cek apakah kolom emosi_id ada
-                if (Schema::hasColumn('selfhealing', 'id_emosi')) {
-                    \Log::info('Kolom emosi_id DITEMUKAN');
-                    
-                    // Filter konten berdasarkan emosi user
-                    $selfHealings = SelfHealing::where('id_emosi', $user->current_emosi_id)->get();
-                    
-                    \Log::info('Jumlah konten filtered: ' . $selfHealings->count());
-                    
-                    // Debug: tampilkan ID konten yang ditemukan
-                    $ids = $selfHealings->pluck('id')->toArray();
-                    \Log::info('ID Konten yang ditemukan: ' . implode(', ', $ids));
-                    
-                    // Jika tidak ada konten untuk emosi ini, tampilkan semua
-                    if ($selfHealings->isEmpty()) {
-                        \Log::warning('TIDAK ADA konten untuk emosi ID: ' . $user->current_emosi_id);
-                        \Log::info('Menampilkan SEMUA konten sebagai fallback');
-                        $selfHealings = SelfHealing::all();
-                    } else {
-                        \Log::info('BERHASIL filter konten berdasarkan emosi');
-                    }
-                } else {
-                    \Log::error('Kolom emosi_id TIDAK DITEMUKAN!');
-                    $selfHealings = SelfHealing::all();
+        // Default: Ambil semua konten
+        $selfHealings = SelfHealing::with('emosi')->latest()->get();
+        $currentEmosi = null;
+
+        // Logika Filter jika User Login & Punya Emosi
+        if ($user && $user->current_emosi_id) {
+            // Cek apakah kolom id_emosi ada di tabel selfhealing
+            if (Schema::hasColumn('selfhealing', 'id_emosi')) {
+                $filtered = SelfHealing::with('emosi')
+                    ->where('id_emosi', $user->current_emosi_id)
+                    ->latest()
+                    ->get();
+
+                // Jika ada konten yang cocok, pakai yang difilter
+                if ($filtered->isNotEmpty()) {
+                    $selfHealings = $filtered;
+                    $currentEmosi = Emosi::find($user->current_emosi_id);
                 }
-            } else {
-                \Log::info('User BELUM memilih emosi atau belum login');
-                $selfHealings = SelfHealing::all();
             }
-            
-            \Log::info('Total konten yang akan ditampilkan: ' . $selfHealings->count());
-            \Log::info('=== END DEBUG SELF HEALING ===');
-            
-        } catch (\Exception $e) {
-            \Log::error('ERROR: ' . $e->getMessage());
-            \Log::error('Stack trace: ' . $e->getTraceAsString());
-            $selfHealings = SelfHealing::all();
         }
-
-        // Ambil data emosi user untuk ditampilkan di view
-        $currentEmosi = $user && $user->current_emosi_id ? 
-                        Emosi::find($user->current_emosi_id) : null;
 
         return view('halamanselfhealing', compact('selfHealings', 'currentEmosi'));
     }
-    
+
+    // --- DASHBOARD WIDGET ---
     public function indexdash()
     {
-        $selfHealings = SelfHealing::latest()->get();
-        // dd($selfHealings); // sementara untuk cek data
+        $selfHealings = SelfHealing::latest()->take(5)->get();
         return view('dashboard', compact('selfHealings'));
     }
 
+    // --- DETAIL KONTEN (API/Show) ---
     public function show($id)
     {
         $selfHealing = SelfHealing::find($id);
         if (!$selfHealing) {
-            return response()->json([
-                'message' => 'Self-healing content not found',
-            ], 404);
+            return response()->json(['message' => 'Konten tidak ditemukan'], 404);
         }
-
-        return response()->json([
-            'message' => 'Self-healing content retrieved successfully',
-            'data'    => $selfHealing,
-        ], 200);
+        return response()->json(['data' => $selfHealing], 200);
     }
-    public function store(SelfHealingRequest $request)
+
+    // --- FORM TAMBAH KONTEN (ADMIN) ---
+    public function tambahkonten()
     {
-        // Cek role user
-        if (($user = auth()->user()) && $user->role_id != 1) {
-            return response()->json([
-                'message' => 'Unauthorized: Only admins can create self-healing content',
-            ], 403);
-        }
+        $emosis = Emosi::all();
+        return view('Admin.tambahkonten', compact('emosis'));
+    }
+
+    // --- PROSES SIMPAN KONTEN (ADMIN) ---
+    public function store(Request $request)
+    {
+        // 1. Validasi Input
+        $request->validate([
+            'jenis_konten' => 'required|string|max:255',
+            'id_emosi'     => 'required|exists:emosi,id_emosi', // Pastikan nama tabel & kolom PK sesuai
+            'judul'        => 'required|string|max:255',
+            'link_konten'  => 'nullable|url',
+            'deskripsi'    => 'required|string',
+            'gambar'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
+        ]);
 
         try {
             $selfHealing = new SelfHealing();
-            // Isi data teks
-            // $selfHealing->jenis_konten = $request->jenis_konten;
-            $selfHealing->judul = $request->judul;
-            $selfHealing->link_konten = $request->link_konten;
-            $selfHealing->deskripsi = $request->deskripsi;
-            $selfHealing->id_emosi = $request->id_emosi;
+            $selfHealing->jenis_konten = $request->jenis_konten;
+            $selfHealing->id_emosi     = $request->id_emosi;
+            $selfHealing->judul        = $request->judul;
+            $selfHealing->link_konten  = $request->link_konten;
+            $selfHealing->deskripsi    = $request->deskripsi;
 
-            // Upload gambar jika ada
+            // 2. Upload Gambar (Jika ada)
             if ($request->hasFile('gambar')) {
-                $file = $request->file('gambar');
-
-                // Simpan ke folder storage/app/public/selfhealing
-                $path = $file->store('selfhealing', 'public');
-
-                // Simpan path gambar ke database
+                // Simpan di folder: storage/app/public/selfhealing
+                $path = $request->file('gambar')->store('selfhealing', 'public');
                 $selfHealing->gambar = $path;
             }
 
             $selfHealing->save();
 
-            return redirect()->route('halamanselfhealing')->with('success', 'Self-healing content created successfully');
-        } catch (\Throwable $e) {
-            return response()->json([
-                'status_code' => 500,
-                'message' => 'Self-healing content creation failed',
-                'error'   => $e->getMessage(),
-            ], 500);
+            // Redirect dengan pesan sukses
+            return redirect()->route('halamanselfhealing')->with('success', 'Konten berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            // Jika error, kembali ke form dengan pesan error
+            return back()->withInput()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()]);
         }
     }
-
-    public function tambahkonten()
-    {
-        $emosis = \App\Models\Emosi::all();
-        return view('admin.tambahkonten', compact('emosis'));
-    }
-
-
 }
