@@ -120,79 +120,78 @@
 
         <!-- INFO MOOD -->
        @auth
-            @if(auth()->user()->current_emosi_id && isset($currentEmosi))
+    @if(auth()->user()->current_emosi_id && isset($currentEmosi))
 
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-1 mb-10 transition-all duration-300">
-                    <div class="bg-gradient-to-r from-emerald-50 to-white rounded-xl p-6 
-                                flex flex-col md:flex-row items-center justify-between gap-6">
+        {{-- MOOD TERPILIH --}}
+        <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-1 mb-10 transition-all duration-300">
+            <div class="bg-gradient-to-r from-emerald-50 to-white rounded-xl p-6 
+                        flex flex-col md:flex-row items-center justify-between gap-6">
 
-                        {{-- BAGIAN EMOJI --}}
-                        <div class="flex items-center gap-6">
+                {{-- Bagian Emoji & Teks --}}
+                <div class="flex items-center gap-6">
 
-                            <div class="relative">
-                                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center 
-                                            text-5xl shadow-md border-4 border-emerald-100">
+                    {{-- Emoji --}}
+                    <div class="relative">
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center 
+                                    text-5xl shadow-md border-4 border-emerald-100">
 
-                                    @if($currentEmosi->id_emosi == 1)
-                                        😊
-                                    @elseif($currentEmosi->id_emosi == 2)
-                                        😢
-                                    @elseif($currentEmosi->id_emosi == 3)
-                                        😡
-                                    @elseif($currentEmosi->id_emosi == 4)
-                                        😨
-                                    @else
-                                        😐
-                                    @endif
-
-                                </div>
-
-                                <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white 
-                                            text-xs font-semibold px-2 py-1 rounded-md shadow">
-                                    MOOD
-                                </span>
-                            </div>
-
-                            {{-- TEKS --}}
-                            <div>
-                                <p class="text-gray-500 text-sm tracking-wide uppercase">
-                                    Rekomendasi Konten Untuk
-                                </p>
-                                <h2 class="text-3xl font-bold text-gray-800">
-                                    {{ $currentEmosi->nama_emosi }}
-                                </h2>
-                            </div>
+                            @if($currentEmosi->id_emosi == 1)
+                                😊
+                            @elseif($currentEmosi->id_emosi == 2)
+                                😡
+                            @elseif($currentEmosi->id_emosi == 3)
+                                😢
+                            @elseif($currentEmosi->id_emosi == 4)
+                                😨
+                            @else
+                                😐
+                            @endif
 
                         </div>
 
-                        {{-- TOMBOL UBAH MOOD --}}
-                        @if(auth()->user()->role_id == 3)
-                            <div>
-                                <button class="btn btn-success btn-lg px-4 shadow"
-                                        data-bs-toggle="modal" data-bs-target="#modalEmosi">
-                                    <i class="fas fa-edit me-1"></i>
-                                    Ubah Mood
-                                </button>
-                            </div>
-                        @endif
+                        <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white 
+                                     text-xs font-semibold px-2 py-1 rounded-md shadow">
+                            MOOD
+                        </span>
+                    </div>
 
+                    {{-- Teks --}}
+                    <div>
+                        <p class="text-gray-500 text-sm tracking-wide uppercase">
+                            Rekomendasi Konten Untuk
+                        </p>
+                        <h2 class="text-3xl font-bold text-gray-800">
+                            {{ $currentEmosi->nama_emosi }}
+                        </h2>
                     </div>
                 </div>
 
-            @else
+                {{-- Tombol Ubah Mood --}}
+                @if(auth()->user()->role_id == 3)
+                    <div>
+                        <button class="btn btn-success btn-lg px-4 shadow"
+                                data-bs-toggle="modal" data-bs-target="#modalEmosi">
+                            <i class="fas fa-edit me-1"></i> Ubah Mood
+                        </button>
+                    </div>
+                @endif
 
-                {{-- JIKA USER BELUM MEMILIH EMOSI --}}
-                <div class="alert alert-warning-custom alert-custom mb-4">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Anda belum memilih emosi.
-                    <a href="{{ route('dashboard') }}" class="alert-link fw-bold">
-                        Pilih emosi sekarang
-                    </a>
-                    untuk mendapatkan konten yang sesuai dengan perasaan Anda.
-                </div>
+            </div>
+        </div>
 
-            @endif
-        @endauth
+    @else
+
+        {{-- BELUM MEMILIH EMOSI --}}
+        <div class="alert alert-warning-custom alert-custom mb-4">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Anda belum memilih emosi. 
+            <a href="{{ route('dashboard') }}" class="alert-link fw-bold">Pilih emosi sekarang</a>
+            untuk mendapatkan konten yang sesuai dengan perasaan Anda.
+        </div>
+
+    @endif
+@endauth
+
 
 
         <!-- CONTENT GRID -->
