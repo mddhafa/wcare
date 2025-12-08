@@ -98,7 +98,7 @@
         </div>
 
         <!-- Form -->
-        <form action="/tambah/selfhealing" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+        <form action="/admin/tambah/selfhealing" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
           @csrf
 
           <!-- Grid Layout -->

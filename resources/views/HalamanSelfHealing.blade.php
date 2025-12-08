@@ -2,8 +2,8 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pustaka Self-Healing - Sistem Curhat</title>
 
     <!-- Tailwind CSS -->
@@ -11,6 +11,11 @@
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -20,10 +25,10 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#059669', // Emerald 600
-                        secondary: '#047857', // Emerald 700
-                        dark: '#064e3b', // Emerald 900
-                        accent: '#fbbf24', // Amber 400
+                        primary: '#059669',
+                        secondary: '#047857',
+                        dark: '#064e3b',
+                        accent: '#fbbf24',
                     },
                     fontFamily: {
                         sans: ['Poppins', 'sans-serif'],
@@ -32,42 +37,50 @@
             }
         }
     </script>
+
     <style>
-        .aspect-video {
-            aspect-ratio: 16 / 9;
+        .aspect-video { aspect-ratio: 16/9; }
+        .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+
+        .emosi-card {
+            transition: all .3s ease;
+            border: 2px solid transparent;
+        }
+        .emosi-card:hover {
+            transform: translateY(-3px);
+            border-color: #10b981;
+            background-color: #f0fdf4;
+        }
+        input[type="radio"]:checked + .emosi-card {
+            border-color: #059669 !important;
+            background-color: #ecfdf5 !important;
+            box-shadow: 0 0 0 3px #d1fae5;
         }
 
-        .text-shadow {
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+        /* override jika stacking context masih bermasalah */
+        .modal { z-index: 12050 !important; }
+        .modal-backdrop { z-index: 12040 !important; }
     </style>
 </head>
 
 <body class="bg-gray-50 font-sans text-gray-800 min-h-screen flex flex-col">
 
-    <!-- LOGIKA PHP: URL BACK BUTTON -->
     @php
     $dashboardUrl = route('dashboard');
     $roleLabel = 'Dashboard';
-
     if(auth()->check()) {
-    $roleId = auth()->user()->role_id;
-
-    if($roleId == 1) {
-    $dashboardUrl = route('admin.dashboard');
-    $roleLabel = 'Admin Panel';
-    }
-    elseif($roleId == 2) {
-    $dashboardUrl = route('dashboard.psikolog');
-    $roleLabel = 'Dashboard Psikolog';
-    }
+        $roleId = auth()->user()->role_id;
+        if($roleId == 1) {
+            $dashboardUrl = route('admin.dashboard');
+            $roleLabel = 'Admin Panel';
+        } elseif($roleId == 2) {
+            $dashboardUrl = route('dashboard.psikolog');
+            $roleLabel = 'Dashboard Psikolog';
+        }
     }
     @endphp
 
-    <!-- HEADER / HERO SECTION (Pengganti Navbar) -->
     <header class="bg-gradient-to-br from-emerald-900 via-primary to-emerald-500 text-white relative overflow-hidden pb-32 pt-10">
-
-        <!-- Background Elements -->
         <div class="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10 pointer-events-none">
             <svg class="absolute right-0 top-0 h-full w-1/2 text-white transform translate-x-1/2" fill="currentColor" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
                 <polygon points="50,0 100,0 50,100 0,100" />
@@ -75,8 +88,6 @@
         </div>
 
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-
-            <!-- Top Bar Navigation -->
             <div class="flex justify-between items-center mb-12">
                 <div class="flex items-center gap-3 opacity-90">
                     <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
@@ -91,7 +102,6 @@
                 </a>
             </div>
 
-            <!-- Hero Text -->
             <div class="text-center max-w-3xl mx-auto">
                 <div class="inline-block px-4 py-1.5 rounded-full bg-emerald-800/50 border border-emerald-400/30 text-emerald-100 text-sm font-medium mb-6 backdrop-blur-sm">
                     ✨ Ruang Tenang Anda
@@ -103,70 +113,107 @@
                     Kumpulan konten terkurasi untuk membantu Anda menemukan ketenangan, mengelola emosi, dan merawat kesehatan mental.
                 </p>
             </div>
-
         </div>
     </header>
 
-    <!-- MAIN CONTENT (Overlapping Header) -->
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-20 pb-20">
 
-        <!-- INFO MOOD (Jika Login & Ada Mood) -->
-        @auth
-        @if(auth()->user()->current_emosi_id && isset($currentEmosi))
-        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-1 mb-10 transform hover:-translate-y-1 transition-transform duration-300">
-            <div class="bg-gradient-to-r from-emerald-50 to-white rounded-xl p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        <!-- INFO MOOD -->
+       @auth
+            @if(auth()->user()->current_emosi_id && isset($currentEmosi))
 
-                <div class="flex items-center gap-6">
-                    <div class="relative">
-                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-4xl shadow-md border-4 border-emerald-50">
-                            @if($currentEmosi->id_emosi == 3) 😡
-                            @elseif($currentEmosi->id_emosi == 1) 😊
-                            @elseif($currentEmosi->id_emosi == 2) 😢
-                            @elseif($currentEmosi->id_emosi == 4) 😨
-                            @else 😐
-                            @endif
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-1 mb-10 transition-all duration-300">
+                    <div class="bg-gradient-to-r from-emerald-50 to-white rounded-xl p-6 
+                                flex flex-col md:flex-row items-center justify-between gap-6">
+
+                        {{-- BAGIAN EMOJI --}}
+                        <div class="flex items-center gap-6">
+
+                            <div class="relative">
+                                <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center 
+                                            text-5xl shadow-md border-4 border-emerald-100">
+
+                                    @if($currentEmosi->id_emosi == 1)
+                                        😊
+                                    @elseif($currentEmosi->id_emosi == 2)
+                                        😢
+                                    @elseif($currentEmosi->id_emosi == 3)
+                                        😡
+                                    @elseif($currentEmosi->id_emosi == 4)
+                                        😨
+                                    @else
+                                        😐
+                                    @endif
+
+                                </div>
+
+                                <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white 
+                                            text-xs font-semibold px-2 py-1 rounded-md shadow">
+                                    MOOD
+                                </span>
+                            </div>
+
+                            {{-- TEKS --}}
+                            <div>
+                                <p class="text-gray-500 text-sm tracking-wide uppercase">
+                                    Rekomendasi Konten Untuk
+                                </p>
+                                <h2 class="text-3xl font-bold text-gray-800">
+                                    {{ $currentEmosi->nama_emosi }}
+                                </h2>
+                            </div>
+
                         </div>
-                        <div class="absolute -bottom-2 -right-2 bg-primary text-white text-xs font-bold px-2 py-1 rounded-md shadow-sm">
-                            MOOD
-                        </div>
-                    </div>
-                    <div class="text-center md:text-left">
-                        <p class="text-gray-500 text-sm font-medium uppercase tracking-wider mb-1">Rekomendasi Konten Untuk</p>
-                        <h2 class="text-3xl font-bold text-gray-800">{{ $currentEmosi->nama_emosi }}</h2>
+
+                        {{-- TOMBOL UBAH MOOD --}}
+                        @if(auth()->user()->role_id == 3)
+                            <div>
+                                <button class="btn btn-success btn-lg px-4 shadow"
+                                        data-bs-toggle="modal" data-bs-target="#modalEmosi">
+                                    <i class="fas fa-edit me-1"></i>
+                                    Ubah Mood
+                                </button>
+                            </div>
+                        @endif
+
                     </div>
                 </div>
 
-                @if(auth()->user()->role_id == 3)
-                <div class="flex-shrink-0">
-                    <a href="{{ route('dashboard') }}" class="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-xl text-primary bg-emerald-100 hover:bg-emerald-200 transition-colors">
-                        <i class="fas fa-sliders-h mr-2"></i> Ubah Mood
+            @else
+
+                {{-- JIKA USER BELUM MEMILIH EMOSI --}}
+                <div class="alert alert-warning-custom alert-custom mb-4">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Anda belum memilih emosi.
+                    <a href="{{ route('dashboard') }}" class="alert-link fw-bold">
+                        Pilih emosi sekarang
                     </a>
+                    untuk mendapatkan konten yang sesuai dengan perasaan Anda.
                 </div>
-                @endif
-            </div>
-        </div>
-        @endif
+
+            @endif
         @endauth
+
 
         <!-- CONTENT GRID -->
         @if(isset($selfHealings) && $selfHealings->isNotEmpty())
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($selfHealings as $content)
             @php
-            // Logika Deteksi YouTube
             $videoID = null;
             $isYoutube = false;
             if ($content->link_konten) {
-            if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $content->link_konten, $matches)) {
-            $videoID = $matches[1];
-            $isYoutube = true;
+                if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $content->link_konten, $matches)) {
+                    $videoID = $matches[1];
+                    $isYoutube = true;
+                }
             }
-            }
+            // determine id property (adjust if your model uses different primary key)
+            $contentId = $content->id ?? $content->self_healing_id ?? null;
             @endphp
 
-            <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group flex flex-col h-full border border-gray-100">
+            <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group flex flex-col h-full border border-gray-100 content-card" data-id="{{ $contentId }}">
 
-                <!-- MEDIA THUMBNAIL / PLAYER -->
                 <div class="relative w-full aspect-video bg-gray-900 group-hover:opacity-100 transition-opacity">
 
                     @if($isYoutube && $videoID)
@@ -181,9 +228,8 @@
                     @elseif($content->gambar)
                     <img src="{{ asset('storage/' . $content->gambar) }}"
                         alt="{{ $content->judul }}"
-                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700">
+                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 card-image">
 
-                    <!-- Overlay Link -->
                     <a href="{{ $content->link_konten }}" target="_blank" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <div class="bg-white text-gray-900 rounded-full p-4 shadow-lg transform scale-75 group-hover:scale-100 transition-transform">
                             <i class="fas fa-external-link-alt text-xl"></i>
@@ -196,7 +242,6 @@
                     </div>
                     @endif
 
-                    <!-- Type Badge -->
                     <div class="absolute top-4 left-4">
                         <span class="bg-white/90 backdrop-blur-md text-gray-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-2">
                             @if($isYoutube)
@@ -208,9 +253,7 @@
                     </div>
                 </div>
 
-                <!-- CARD BODY -->
                 <div class="p-6 flex flex-col flex-grow">
-                    <!-- Category/Emotion Tag -->
                     @if($content->emosi)
                     <div class="mb-3">
                         <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md uppercase tracking-wider">
@@ -227,7 +270,6 @@
                         {{ \Illuminate\Support\Str::limit($content->deskripsi, 120) }}
                     </p>
 
-                    <!-- CARD FOOTER -->
                     <div class="mt-auto pt-5 border-t border-gray-100 flex justify-between items-center">
                         @if(!$isYoutube && $content->link_konten)
                         <a href="{{ $content->link_konten }}" target="_blank" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-2 group/link">
@@ -247,7 +289,6 @@
             @endforeach
         </div>
         @else
-        <!-- EMPTY STATE -->
         <div class="bg-white rounded-3xl shadow-lg p-12 text-center max-w-2xl mx-auto border border-gray-100">
             <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <i class="fas fa-wind text-gray-300 text-4xl"></i>
@@ -268,6 +309,128 @@
         @endif
 
     </main>
+
+    <!-- -----------------------------
+         Modal dipindah KE SINI (tepat sebelum footer / penutup body)
+         supaya menjadi child langsung dari <body>
+         ----------------------------- -->
+    <form action="{{ route('emosi.pilih') }}" method="POST">
+        @csrf
+        <div class="modal fade" id="modalEmosi" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content rounded-2xl">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Bagaimana perasaanmu hari ini?</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="row g-3">
+
+                            <div class="col-6 col-md-3">
+                                <label for="senang" class="w-100">
+                                    <input type="radio" name="emosi_id" id="senang" value="1" class="visually-hidden">
+                                    <div class="p-3 border rounded-4 text-center shadow-sm emosi-card" role="button" tabindex="0">
+                                        <div class="fs-1">😊</div>
+                                        <div class="fw-semibold mt-2">Senang</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <label for="sedih" class="w-100">
+                                    <input type="radio" name="emosi_id" id="sedih" value="2" class="visually-hidden">
+                                    <div class="p-3 border rounded-4 text-center shadow-sm emosi-card" role="button" tabindex="0">
+                                        <div class="fs-1">😢</div>
+                                        <div class="fw-semibold mt-2">Sedih</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <label for="marah" class="w-100">
+                                    <input type="radio" name="emosi_id" id="marah" value="3" class="visually-hidden">
+                                    <div class="p-3 border rounded-4 text-center shadow-sm emosi-card" role="button" tabindex="0">
+                                        <div class="fs-1">😡</div>
+                                        <div class="fw-semibold mt-2">Marah</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="col-6 col-md-3">
+                                <label for="takut" class="w-100">
+                                    <input type="radio" name="emosi_id" id="takut" value="4" class="visually-hidden">
+                                    <div class="p-3 border rounded-4 text-center shadow-sm emosi-card" role="button" tabindex="0">
+                                        <div class="fs-1">😨</div>
+                                        <div class="fw-semibold mt-2">Takut</div>
+                                    </div>
+                                </label>
+                            </div>
+
+                        </div>
+                    </div>       
+
+
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-success">Simpan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- jQuery (dipakai oleh skrip custom kamu) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- Bootstrap Bundle (JS) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+    $(function() {
+        // Saat user klik elemen .emosi-card, centang radio di dalam label terdekat
+        $(document).on('click', '.emosi-card', function(e) {
+            // cari input radio di dalam label terdekat
+            var $label = $(this).closest('label');
+            var $radio = $label.find('input[type="radio"]');
+            if ($radio.length) {
+                $radio.prop('checked', true).trigger('change');
+                // tambahkan class selected agar visual lebih jelas (opsional)
+                $('.emosi-card').removeClass('selected');
+                $(this).addClass('selected');
+            }
+        });
+
+        // dukungan keyboard: tekan ENTER atau SPACE pada .emosi-card juga memeriksa radio
+        $(document).on('keydown', '.emosi-card', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                $(this).trigger('click');
+            }
+        });
+
+        // Validasi sederhana sebelum submit: pastikan ada radio yang terpilih
+        $(document).on('submit', 'form[action="{{ route('emosi.pilih') }}"]', function(e) {
+            var $form = $(this);
+            var chosen = $form.find('input[name="emosi_id"]:checked').val();
+            if (!chosen) {
+                e.preventDefault();
+                // bisa ganti dengan UI toast atau pesan modal
+                alert('Silakan pilih perasaanmu terlebih dahulu.');
+                return false;
+            }
+            // biarkan form submit normal (server akan memproses POST)
+            return true;
+        });
+
+        // opsional: style selected state (CSS tambahan)
+        $('<style>')
+            .prop('type', 'text/css')
+            .html('.emosi-card.selected{ border-color:#059669 !important; background-color:#ecfdf5 !important; box-shadow:0 0 0 3px #d1fae5; }')
+            .appendTo('head');
+    });
+    </script>
+
 
     <!-- Footer -->
     @include('components.footer')

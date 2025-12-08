@@ -79,6 +79,7 @@
   }
 
   $(".toggle-password").click(function() {
+
     $(this).toggleClass("fa-eye fa-eye-slash");
     var input = $($(this).attr("toggle"));
     if (input.attr("type") == "password") {
@@ -115,21 +116,18 @@
     if (res.status === 200) {
       showSnackbar(result.message || 'Login berhasil!', 'success');
 
-      // PERBAIKAN DISINI: Ambil role_id, bukan role
-      const roleId = result.data?.role_id;
+      const role = result.data?.role;
 
-      // Logika Redirect sesuai Role ID
-      if (roleId == 1) {
-        // Admin
+      if (role === 'admin') {
         setTimeout(() => window.location.href = '/admin/dashboard', 1200);
-      } else if (roleId == 2) {
-        // Psikolog (Tambahkan ini)
-        setTimeout(() => window.location.href = '/dashboard-psikolog', 1200);
-      } else {
-        // Korban / User Biasa
+      } else if (role === 'psikolog') {
+        setTimeout(() => window.location.href = '/psikolog/dashboard', 1200);
+      } else if (role === 'korban') {
         setTimeout(() => window.location.href = '/dashboard', 1200);
+      } else {
+        setTimeout(() => window.location.href = '/', 1200);
       }
-
+      
     } else {
       showSnackbar(result.message || 'Gagal login (' + res.status + ')', 'error');
     }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Exception;
@@ -76,44 +77,49 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function login(Request $request)
+    public function showdashboardpsi()
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+        return view('psikolog.dashboard-psikolog');
+    }
+
+    public function login(LoginRequest $request)
+    {
+        $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            $user = Auth::guard('web')->user();
-            $user->update(['active_status' => 1]);
+            
+            $user = Auth::user();
+            
+            $user->load('role');
+            
+            $roleName = $user->role?->name ?? 'user';
 
             if ($request->expectsJson()) {
                 return response()->json([
+                    'success' => true,
                     'message' => 'Login berhasil',
                     'data' => [
-                        'user_id' => $user->user_id,
+                        'user_id' => $user->id,
                         'name' => $user->name,
                         'email' => $user->email,
-                        'role_id' => $user->role_id,
+                        'role' => $roleName,
                     ]
-                ]);
+                ], 200);
             }
 
-            if ($user->role_id == 2) {
-                return redirect()->route('dashboard.psikolog');
-            }
-            if ($user->role_id == 1 || ($user->role->name ?? '') === 'admin') {
-                return redirect()->route('admin.dashboard');
-            }
-            return redirect()->route('dashboard');
         }
 
         if ($request->expectsJson()) {
-            return response()->json(['message' => 'Email atau password salah'], 401);
+            return response()->json([
+                'success' => false,
+                'message' => 'Email atau password salah'
+            ], 401);
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah'])->onlyInput('email');
+        return back()->withErrors([
+            'email' => 'Email atau password salah'
+        ])->withInput($request->only('email'));
     }
 
     public function logout(Request $request)
