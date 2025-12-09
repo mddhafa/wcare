@@ -588,13 +588,42 @@
 
         // Simulasi respons bot (ganti dengan fetch ke server Anda)
         setTimeout(() => {
+           fetch('/chat/generate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ message: msg })
+        })
+        // .then(res => res.json())
+        .then(res => {
+            // Check if the response is OK and JSON
+            if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+            }
+            return res.json();
+        })
+        .then(data => {
+            // Hapus typing animation
             document.getElementById(typingId).remove();
-            
+
+            // Tambahkan pesan bot
             chatBox.innerHTML += `
-                <div class="msg-bot"><span>Terima kasih telah berbagi. Saya mendengarkan Anda dengan penuh perhatian. Bisakah Anda ceritakan lebih lanjut?</span></div>
+                <div class="msg-bot"><span>${data.response}</span></div>
             `;
             saveChatHistory();
-            scrollToBottom();
+
+            chatBox.scrollTop = chatBox.scrollHeight;
+        })
+        .catch(err => {     
+            document.getElementById(typingId).remove();
+
+            chatBox.innerHTML += `
+                <div class="msg-bot"><span>Error: ${err}</span></div>
+            `;
+            saveChatHistory();
+        });
         }, 1500);
     }
     
