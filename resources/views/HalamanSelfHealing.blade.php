@@ -6,18 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Pustaka Self-Healing - Sistem Curhat</title>
 
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script>
@@ -39,8 +35,13 @@
     </script>
 
     <style>
-        .aspect-video { aspect-ratio: 16/9; }
-        .text-shadow { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .aspect-video {
+            aspect-ratio: 16/9;
+        }
+
+        .text-shadow {
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
         .line-clamp-3 {
             display: -webkit-box;
@@ -115,17 +116,33 @@
             border-radius: 12px;
         }
 
+        .audio-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(to bottom right, #6366f1, #a855f7);
+            color: white;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        audio {
+            width: 90%;
+            height: 35px;
+            margin-top: 15px;
+            border-radius: 20px;
+        }
+
         .modal-image {
             width: 100%;
             height: auto;
             cursor: pointer;
             border-radius: 12px;
             transition: all 0.3s ease;
-        }
-
-        .modal-image:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
         }
 
         .emosi-card {
@@ -158,12 +175,20 @@
             border: 0 !important;
         }
 
-        /* z-index override for modals if stacking context issues */
-        .modal { z-index: 12050 !important; }
-        .modal-backdrop { z-index: 12040 !important; }
+        .modal {
+            z-index: 12050 !important;
+        }
 
-        /* protect iframe clicks from bubbling */
-        .content-card iframe { pointer-events: auto; }
+        .modal-backdrop {
+            z-index: 12040 !important;
+        }
+
+        .content-card iframe,
+        .content-card audio {
+            pointer-events: auto;
+            position: relative;
+            z-index: 20;
+        }
     </style>
 </head>
 
@@ -173,14 +198,14 @@
     $dashboardUrl = route('dashboard');
     $roleLabel = 'Dashboard';
     if(auth()->check()) {
-        $roleId = auth()->user()->role_id;
-        if($roleId == 1) {
-            $dashboardUrl = route('admin.dashboard');
-            $roleLabel = 'Admin Panel';
-        } elseif($roleId == 2) {
-            $dashboardUrl = route('dashboard.psikolog');
-            $roleLabel = 'Dashboard Psikolog';
-        }
+    $roleId = auth()->user()->role_id;
+    if($roleId == 1) {
+    $dashboardUrl = route('admin.dashboard');
+    $roleLabel = 'Admin Panel';
+    } elseif($roleId == 2) {
+    $dashboardUrl = route('dashboard.psikolog');
+    $roleLabel = 'Dashboard Psikolog';
+    }
     }
     @endphp
 
@@ -195,7 +220,7 @@
             <div class="flex justify-between items-center mb-12">
                 <div class="flex items-center gap-3 opacity-90">
                     <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center border border-white/30">
-                        <i class="fas fa-heart-pulse text-xl text-white"></i>
+                        <i class="bi bi-heart-pulse-fill text-xl text-white"></i>
                     </div>
                     <span class="font-bold text-lg tracking-wide uppercase text-emerald-50">Sistem Curhat</span>
                 </div>
@@ -222,111 +247,103 @@
 
     <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 -mt-24 relative z-20 pb-20">
 
-        <!-- INFO MOOD -->
-       @auth
+        @auth
         @if(auth()->user()->current_emosi_id && isset($currentEmosi))
-
-        {{-- MOOD TERPILIH --}}
         <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-1 mb-10 transition-all duration-300">
-            <div class="bg-gradient-to-r from-emerald-50 to-white rounded-xl p-6 
-                        flex flex-col md:flex-row items-center justify-between gap-6">
-
-                {{-- Bagian Emoji & Teks --}}
+            <div class="bg-gradient-to-r from-emerald-50 to-white rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-6">
                 <div class="flex items-center gap-6">
-
-                    {{-- Emoji --}}
                     <div class="relative">
-                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center 
-                                    text-5xl shadow-md border-4 border-emerald-100">
-
-                            @if($currentEmosi->id_emosi == 1)
-                                😊
-                            @elseif($currentEmosi->id_emosi == 2)
-                                😡
-                            @elseif($currentEmosi->id_emosi == 3)
-                                😢
-                            @elseif($currentEmosi->id_emosi == 4)
-                                😨
-                            @else
-                                😐
+                        <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center text-5xl shadow-md border-4 border-emerald-100">
+                            @if($currentEmosi->id_emosi == 1) 😊
+                            @elseif($currentEmosi->id_emosi == 2) 😡
+                            @elseif($currentEmosi->id_emosi == 3) 😢
+                            @elseif($currentEmosi->id_emosi == 4) 😨
+                            @else 😐
                             @endif
-
                         </div>
-
-                        <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white 
-                                     text-xs font-semibold px-2 py-1 rounded-md shadow">
-                            MOOD
-                        </span>
+                        <span class="absolute -bottom-2 -right-2 bg-emerald-500 text-white text-xs font-semibold px-2 py-1 rounded-md shadow">MOOD</span>
                     </div>
-
-                    {{-- Teks --}}
                     <div>
-                        <p class="text-gray-500 text-sm tracking-wide uppercase">
-                            Rekomendasi Konten Untuk
-                        </p>
-                        <h2 class="text-3xl font-bold text-gray-800">
-                            {{ $currentEmosi->nama_emosi }}
-                        </h2>
+                        <p class="text-gray-500 text-sm tracking-wide uppercase">Rekomendasi Konten Untuk</p>
+                        <h2 class="text-3xl font-bold text-gray-800">{{ $currentEmosi->nama_emosi }}</h2>
                     </div>
                 </div>
-
-                {{-- Tombol Ubah Mood --}}
                 @if(auth()->user()->role_id == 3)
-                    <div>
-                        <button class="btn btn-success btn-lg px-4 shadow"
-                                data-bs-toggle="modal" data-bs-target="#modalEmosi">
-                            <i class="fas fa-edit me-1"></i> Ubah Mood
-                        </button>
-                    </div>
+                <div>
+                    <button class="btn btn-success btn-lg px-4 shadow" data-bs-toggle="modal" data-bs-target="#modalEmosi">
+                        <i class="fas fa-edit me-1"></i> Ubah Mood
+                    </button>
+                </div>
                 @endif
-
             </div>
         </div>
-
         @else
-
-        {{-- BELUM MEMILIH EMOSI --}}
-        <div class="alert alert-warning-custom alert-custom mb-4">
+        <div class="alert alert-warning-custom alert-custom mb-4 bg-yellow-50 border-l-4 border-yellow-400 p-4 text-yellow-700">
             <i class="fas fa-exclamation-triangle me-2"></i>
-            Anda belum memilih emosi. 
-            <a href="{{ route('dashboard') }}" class="alert-link fw-bold">Pilih emosi sekarang</a>
-            untuk mendapatkan konten yang sesuai dengan perasaan Anda.
+            Anda belum memilih emosi. <a href="{{ route('dashboard') }}" class="font-bold underline">Pilih emosi sekarang</a> untuk mendapatkan konten yang sesuai.
         </div>
-
         @endif
-       @endauth
+        @endauth
 
-        <!-- CONTENT GRID -->
         @if(isset($selfHealings) && $selfHealings->isNotEmpty())
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($selfHealings as $content)
             @php
-                $videoID = null;
-                $isYoutube = false;
-                if ($content->link_konten) {
-                    if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $content->link_konten, $matches)) {
-                        $videoID = $matches[1];
-                        $isYoutube = true;
-                    }
-                }
-                $contentId = $content->id ?? $content->self_healing_id ?? null;
-                $gambarUrl = $content->gambar ? asset('storage/' . $content->gambar) : '';
-                // Emosi label safe string
-                $emosiName = $content->emosi->nama_emosi ?? '';
+            $videoID = null;
+            $isYoutube = false;
+            $isAudio = false;
+            $audioUrl = '';
+            $hasFile = false;
+
+            $jenis = strtolower($content->jenis_konten ?? '');
+
+            if ($jenis == 'audio' || $content->audio) {
+            $isAudio = true;
+            if($content->audio) {
+            $audioUrl = asset('storage/' . $content->audio);
+            $hasFile = true;
+            }
+            }
+            elseif ($jenis == 'video' || ($content->link_konten && strpos($content->link_konten, 'youtube') !== false)) {
+            if ($content->link_konten && preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $content->link_konten, $matches)) {
+            $videoID = $matches[1];
+            $isYoutube = true;
+            $hasFile = true;
+            }
+            }
+
+            $contentId = $content->id ?? $content->self_healing_id ?? null;
+            $gambarUrl = $content->gambar ? asset('storage/' . $content->gambar) : '';
+            $emosiName = $content->emosi->nama_emosi ?? '';
             @endphp
 
-            {{-- Add data attributes so modal script can read --}}
             <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group flex flex-col h-full border border-gray-100 content-card"
-                 data-id="{{ $contentId }}"
-                 data-title="{{ e($content->judul) }}"
-                 data-link="{{ $content->link_konten ?? '' }}"
-                 data-gambar="{{ $gambarUrl }}"
-                 data-youtube="{{ $isYoutube ? $videoID : '' }}"
-                 data-emosi="{{ e($emosiName) }}">
+                data-id="{{ $contentId }}"
+                data-title="{{ e($content->judul) }}"
+                data-link="{{ $content->link_konten ?? '' }}"
+                data-gambar="{{ $gambarUrl }}"
+                data-audio="{{ $audioUrl }}"
+                data-youtube="{{ $isYoutube ? $videoID : '' }}"
+                data-emosi="{{ e($emosiName) }}">
 
                 <div class="relative w-full aspect-video bg-gray-900 group-hover:opacity-100 transition-opacity">
 
-                    @if($isYoutube && $videoID)
+                    @if($isAudio)
+                    <div class="audio-wrapper">
+                        <i class="fas fa-headphones-alt text-5xl mb-2 opacity-80"></i>
+                        <span class="text-sm font-bold tracking-wider opacity-80">AUDIO PLAYER</span>
+
+                        @if($hasFile)
+                        <audio controls onclick="event.stopPropagation()">
+                            <source src="{{ $audioUrl }}" type="audio/mpeg">
+                            Browser Anda tidak mendukung audio.
+                        </audio>
+                        @else
+                        <span class="text-xs mt-2 bg-red-500 text-white px-2 py-1 rounded">File Audio Tidak Ditemukan</span>
+                        @endif
+                    </div>
+
+                    @elseif($isYoutube && $videoID)
                     <iframe
                         class="w-full h-full pointer-events-auto"
                         src="https://www.youtube.com/embed/{{ $videoID }}?rel=0&modestbranding=1"
@@ -340,11 +357,11 @@
                         alt="{{ $content->judul }}"
                         class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 card-image">
 
-                    <a href="{{ $content->link_konten }}" target="_blank" class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                         <div class="bg-white text-gray-900 rounded-full p-4 shadow-lg transform scale-75 group-hover:scale-100 transition-transform">
                             <i class="fas fa-external-link-alt text-xl"></i>
                         </div>
-                    </a>
+                    </div>
                     @else
                     <div class="flex flex-col items-center justify-center h-full text-gray-500 bg-gray-100">
                         <i class="fas fa-image text-3xl mb-2 opacity-50"></i>
@@ -352,12 +369,14 @@
                     </div>
                     @endif
 
-                    <div class="absolute top-4 left-4">
+                    <div class="absolute top-4 left-4 z-30 pointer-events-none">
                         <span class="bg-white/90 backdrop-blur-md text-gray-800 text-xs font-bold px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-2">
-                            @if($isYoutube)
-                                <i class="fas fa-play text-red-500"></i> Video
+                            @if($isAudio)
+                            <i class="fas fa-music text-indigo-600"></i> {{ $content->jenis_konten ?? 'Audio' }}
+                            @elseif($isYoutube)
+                            <i class="fas fa-play text-red-500"></i> {{ $content->jenis_konten ?? 'Video' }}
                             @else
-                                <i class="fas fa-book-open text-blue-500"></i> Artikel
+                            <i class="fas fa-book-open text-blue-500"></i> {{ $content->jenis_konten ?? 'Artikel' }}
                             @endif
                         </span>
                     </div>
@@ -366,7 +385,7 @@
                 <div class="p-6 flex flex-col flex-grow">
                     @if($content->emosi)
                     <div class="mb-3">
-                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md uppercase tracking-wider" data-emosi="{{ e($emosiName) }}">
+                        <span class="text-xs font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-md uppercase tracking-wider">
                             {{ $emosiName }}
                         </span>
                     </div>
@@ -381,8 +400,12 @@
                     </p>
 
                     <div class="mt-auto pt-5 border-t border-gray-100 flex justify-between items-center">
-                        @if(!$isYoutube && $content->link_konten)
-                        <a href="{{ $content->link_konten }}" target="_blank" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-2 group/link">
+                        @if($isAudio && $hasFile)
+                        <span class="text-sm font-bold text-indigo-600 flex items-center gap-2">
+                            <i class="fas fa-play-circle"></i> Putar Audio
+                        </span>
+                        @elseif(!$isYoutube && $content->link_konten)
+                        <a href="{{ $content->link_konten }}" target="_blank" class="text-sm font-bold text-primary hover:text-secondary flex items-center gap-2 group/link" onclick="event.stopPropagation();">
                             Baca Selengkapnya
                             <i class="fas fa-arrow-right transform group-hover/link:translate-x-1 transition-transform"></i>
                         </a>
@@ -420,7 +443,6 @@
 
     </main>
 
-    <!-- Modal Detail Konten (paste this before footer) -->
     <div class="modal fade" id="modalDetail" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content rounded-3xl border-0 overflow-hidden shadow-2xl">
@@ -429,13 +451,12 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
-                    <div id="modalContent"><!-- Dynamic content inserted by JS --></div>
+                    <div id="modalContent"></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal Pilih Emosi (keadaan tetap seperti file kamu) -->
     <form action="{{ route('emosi.pilih') }}" method="POST">
         @csrf
         <div class="modal fade" id="modalEmosi" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -445,10 +466,8 @@
                         <h5 class="modal-title fw-bold">Bagaimana perasaanmu hari ini?</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-
                     <div class="modal-body">
                         <div class="row g-3">
-
                             <div class="col-6 col-md-3">
                                 <label for="senang" class="w-100">
                                     <input type="radio" name="emosi_id" id="senang" value="1" class="visually-hidden">
@@ -458,7 +477,6 @@
                                     </div>
                                 </label>
                             </div>
-
                             <div class="col-6 col-md-3">
                                 <label for="sedih" class="w-100">
                                     <input type="radio" name="emosi_id" id="sedih" value="2" class="visually-hidden">
@@ -468,7 +486,6 @@
                                     </div>
                                 </label>
                             </div>
-
                             <div class="col-6 col-md-3">
                                 <label for="marah" class="w-100">
                                     <input type="radio" name="emosi_id" id="marah" value="3" class="visually-hidden">
@@ -478,7 +495,6 @@
                                     </div>
                                 </label>
                             </div>
-
                             <div class="col-6 col-md-3">
                                 <label for="takut" class="w-100">
                                     <input type="radio" name="emosi_id" id="takut" value="4" class="visually-hidden">
@@ -488,10 +504,8 @@
                                     </div>
                                 </label>
                             </div>
-
                         </div>
-                    </div>       
-
+                    </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-success">Simpan</button>
@@ -501,124 +515,86 @@
         </div>
     </form>
 
-    <!-- jQuery (dipakai oleh skrip custom kamu) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-    <!-- Bootstrap Bundle (JS) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-    (function($){
-        "use strict";
+        (function($) {
+            "use strict";
 
-        // simple escape helper to avoid injecting raw HTML
-        function escapeHtml(unsafe) {
-            if (!unsafe) return '';
-            return String(unsafe)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
-
-        // Delegated click on content-card
-        $(document).on('click', '.content-card', function(e){
-            // If click originated from inside an iframe, skip (user interacting with video)
-            if ($(e.target).closest('iframe').length > 0) return;
-
-            var $card = $(this);
-            var id      = $card.data('id');
-            var title   = $card.data('title') || '';
-            var link    = $card.data('link') || '';
-            var gambar  = $card.data('gambar') || '';
-            var youtube = $card.data('youtube') || '';
-            var emosi   = $card.data('emosi') || '';
-
-            // Build modal HTML
-            var html = '<div class="mb-3"><span class="badge-custom">' + escapeHtml(emosi) + '</span></div>';
-
-            if (youtube) {
-                html += '<div class="video-container mb-4">' +
-                        '<iframe src="https://www.youtube.com/embed/' + escapeHtml(youtube) + '?rel=0&modestbranding=1" ' +
-                        'frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>' +
-                        '</div>';
-            } else if (gambar) {
-                // image clickable opens link in new tab
-                html += '<div class="mb-4">' +
-                        '<img id="modalImageClickable" src="' + escapeHtml(gambar) + '" alt="' + escapeHtml(title) + '" class="modal-image">' +
-                        '<div class="text-center mt-2"><small class="text-muted"><i class="fas fa-hand-pointer me-1"></i> Klik gambar untuk membuka artikel</small></div>' +
-                        '</div>';
+            function escapeHtml(unsafe) {
+                if (!unsafe) return '';
+                return String(unsafe).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
             }
 
-            // description (try to fetch from .card-description or .line-clamp-3 inside the card)
-            var desc = $card.find('.card-description').text().trim() || $card.find('.line-clamp-3').text().trim() || '';
-            html += '<h6 class="fw-bold mb-2">Deskripsi</h6>';
-            html += '<p class="text-muted mb-4">' + escapeHtml(desc) + '</p>';
+            $(document).on('click', '.content-card', function(e) {
+                if ($(e.target).closest('iframe, audio, a, .audio-wrapper').length > 0) return;
 
-            if (!youtube && link) {
-                html += '<a href="' + escapeHtml(link) + '" target="_blank" class="btn btn-custom w-100 mb-2"><i class="fas fa-external-link-alt me-2"></i>Buka Konten</a>';
-            } else if (youtube) {
-                html += '<div class="alert alert-info mb-0"><i class="fas fa-info-circle me-2"></i>Tonton video di atas untuk konten lengkap</div>';
-            }
+                var $card = $(this);
 
-            $('#modalTitle').text(title);
-            $('#modalContent').html(html);
+                $('audio').each(function() {
+                    this.pause();
+                });
 
-            // attach click handler for modal image (after it's been inserted)
-            setTimeout(function(){
-                var modalImg = document.getElementById('modalImageClickable');
-                if (modalImg && link) {
-                    modalImg.style.cursor = 'pointer';
-                    modalImg.addEventListener('click', function(){ window.open(link, '_blank'); });
+                var title = $card.data('title') || '';
+                var link = $card.data('link') || '';
+                var gambar = $card.data('gambar') || '';
+                var audio = $card.data('audio') || '';
+                var youtube = $card.data('youtube') || '';
+                var emosi = $card.data('emosi') || '';
+
+                var html = '<div class="mb-3"><span class="badge-custom">' + escapeHtml(emosi) + '</span></div>';
+
+                if (audio) {
+                    html += '<div class="p-4 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl text-center text-white mb-4">' +
+                        '<i class="fas fa-headphones-alt text-5xl mb-2"></i>' +
+                        '<p class="font-bold">Putar Audio</p>' +
+                        '<audio controls autoplay class="w-full mt-2" style="height:40px;"><source src="' + escapeHtml(audio) + '" type="audio/mpeg">Browser tidak support.</audio>' +
+                        '</div>';
+                } else if (youtube) {
+                    html += '<div class="video-container mb-4">' +
+                        '<iframe src="https://www.youtube.com/embed/' + escapeHtml(youtube) + '?rel=0&modestbranding=1" frameborder="0" allowfullscreen></iframe>' +
+                        '</div>';
+                } else if (gambar) {
+                    html += '<div class="mb-4 text-center">' +
+                        '<img id="modalImageClickable" src="' + escapeHtml(gambar) + '" alt="' + escapeHtml(title) + '" class="modal-image img-fluid">' +
+                        '</div>';
                 }
-            }, 50);
 
-            // show modal
-            var modal = new bootstrap.Modal(document.getElementById('modalDetail'));
-            modal.show();
-        });
+                var desc = $card.find('.card-description').text().trim() || $card.find('.line-clamp-3').text().trim() || '';
+                html += '<h6 class="fw-bold mb-2">Deskripsi</h6>';
+                html += '<p class="text-muted mb-4" style="white-space: pre-line;">' + escapeHtml(desc) + '</p>';
 
-        // emosi-card selection (visual)
-        $(document).on('click', '.emosi-card', function(e) {
-            var $label = $(this).closest('label');
-            var $radio = $label.find('input[type="radio"]');
-            if ($radio.length) {
-                $radio.prop('checked', true).trigger('change');
-                $('.emosi-card').removeClass('selected');
-                $(this).addClass('selected');
-            }
-        });
+                if (!youtube && !audio && link) {
+                    html += '<a href="' + escapeHtml(link) + '" target="_blank" class="btn btn-custom w-100 mb-2"><i class="fas fa-external-link-alt me-2"></i>Buka Konten</a>';
+                }
 
-        // keyboard support for emosi-card
-        $(document).on('keydown', '.emosi-card', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                $(this).trigger('click');
-            }
-        });
+                $('#modalTitle').text(title);
+                $('#modalContent').html(html);
 
-        // client-side validation before submit (form action points to server route)
-        $(document).on('submit', 'form[action="{{ route('emosi.pilih') }}"]', function(e){
-            var chosen = $(this).find('input[name="emosi_id"]:checked').val();
-            if (!chosen) {
-                e.preventDefault();
-                alert('Silakan pilih perasaanmu terlebih dahulu.');
-                return false;
-            }
-            return true;
-        });
+                var modal = new bootstrap.Modal(document.getElementById('modalDetail'));
+                modal.show();
 
-        // optional: add selected CSS rule if not present
-        $('<style>')
-            .prop('type', 'text/css')
-            .html('.emosi-card.selected{ border-color:#059669 !important; background-color:#ecfdf5 !important; box-shadow:0 0 0 3px #d1fae5; }')
-            .appendTo('head');
+                document.getElementById('modalDetail').addEventListener('hidden.bs.modal', function() {
+                    $('#modalContent').html('');
+                });
+            });
 
-    })(jQuery);
+            $(document).on('click', '.emosi-card', function(e) {
+                var $label = $(this).closest('label');
+                var $radio = $label.find('input[type="radio"]');
+                if ($radio.length) {
+                    $radio.prop('checked', true).trigger('change');
+                    $('.emosi-card').removeClass('selected');
+                    $(this).addClass('selected');
+                }
+            });
+
+            $('<style>').prop('type', 'text/css').html('.emosi-card.selected{ border-color:#059669 !important; background-color:#ecfdf5 !important; box-shadow:0 0 0 3px #d1fae5; }').appendTo('head');
+
+        })(jQuery);
     </script>
 
-    <!-- Footer -->
     @include('components.footer')
 
 </body>

@@ -20,7 +20,8 @@ class SelfHealing extends Model
         'judul',
         'deskripsi',
         'link_konten',
-        'gambar'
+        'gambar',
+        'audio'
     ];
 
     public function emosi()

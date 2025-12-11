@@ -6,26 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('selfhealing', function (Blueprint $table) {
             $table->id('id_selfhealing');
-            // $table->foreignId('id_admin')->constrained('admin');
+            $table->unsignedBigInteger('id_emosi')->nullable();
             $table->string('jenis_konten');
             $table->string('judul');
-            $table->string('link_konten');
+            $table->string('link_konten')->nullable();
             $table->text('deskripsi');
             $table->string('gambar')->nullable();
+            $table->string('audio')->nullable();
             $table->timestamps();
+
+            $table->foreign('id_emosi')->references('id_emosi')->on('emosi')->onDelete('cascade');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('selfhealing');

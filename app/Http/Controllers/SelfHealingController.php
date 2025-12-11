@@ -17,20 +17,16 @@ class SelfHealingController extends Controller
     {
         $user = Auth::user();
 
-        // Default: Ambil semua konten
         $selfHealings = SelfHealing::with('emosi')->latest()->get();
         $currentEmosi = null;
 
-        // Logika Filter jika User Login & Punya Emosi
         if ($user && $user->current_emosi_id) {
-            // Cek apakah kolom id_emosi ada di tabel selfhealing
             if (Schema::hasColumn('selfhealing', 'id_emosi')) {
                 $filtered = SelfHealing::with('emosi')
                     ->where('id_emosi', $user->current_emosi_id)
                     ->latest()
                     ->get();
 
-                // Jika ada konten yang cocok, pakai yang difilter
                 if ($filtered->isNotEmpty()) {
                     $selfHealings = $filtered;
                     $currentEmosi = Emosi::find($user->current_emosi_id);
@@ -41,14 +37,12 @@ class SelfHealingController extends Controller
         return view('halamanselfhealing', compact('selfHealings', 'currentEmosi'));
     }
 
-    // --- DASHBOARD WIDGET ---
     public function indexdash()
     {
         $selfHealings = SelfHealing::latest()->take(5)->get();
         return view('dashboard', compact('selfHealings'));
     }
 
-    // --- DETAIL KONTEN (API/Show) ---
     public function show($id)
     {
         $selfHealing = SelfHealing::find($id);
@@ -58,24 +52,23 @@ class SelfHealingController extends Controller
         return response()->json(['data' => $selfHealing], 200);
     }
 
-    // --- FORM TAMBAH KONTEN (ADMIN) ---
     public function tambahkonten()
     {
         $emosis = Emosi::all();
         return view('Admin.tambahkonten', compact('emosis'));
     }
 
-    // --- PROSES SIMPAN KONTEN (ADMIN) ---
     public function store(Request $request)
     {
-        // 1. Validasi Input
         $request->validate([
             'jenis_konten' => 'required|string|max:255',
-            'id_emosi'     => 'required|exists:emosi,id_emosi', // Pastikan nama tabel & kolom PK sesuai
+            'id_emosi'     => 'required|exists:emosi,id_emosi',
             'judul'        => 'required|string|max:255',
             'link_konten'  => 'nullable|url',
             'deskripsi'    => 'required|string',
-            'gambar'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120', // Max 5MB
+            'gambar'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
+
+            'audio'        => 'nullable|file|mimes:mp3,wav,ogg,m4a|max:20480',
         ]);
 
         try {
@@ -86,19 +79,20 @@ class SelfHealingController extends Controller
             $selfHealing->link_konten  = $request->link_konten;
             $selfHealing->deskripsi    = $request->deskripsi;
 
-            // 2. Upload Gambar (Jika ada)
             if ($request->hasFile('gambar')) {
-                // Simpan di folder: storage/app/public/selfhealing
                 $path = $request->file('gambar')->store('selfhealing', 'public');
                 $selfHealing->gambar = $path;
             }
 
+            if ($request->hasFile('audio')) {
+                $audioPath = $request->file('audio')->store('selfhealing/audio', 'public');
+                $selfHealing->audio = $audioPath;
+            }
+
             $selfHealing->save();
 
-            // Redirect dengan pesan sukses
             return redirect()->route('halamanselfhealing')->with('success', 'Konten berhasil ditambahkan!');
         } catch (\Exception $e) {
-            // Jika error, kembali ke form dengan pesan error
             return back()->withInput()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()]);
         }
     }

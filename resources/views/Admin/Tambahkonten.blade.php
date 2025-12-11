@@ -38,7 +38,7 @@
       <div class="flex justify-between items-center h-16">
         <div class="flex-shrink-0 flex items-center">
           <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 text-2xl font-bold text-primary hover:text-secondary transition">
-            <img src="{{ asset('images/Umy-logo.gif') }}" width="40" height="40" class="me-2 rounded-circle" alt="Logo">
+            <img src="{{ asset('images/Umy-logo.gif') }}" width="40" height="40" class="me-2 rounded-full" alt="Logo">
             <span>Sistem Curhat</span>
           </a>
         </div>
@@ -94,11 +94,11 @@
         <!-- Header Card -->
         <div class="bg-primary px-8 py-6 text-white">
           <h2 class="text-2xl font-bold">Tambah Konten Baru</h2>
-          <p class="text-emerald-100 text-sm mt-1">Isi formulir di bawah untuk menambahkan materi self-healing.</p>
+          <p class="text-emerald-100 text-sm mt-1">Isi formulir di bawah untuk menambahkan materi self-healing (Artikel, Video, Foto, atau Audio).</p>
         </div>
 
         <!-- Form -->
-        <form action="/admin/tambah/selfhealing" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
+        <form action="{{ route('admin.storekontensh') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
           @csrf
 
           <!-- Grid Layout -->
@@ -111,8 +111,17 @@
                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
                   <i class="fa-solid fa-layer-group"></i>
                 </span>
-                <input type="text" name="jenis_konten" placeholder="Misal: Artikel / Video" required value="{{ old('jenis_konten') }}"
-                  class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white">
+                <select name="jenis_konten" required
+                  class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white appearance-none">
+                  <option value="" disabled selected>-- Pilih Jenis Konten --</option>
+                  <option value="Artikel" {{ old('jenis_konten') == 'Artikel' ? 'selected' : '' }}>Artikel</option>
+                  <option value="Video" {{ old('jenis_konten') == 'Video' ? 'selected' : '' }}>Video</option>
+                  <option value="Audio" {{ old('jenis_konten') == 'Audio' ? 'selected' : '' }}>Audio / Podcast</option>
+                  <option value="Foto" {{ old('jenis_konten') == 'Foto' ? 'selected' : '' }}>Foto / Gambar</option>
+                </select>
+                <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                  <i class="fa-solid fa-chevron-down text-xs"></i>
+                </span>
               </div>
             </div>
 
@@ -165,6 +174,7 @@
               <input type="url" name="link_konten" placeholder="https://youtube.com/..." value="{{ old('link_konten') }}"
                 class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white">
             </div>
+            <p class="text-xs text-gray-500 mt-1">*Isi jika konten berupa video YouTube atau link artikel luar.</p>
           </div>
 
           <!-- Deskripsi -->
@@ -174,23 +184,44 @@
               class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white resize-none">{{ old('deskripsi') }}</textarea>
           </div>
 
-          <!-- Upload Gambar -->
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Gambar Sampul</label>
-            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition cursor-pointer" onclick="document.getElementById('fileInput').click()">
-              <div class="space-y-1 text-center">
-                <i class="fa-regular fa-image text-4xl text-gray-400"></i>
-                <div class="flex text-sm text-gray-600 justify-center">
-                  <label class="relative cursor-pointer rounded-md font-medium text-primary hover:text-secondary focus-within:outline-none">
-                    <span>Upload file</span>
-                    <input id="fileInput" name="gambar" type="file" accept="image/*" class="sr-only" onchange="previewImage(this)">
-                  </label>
-                  <p class="pl-1">atau drag & drop</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Upload Gambar -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">Gambar Sampul / Foto</label>
+              <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition cursor-pointer h-full" onclick="document.getElementById('fileInput').click()">
+                <div class="space-y-1 text-center my-auto">
+                  <i class="fa-regular fa-image text-4xl text-gray-400"></i>
+                  <div class="flex text-sm text-gray-600 justify-center">
+                    <label class="relative cursor-pointer rounded-md font-medium text-primary hover:text-secondary focus-within:outline-none">
+                      <span>Upload Gambar</span>
+                      <input id="fileInput" name="gambar" type="file" accept="image/*" class="sr-only" onchange="previewImage(this)">
+                    </label>
+                  </div>
+                  <p class="text-xs text-gray-500">PNG, JPG up to 5MB</p>
+                  <p id="fileName" class="text-sm font-medium text-primary mt-2 break-all"></p>
                 </div>
-                <p class="text-xs text-gray-500">PNG, JPG, GIF up to 5MB</p>
-                <p id="fileName" class="text-sm font-medium text-primary mt-2"></p>
               </div>
             </div>
+
+            <!-- Upload Audio -->
+            <div>
+              <label class="block text-sm font-semibold text-gray-700 mb-2">File Audio (MP3)</label>
+              <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition cursor-pointer h-full" onclick="document.getElementById('audioInput').click()">
+                <div class="space-y-1 text-center my-auto">
+                  <i class="fa-solid fa-headphones-simple text-4xl text-gray-400"></i>
+                  <div class="flex text-sm text-gray-600 justify-center">
+                    <label class="relative cursor-pointer rounded-md font-medium text-primary hover:text-secondary focus-within:outline-none">
+                      <span>Upload Audio</span>
+                      <input id="audioInput" name="audio" type="file" accept="audio/*" class="sr-only" onchange="previewAudio(this)">
+                    </label>
+                  </div>
+                  <p class="text-xs text-gray-500">MP3, WAV up to 10MB</p>
+                  <p id="audioName" class="text-sm font-medium text-primary mt-2 break-all"></p>
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <!-- Submit Button -->
@@ -206,7 +237,6 @@
   </main>
 
   <script>
-    // Preview Image
     function previewImage(input) {
       if (input.files && input.files[0]) {
         var fileName = input.files[0].name;
@@ -214,7 +244,13 @@
       }
     }
 
-    // Logic SweetAlert (Notifikasi Sukses)
+    function previewAudio(input) {
+      if (input.files && input.files[0]) {
+        var fileName = input.files[0].name;
+        document.getElementById('audioName').innerText = "File terpilih: " + fileName;
+      }
+    }
+
     @if(session('success'))
     Swal.fire({
       title: "Berhasil!",
