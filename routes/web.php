@@ -46,6 +46,7 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/tambah/selfhealing', [SelfHealingController::class, 'tambahkonten'])->name('tambahkontensh');
         Route::post('/tambah/selfhealing', [SelfHealingController::class, 'store'])->name('storekontensh');
+        Route::delete('/selfhealing/{id}', [SelfHealingController::class, 'destroy'])->name('deletekontensh');
     });
 
     Route::middleware([Role::class . ':psikolog'])->prefix('psikolog')->name('psikolog.')->group(function () {

@@ -9,12 +9,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         tailwind.config = {
@@ -35,10 +33,6 @@
     </script>
 
     <style>
-        .aspect-video {
-            aspect-ratio: 16/9;
-        }
-
         .text-shadow {
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -312,7 +306,8 @@
             }
             }
 
-            $contentId = $content->id ?? $content->self_healing_id ?? null;
+            $contentId = $content->id_selfhealing;
+
             $gambarUrl = $content->gambar ? asset('storage/' . $content->gambar) : '';
             $emosiName = $content->emosi->nama_emosi ?? '';
             @endphp
@@ -326,7 +321,19 @@
                 data-youtube="{{ $isYoutube ? $videoID : '' }}"
                 data-emosi="{{ e($emosiName) }}">
 
-                <div class="relative w-full aspect-video bg-gray-900 group-hover:opacity-100 transition-opacity">
+                <div class="relative w-full h-56 bg-gray-900 group-hover:opacity-100 transition-opacity">
+
+                    @if(auth()->check() && auth()->user()->role_id == 1)
+                    <div class="absolute top-4 right-4 z-40">
+                        <form action="{{ route('admin.deletekontensh', $contentId) }}" method="POST" onsubmit="return confirmDelete(event, this)">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg transition-colors" title="Hapus Konten" onclick="event.stopPropagation()">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        </form>
+                    </div>
+                    @endif
 
                     @if($isAudio)
                     <div class="audio-wrapper">
@@ -519,6 +526,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        function confirmDelete(event, form) {
+            event.preventDefault();
+            event.stopPropagation();
+            Swal.fire({
+                title: 'Hapus Konten?',
+                text: "Data tidak bisa dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, Hapus',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    form.submit();
+                }
+            });
+            return false;
+        }
+
         (function($) {
             "use strict";
 
@@ -528,7 +555,7 @@
             }
 
             $(document).on('click', '.content-card', function(e) {
-                if ($(e.target).closest('iframe, audio, a, .audio-wrapper').length > 0) return;
+                if ($(e.target).closest('iframe, audio, a, .audio-wrapper, button').length > 0) return;
 
                 var $card = $(this);
 

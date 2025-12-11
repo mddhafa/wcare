@@ -96,4 +96,28 @@ class SelfHealingController extends Controller
             return back()->withInput()->withErrors(['error' => 'Gagal menyimpan: ' . $e->getMessage()]);
         }
     }
+
+    public function destroy($id)
+    {
+        if (Auth::user()->role_id != 1) {
+            abort(403, 'Anda tidak memiliki izin untuk menghapus konten ini.');
+        }
+
+        try {
+            $selfHealing = SelfHealing::findOrFail($id);
+
+            if ($selfHealing->gambar && Storage::disk('public')->exists($selfHealing->gambar)) {
+                Storage::disk('public')->delete($selfHealing->gambar);
+            }
+            if ($selfHealing->audio && Storage::disk('public')->exists($selfHealing->audio)) {
+                Storage::disk('public')->delete($selfHealing->audio);
+            }
+
+            $selfHealing->delete();
+
+            return back()->with('success', 'Konten berhasil dihapus!');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal menghapus konten: ' . $e->getMessage()]);
+        }
+    }
 }
