@@ -70,9 +70,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/chatbot', function () {
             return view('chatbot');
         });
-        Route::post('/chat/generate', [ChatbotController::class, 'generate']);
-        Route::get('/chatbot/history', [ChatbotController::class, 'history']);
-        Route::post('/chat/new', [ChatbotController::class, 'newChat']);
+        Route::post('/chat/session', [ChatbotController::class, 'newSession']);      
+        Route::get('/chat/sessions', [ChatbotController::class, 'sessions']);        
+        Route::get('/chat/messages/{id}', [ChatbotController::class, 'messages']);   
+        Route::post('/chat/generate', [ChatbotController::class, 'send']);
 
         Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');
 
