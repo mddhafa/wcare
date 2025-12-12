@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HomeChatController;
 use App\Http\Controllers\PsikologChatController;
+use App\Http\Controllers\ChatBotHistoryController;
 use App\Http\Middleware\Role;
 use Illuminate\Support\Facades\Auth;
 
@@ -70,6 +71,9 @@ Route::middleware(['auth'])->group(function () {
             return view('chatbot');
         });
         Route::post('/chat/generate', [ChatbotController::class, 'generate']);
+        Route::get('/chatbot/history', [ChatbotController::class, 'history']);
+        Route::post('/chat/new', [ChatbotController::class, 'newChat']);
+
         Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');
 
         Route::get('/profile', [ProfileController::class, 'index'])->name('korban.profilekorban');
