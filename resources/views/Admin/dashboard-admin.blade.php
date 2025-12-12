@@ -180,6 +180,7 @@
                                         <th>Jenis</th>
                                         <th>Tanggal</th>
                                         <th>Status</th>
+                                        <th>Psikolog</th>
                                         <th class="text-end pe-4">Aksi</th>
                                     </tr>
                                 </thead>
@@ -205,6 +206,10 @@
                                                 <span class="badge bg-success bg-opacity-25 text-success border border-success">Selesai</span>
                                             @endif
                                         </td>
+                                        <td>
+                                            <div>{{ $l->psikolog->user->name ?? '-' }}</div>
+                                        </td>
+
                                         <td class="text-end pe-4">
                                             <a href="{{ route('lapor.show', $l->id) }}" class="btn btn-sm btn-light text-primary">
                                                 <i class="bi bi-eye"></i> Detail

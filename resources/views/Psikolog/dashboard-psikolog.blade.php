@@ -238,7 +238,7 @@
                         </div>
                         <h4 class="fw-bold text-dark mb-2">Ruang Konsultasi</h4>
                         <p class="text-muted mb-4">Akses pesan langsung dan berikan konseling secara real-time.</p>
-                        <a href="#" class="btn btn-primary btn-rounded w-100 stretched-link">
+                        <a href="{{ route ('psikolog.chat') }}" class="btn btn-primary btn-rounded w-100 stretched-link">
                             Mulai Chat <i class="bi bi-arrow-right ms-2"></i>
                         </a>
                     </div>

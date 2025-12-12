@@ -349,7 +349,7 @@
             <div class="icon-wrapper"><i class="bi bi-person-heart"></i></div>
             <h5 class="fw-bold mb-2">Konseling Ahli</h5>
             <p class="text-muted small mb-4">Terhubung langsung dengan psikolog profesional untuk penanganan lebih lanjut.</p>
-            <a href="#" class="btn btn-custom-outline btn-sm w-100 stretched-link">Hubungi</a>
+            <a href="{{ route ('homechat') }}" class="btn btn-custom-outline btn-sm w-100 stretched-link">Hubungi</a>
           </div>
         </div>
 

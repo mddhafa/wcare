@@ -81,7 +81,7 @@
             </li>
             @elseif(Auth::user()->role_id == 2)
             <li>
-              <a class="dropdown-item py-2" href="{{ url('/psikolog/dashboard-psikolog') }}">
+              <a class="dropdown-item py-2" href="{{ route('psikolog.dashboard-psikolog') }}">
                 <i class="bi bi-grid-fill me-2 text-info"></i> Dashboard Psikolog
               </a>
             </li>

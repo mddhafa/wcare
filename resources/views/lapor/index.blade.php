@@ -70,11 +70,19 @@
                 <div>
                     <!-- Judul Dinamis -->
                     @if(Auth::user()->role_id == 3)
-                    <h2 class="fw-bold mb-1" style="color: #059669;">Riwayat Laporan Saya</h2>
-                    <p class="text-muted mb-0">Pantau status laporan yang pernah Anda kirimkan.</p>
+                        {{-- KORBAN --}}
+                        <h2 class="fw-bold mb-1" style="color: #059669;">Riwayat Laporan Saya</h2>
+                        <p class="text-muted mb-0">Pantau status laporan yang pernah Anda kirimkan.</p>
+
+                    @elseif(Auth::user()->role_id == 2)
+                        {{-- PSIKOLOG --}}
+                        <h2 class="fw-bold mb-1" style="color: #059669;">Laporan yang Ditugaskan ke Saya</h2>
+                        <p class="text-muted mb-0">Daftar laporan yang diberikan admin untuk Anda tangani.</p>
+
                     @else
-                    <h2 class="fw-bold mb-1" style="color: #059669;">Daftar Laporan Masuk</h2>
-                    <p class="text-muted mb-0">Kelola semua laporan dari mahasiswa.</p>
+                        {{-- ADMIN --}}
+                        <h2 class="fw-bold mb-1" style="color: #059669;">Daftar Laporan Masuk</h2>
+                        <p class="text-muted mb-0">Kelola semua laporan dari mahasiswa.</p>
                     @endif
                 </div>
 
@@ -86,7 +94,7 @@
                 </a>
                 @elseif(Auth::user()->role_id == 2)
                 <!-- PSIKOLOG -->
-                <a href="{{ url('/dashboard-psikolog') }}" class="btn btn-outline-secondary btn-sm">
+                <a href="{{ route('psikolog.dashboard-psikolog') }}" class="btn btn-outline-secondary btn-sm">
                     <i class="bi bi-grid me-1"></i> Dashboard Psikolog
                 </a>
                 @else
@@ -109,6 +117,7 @@
                                     <th>Jenis</th>
                                     <th>Lokasi</th>
                                     <th>Status</th>
+                                    <th>Psikolog</th>
                                     <th class="text-end pe-4">Aksi</th>
                                 </tr>
                             </thead>
@@ -135,6 +144,7 @@
                                             {{ $l->status }}
                                         </span>
                                     </td>
+                                    <td> {{ $l->psikolog->user->name ?? '-' }} </td>
                                     <td class="text-end pe-4">
                                         <!-- Tombol Lihat Detail -->
                                         <a href="{{ route('lapor.show', $l->id) }}" class="btn btn-sm btn-primary">

@@ -14,6 +14,7 @@ use App\Models\Psikolog;
 use App\Models\Korban;
 use App\Models\Emosi;
 use App\Models\Role;
+use App\Models\Chat;
 
 class User extends Authenticatable
 {
@@ -73,5 +74,15 @@ class User extends Authenticatable
     public function emosiSekarang()
     {
         return $this->belongsTo(Emosi::class, 'current_emosi_id', 'id_emosi');
+    }
+
+    public function sentChats()
+    {
+        return $this->hasMany(Chat::class, 'sender_id', 'user_id');
+    }
+
+    public function receivedChats()
+    {
+        return $this->hasMany(Chat::class, 'receiver_id', 'user_id');
     }
 }

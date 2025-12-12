@@ -8,6 +8,9 @@ use App\Http\Controllers\EmosiController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ChatController;
+use App\Http\Controllers\HomeChatController;
+use App\Http\Controllers\PsikologChatController;
 use App\Http\Middleware\Role;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,15 +50,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/tambah/selfhealing', [SelfHealingController::class, 'tambahkonten'])->name('tambahkontensh');
         Route::post('/tambah/selfhealing', [SelfHealingController::class, 'store'])->name('storekontensh');
         Route::delete('/selfhealing/{id}', [SelfHealingController::class, 'destroy'])->name('deletekontensh');
+        Route::post('lapor/{laporan}/assign', [LaporanController::class, 'assign'])->name('lapor.assign');
+        Route::post('lapor/{laporan}/unassign', [LaporanController::class, 'unassign'])->name('lapor.unassign');
     });
 
     Route::middleware([Role::class . ':psikolog'])->prefix('psikolog')->name('psikolog.')->group(function () {
 
         Route::get('/dashboard', [AuthController::class, 'showdashboardpsi'])
         ->name('dashboard-psikolog');
+
+        Route::get('/chat', [PsikologChatController::class, 'index'])->name('chat');
+        Route::get('/chat/{user}', [PsikologChatController::class, 'showJson'])->name('chat.show');
+        Route::post('/chat/send', [PsikologChatController::class, 'send'])->name('chat.send');
     });
 
     Route::middleware([Role::class.':korban'])->group(function () {
+
         Route::get('/chatbot', function () {
             return view('chatbot');
         });
@@ -70,6 +80,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/profile/korban/add', [ProfileController::class, 'addprofilekorban'])->name('profile.korban.store');
         Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
         Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update.data');
+
+        // Home Chat (Daftar Psikolog)
+        Route::get('/homechat', [HomeChatController::class, 'index'])->name('homechat');
+
+        // Chat dengan psikolog
+        Route::get('/chat/{id_psikolog}', [ChatController::class, 'index'])->name('chat.psikolog');
+        Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+        Route::get('/chat/refresh/{id}', [ChatController::class, 'refresh'])->name('chat.refresh');
     });
 
     Route::get('/selfhealing', [SelfHealingController::class, 'index'])->name('halamanselfhealing');

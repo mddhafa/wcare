@@ -146,6 +146,56 @@
                 </div>
                 @endif
 
+                {{-- ASSIGN (hanya admin) --}}
+                @if (Auth::user()->role_id == 1)
+                <div class="card status-card mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3">Assign ke Psikolog</h5>
+
+                        @if($laporan->assigned_psikolog)
+                            <div class="alert alert-info">
+                                <i class="bi bi-person-check-fill me-2"></i>
+                                Laporan ini sudah ditugaskan kepada:
+                                <strong>{{ $laporan->assigned_psikolog->name }}</strong>
+                            </div>
+                        @endif
+
+                        @php
+                            $psikologs = \App\Models\Psikolog::with('user')->orderBy('id_psikolog')->get();
+                        @endphp
+
+                        <form action="{{ route('admin.lapor.assign', $laporan->id) }}" method="POST" class="mb-2">
+                            @csrf
+
+                            <label class="fw-semibold mb-2">Pilih Psikolog</label>
+
+                            <select name="id_psikolog" class="form-select mb-3" required>
+                                <option value="">-- Pilih Psikolog --</option>
+
+                                @foreach($psikologs as $psikolog)
+                                    <option value="{{ $psikolog->id_psikolog }}"
+                                        {{ $laporan->assigned_psikolog_id == $psikolog->id_psikolog ? 'selected' : '' }}>
+                                        {{ $psikolog->user->name }} ({{ $psikolog->user->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            <button type="submit" class="btn btn-success w-100 fw-semibold">
+                                <i class="bi bi-send-check me-2"></i> Assign Sekarang
+                            </button>
+                        </form>
+
+                        {{-- FORM UNASSIGN TERPISAH dengan konfirmasi --}}
+                        <form id="form-unassign-{{ $laporan->id }}" action="{{ route('admin.lapor.unassign', $laporan->id) }}" method="POST">
+                            @csrf
+                            {{-- tombol type button supaya tidak submit tanpa konfirmasi JS --}}
+                            <button type="button" class="btn btn-outline-danger w-100 fw-semibold btn-unassign" data-id="{{ $laporan->id }}">
+                                <i class="bi bi-person-x me-2"></i> Unassign / Batalkan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                @endif
                 <div class="card status-card">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-4">Tracking Status</h5>
@@ -184,6 +234,30 @@
     @include('components.footer')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <script>
+        // SweetAlert2 konfirmasi unassign
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.btn-unassign').forEach(function(btn){
+                btn.addEventListener('click', function(e){
+                    const id = btn.getAttribute('data-id');
+                    Swal.fire({
+                        title: 'Batalkan assign?',
+                        text: "Tindakan ini akan mengosongkan penugasan psikolog pada laporan.",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#d33',
+                        confirmButtonText: 'Ya, batalkan',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // submit form unassign
+                            document.getElementById('form-unassign-' + id).submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
     @if(session('success'))
     <script>
         Swal.fire({
