@@ -5,249 +5,310 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Tambah Konten Self-Healing - Sistem Curhat</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-  <!-- Library SweetAlert2 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#059669', // Emerald 600
-            secondary: '#047857', // Emerald 700
-            bgsoft: '#ecfdf5', // Emerald 50
-          },
-          fontFamily: {
-            sans: ['Poppins', 'sans-serif'],
-          }
-        }
-      }
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0fdf4;
+      /* Warna Background Hijau Muda */
+      color: #334155;
     }
-  </script>
+
+    .main-container {
+      padding: 3rem 0;
+      min-height: calc(100vh - 70px);
+      /* Sisa tinggi setelah navbar */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* --- CARD STYLE PREMIUM --- */
+    .card-custom {
+      border: none;
+      border-radius: 24px;
+      /* Lebih bulat */
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+      background: white;
+      overflow: hidden;
+      width: 100%;
+      max-width: 1100px;
+      /* Lebar card */
+    }
+
+    .card-header-custom {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      color: white;
+      padding: 3rem 2.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Hiasan Background Abstrak */
+    .header-decoration {
+      position: absolute;
+      top: -20px;
+      right: -30px;
+      font-size: 180px;
+      opacity: 0.1;
+      transform: rotate(-15deg);
+      pointer-events: none;
+    }
+
+    /* Tombol Kembali (Bulat Putih) */
+    .btn-back-header {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50px;
+      padding: 0.6rem 1.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      backdrop-filter: blur(5px);
+      transition: all 0.3s;
+    }
+
+    .btn-back-header:hover {
+      background-color: white;
+      color: #059669;
+      transform: translateX(-3px);
+    }
+
+    /* Form Styling */
+    .form-label {
+      font-weight: 600;
+      color: #475569;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-control,
+    .form-select {
+      padding: 0.8rem 1.2rem;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #059669;
+      box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+    }
+
+    /* Upload Box Style */
+    .upload-box {
+      border: 2px dashed #cbd5e1;
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      background-color: #f8fafc;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .upload-box:hover {
+      background-color: #ecfdf5;
+      border-color: #059669;
+    }
+
+    .upload-icon {
+      font-size: 2rem;
+      color: #94a3b8;
+      margin-bottom: 0.5rem;
+      transition: 0.3s;
+    }
+
+    .upload-box:hover .upload-icon {
+      color: #059669;
+      transform: scale(1.1);
+    }
+
+    /* Tombol Simpan */
+    .btn-simpan {
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      border: none;
+      color: white;
+      padding: 1rem 3rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1rem;
+      box-shadow: 0 10px 20px rgba(5, 150, 105, 0.2);
+      transition: all 0.3s;
+    }
+
+    .btn-simpan:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 15px 25px rgba(5, 150, 105, 0.3);
+      background: linear-gradient(135deg, #047857 0%, #064e3b 100%);
+    }
+  </style>
 </head>
 
-<body class="bg-bgsoft min-h-screen flex flex-col font-sans text-gray-800">
+<body>
 
-  <!-- NAVBAR SEDERHANA -->
-  <header class="bg-white shadow-sm sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex-shrink-0 flex items-center">
-          <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 text-2xl font-bold text-primary hover:text-secondary transition">
-            <img src="{{ asset('images/Umy-logo.gif') }}" width="40" height="40" class="me-2 rounded-full" alt="Logo">
-            <span>Sistem Curhat</span>
-          </a>
-        </div>
-        <div class="flex items-center space-x-4">
-          @auth
-          <div class="hidden md:flex items-center text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
-            <i class="fa-regular fa-user mr-2"></i>
-            Halo, {{ Auth::user()->name }}
-          </div>
-          <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button type="submit" class="text-sm bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition font-medium">
-              Logout
-            </button>
-          </form>
-          @endauth
-        </div>
-      </div>
-    </div>
-  </header>
+  @include('components.navbar')
 
-  <!-- MAIN CONTENT -->
-  <main class="flex-grow flex items-center justify-center py-10 px-4 sm:px-6">
-    <div class="max-w-2xl w-full">
+  <div class="main-container">
+    <div class="container px-4">
+      <div class="card card-custom mx-auto">
 
-      <!-- Tombol Kembali -->
-      <div class="mb-6">
-        <a href="{{ route('admin.dashboard') }}" class="inline-flex items-center text-gray-600 hover:text-primary transition font-medium">
-          <i class="fa-solid fa-arrow-left mr-2"></i> Kembali ke Dashboard
-        </a>
-      </div>
+        <div class="card-header-custom">
+          <i class="fa-solid fa-feather-pointed header-decoration"></i>
 
-      <!-- ALERT ERROR (VALIDASI) -->
-      @if ($errors->any())
-      <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-md shadow-sm">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <i class="fa-solid fa-circle-exclamation text-red-500"></i>
-          </div>
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Terdapat kesalahan pada inputan:</h3>
-            <ul class="mt-2 list-disc list-inside text-sm text-red-700">
-              @foreach ($errors->all() as $error)
-              <li>{{ $error }}</li>
-              @endforeach
-            </ul>
-          </div>
-        </div>
-      </div>
-      @endif
-
-      <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-        <!-- Header Card -->
-        <div class="bg-primary px-8 py-6 text-white">
-          <h2 class="text-2xl font-bold">Tambah Konten Baru</h2>
-          <p class="text-emerald-100 text-sm mt-1">Isi formulir di bawah untuk menambahkan materi self-healing (Artikel, Video, Foto, atau Audio).</p>
-        </div>
-
-        <!-- Form -->
-        <form action="{{ route('admin.storekontensh') }}" method="POST" enctype="multipart/form-data" class="p-8 space-y-6">
-          @csrf
-
-          <!-- Grid Layout -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <!-- Jenis Konten -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Jenis Konten</label>
-              <div class="relative">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                  <i class="fa-solid fa-layer-group"></i>
-                </span>
-                <select name="jenis_konten" required
-                  class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white appearance-none">
-                  <option value="" disabled selected>-- Pilih Jenis Konten --</option>
-                  <option value="Artikel" {{ old('jenis_konten') == 'Artikel' ? 'selected' : '' }}>Artikel</option>
-                  <option value="Video" {{ old('jenis_konten') == 'Video' ? 'selected' : '' }}>Video</option>
-                  <option value="Audio" {{ old('jenis_konten') == 'Audio' ? 'selected' : '' }}>Audio / Podcast</option>
-                  <option value="Foto" {{ old('jenis_konten') == 'Foto' ? 'selected' : '' }}>Foto / Gambar</option>
-                </select>
-                <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
-                  <i class="fa-solid fa-chevron-down text-xs"></i>
-                </span>
-              </div>
+          <div class="row align-items-center g-4 position-relative" style="z-index: 2;">
+            <div class="col-auto">
+              <a href="{{ route('admin.dashboard') }}" class="btn-back-header">
+                <i class="fa-solid fa-arrow-left"></i> Kembali
+              </a>
             </div>
+            <div class="col">
+              <h2 class="fw-bold mb-1">Tambah Konten Self-Healing</h2>
+              <p class="mb-0 opacity-75">Bagikan materi positif berupa Artikel, Video, Audio, atau Gambar.</p>
+            </div>
+          </div>
+        </div>
 
-            <!-- Pilih Emosi -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Target Emosi</label>
-              <div class="relative">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                  <i class="fa-regular fa-face-smile"></i>
-                </span>
-                <select name="id_emosi" required
-                  class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white appearance-none">
-                  <option value="" disabled selected>-- Pilih Kategori Emosi --</option>
-                  @foreach ($emosis as $emosi)
-                  @php
-                  $id = $emosi->id_emosi ?? $emosi->id;
-                  $nama = strtolower($emosi->jenis_emosi);
-                  $emoji = '';
-                  if (str_contains($nama, 'senang')) $emoji = '😊';
-                  elseif (str_contains($nama, 'marah')) $emoji = '😡';
-                  elseif (str_contains($nama, 'sedih')) $emoji = '😢';
-                  elseif (str_contains($nama, 'takut')) $emoji = '😨';
-                  @endphp
-                  <option value="{{ $id }}" {{ old('id_emosi') == $id ? 'selected' : '' }}>
-                    {{ $emoji }} {{ $emosi->jenis_emosi }}
-                  </option>
+        <div class="card-body p-4 p-md-5">
+
+          @if ($errors->any())
+          <div class="alert alert-danger border-0 border-start border-4 border-danger shadow-sm rounded-3 mb-4">
+            <div class="d-flex">
+              <i class="fa-solid fa-circle-exclamation fs-4 me-3 mt-1"></i>
+              <div>
+                <h6 class="fw-bold mb-1">Perhatikan input berikut:</h6>
+                <ul class="mb-0 ps-3 small">
+                  @foreach ($errors->all() as $error)
+                  <li>{{ $error }}</li>
                   @endforeach
-                </select>
-                <span class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
-                  <i class="fa-solid fa-chevron-down text-xs"></i>
-                </span>
+                </ul>
               </div>
             </div>
           </div>
+          @endif
 
-          <!-- Judul -->
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Judul Konten</label>
-            <input type="text" name="judul" placeholder="Masukkan judul yang menarik..." required value="{{ old('judul') }}"
-              class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white">
-          </div>
+          <form action="{{ route('admin.storekontensh') }}" method="POST" enctype="multipart/form-data">
+            @csrf
 
-          <!-- Link Konten -->
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Link Sumber (Opsional)</label>
-            <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
-                <i class="fa-solid fa-link"></i>
-              </span>
-              <input type="url" name="link_konten" placeholder="https://youtube.com/..." value="{{ old('link_konten') }}"
-                class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white">
-            </div>
-            <p class="text-xs text-gray-500 mt-1">*Isi jika konten berupa video YouTube atau link artikel luar.</p>
-          </div>
+            <div class="row g-5">
+              <div class="col-lg-6">
+                <div class="mb-4">
+                  <label class="form-label">Judul Konten <span class="text-danger">*</span></label>
+                  <input type="text" name="judul" class="form-control form-control-lg" placeholder="Contoh: 5 Cara Mengatasi Kecemasan" value="{{ old('judul') }}" required>
+                </div>
 
-          <!-- Deskripsi -->
-          <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Deskripsi Singkat</label>
-            <textarea name="deskripsi" rows="4" placeholder="Jelaskan isi konten ini secara singkat..."
-              class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition bg-gray-50 focus:bg-white resize-none">{{ old('deskripsi') }}</textarea>
-          </div>
+                <div class="row g-3 mb-4">
+                  <div class="col-md-6">
+                    <label class="form-label">Tipe Konten <span class="text-danger">*</span></label>
+                    <select name="jenis_konten" class="form-select" required>
+                      <option value="" disabled selected>Pilih...</option>
+                      <option value="Artikel" {{ old('jenis_konten') == 'Artikel' ? 'selected' : '' }}>Artikel</option>
+                      <option value="Video" {{ old('jenis_konten') == 'Video' ? 'selected' : '' }}>Video</option>
+                      <option value="Audio" {{ old('jenis_konten') == 'Audio' ? 'selected' : '' }}>Audio</option>
+                      <option value="Foto" {{ old('jenis_konten') == 'Foto' ? 'selected' : '' }}>Gambar</option>
+                    </select>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label">Target Mood <span class="text-danger">*</span></label>
+                    <select name="id_emosi" class="form-select" required>
+                      <option value="" disabled selected>Pilih...</option>
+                      @foreach ($emosis as $emosi)
+                      @php
+                      $id = $emosi->id_emosi ?? $emosi->id;
+                      $nama = strtolower($emosi->jenis_emosi);
+                      $emoji = match(true) {
+                      str_contains($nama, 'senang') => '😊',
+                      str_contains($nama, 'marah') => '😡',
+                      str_contains($nama, 'sedih') => '😢',
+                      str_contains($nama, 'takut') => '😨',
+                      default => '😐'
+                      };
+                      @endphp
+                      <option value="{{ $id }}" {{ old('id_emosi') == $id ? 'selected' : '' }}>
+                        {{ $emoji }} {{ $emosi->jenis_emosi }}
+                      </option>
+                      @endforeach
+                    </select>
+                  </div>
+                </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="mb-2">
+                  <label class="form-label">Link Youtube / Artikel <small class="text-muted fw-normal">(Opsional)</small></label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-link"></i></span>
+                    <input type="url" name="link_konten" class="form-control border-start-0 ps-0" placeholder="https://..." value="{{ old('link_konten') }}">
+                  </div>
+                </div>
+              </div>
 
-            <!-- Upload Gambar -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">Gambar Sampul / Foto</label>
-              <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition cursor-pointer h-full" onclick="document.getElementById('fileInput').click()">
-                <div class="space-y-1 text-center my-auto">
-                  <i class="fa-regular fa-image text-4xl text-gray-400"></i>
-                  <div class="flex text-sm text-gray-600 justify-center">
-                    <label class="relative cursor-pointer rounded-md font-medium text-primary hover:text-secondary focus-within:outline-none">
-                      <span>Upload Gambar</span>
-                      <input id="fileInput" name="gambar" type="file" accept="image/*" class="sr-only" onchange="previewImage(this)">
+              <div class="col-lg-6">
+                <div class="mb-4">
+                  <label class="form-label">Deskripsi Singkat <span class="text-danger">*</span></label>
+                  <textarea name="deskripsi" rows="5" class="form-control" placeholder="Tuliskan rangkuman atau isi konten di sini..." required style="resize: none;">{{ old('deskripsi') }}</textarea>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-6">
+                    <label class="upload-box" onclick="document.getElementById('fileInput').click()">
+                      <i class="fa-regular fa-image upload-icon"></i>
+                      <span class="fw-bold text-dark small">Upload Cover</span>
+                      <span class="text-muted" style="font-size: 0.7rem;">Max 5MB (JPG/PNG)</span>
+                      <p id="fileName" class="text-success small fw-bold mt-2 text-break mb-0"></p>
+                      <input id="fileInput" name="gambar" type="file" accept="image/*" class="d-none" onchange="previewImage(this)">
                     </label>
                   </div>
-                  <p class="text-xs text-gray-500">PNG, JPG up to 5MB</p>
-                  <p id="fileName" class="text-sm font-medium text-primary mt-2 break-all"></p>
+
+                  <div class="col-6">
+                    <label class="upload-box" onclick="document.getElementById('audioInput').click()">
+                      <i class="fa-solid fa-music upload-icon"></i>
+                      <span class="fw-bold text-dark small">Upload Audio</span>
+                      <span class="text-muted" style="font-size: 0.7rem;">Max 10MB (MP3)</span>
+                      <p id="audioName" class="text-success small fw-bold mt-2 text-break mb-0"></p>
+                      <input id="audioInput" name="audio" type="file" accept="audio/*" class="d-none" onchange="previewAudio(this)">
+                    </label>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Upload Audio -->
-            <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-2">File Audio (MP3)</label>
-              <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg hover:bg-gray-50 transition cursor-pointer h-full" onclick="document.getElementById('audioInput').click()">
-                <div class="space-y-1 text-center my-auto">
-                  <i class="fa-solid fa-headphones-simple text-4xl text-gray-400"></i>
-                  <div class="flex text-sm text-gray-600 justify-center">
-                    <label class="relative cursor-pointer rounded-md font-medium text-primary hover:text-secondary focus-within:outline-none">
-                      <span>Upload Audio</span>
-                      <input id="audioInput" name="audio" type="file" accept="audio/*" class="sr-only" onchange="previewAudio(this)">
-                    </label>
-                  </div>
-                  <p class="text-xs text-gray-500">MP3, WAV up to 10MB</p>
-                  <p id="audioName" class="text-sm font-medium text-primary mt-2 break-all"></p>
-                </div>
-              </div>
+            <div class="d-flex justify-content-end align-items-center mt-5 pt-4 border-top">
+              <a href="{{ route('admin.dashboard') }}" class="btn btn-light text-muted fw-bold rounded-pill px-4 me-3">Batal</a>
+              <button type="submit" class="btn-simpan d-flex align-items-center gap-2">
+                <i class="fa-solid fa-paper-plane"></i> Simpan Konten
+              </button>
             </div>
 
-          </div>
-
-          <!-- Submit Button -->
-          <div class="pt-4">
-            <button type="submit" class="w-full bg-primary text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:bg-secondary focus:outline-none focus:ring-4 focus:ring-green-300 transition transform hover:-translate-y-1">
-              <i class="fa-solid fa-save mr-2"></i> Simpan Konten
-            </button>
-          </div>
-
-        </form>
+          </form>
+        </div>
       </div>
     </div>
-  </main>
+  </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     function previewImage(input) {
       if (input.files && input.files[0]) {
-        var fileName = input.files[0].name;
-        document.getElementById('fileName').innerText = "File terpilih: " + fileName;
+        document.getElementById('fileName').innerText = input.files[0].name;
       }
     }
 
     function previewAudio(input) {
       if (input.files && input.files[0]) {
-        var fileName = input.files[0].name;
-        document.getElementById('audioName').innerText = "File terpilih: " + fileName;
+        document.getElementById('audioName').innerText = input.files[0].name;
       }
     }
 
@@ -257,7 +318,8 @@
       text: "{{ session('success') }}",
       icon: "success",
       confirmButtonColor: "#059669",
-      confirmButtonText: "Oke, Lanjut"
+      confirmButtonText: "Oke, Lanjut",
+      timer: 3000
     });
     @endif
   </script>

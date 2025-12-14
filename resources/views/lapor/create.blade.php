@@ -210,11 +210,6 @@
                             </form>
                         </div>
                     </div>
-
-                    <div class="text-center mt-4 text-muted small">
-                        &copy; {{ date('Y') }} Sistem Curhat & Pelaporan.
-                    </div>
-
                 </div>
             </div>
         </div>

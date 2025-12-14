@@ -4,105 +4,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detail Laporan - Sistem Curhat</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <title>Detail Laporan #{{ $laporan->id }} - Sistem Curhat</title>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f3f4f6;
+            background-color: #f0fdf4;
+            color: #334155;
         }
 
-        .status-card {
-            background: white;
-            border-radius: 12px;
+        .main-container {
+            padding: 3rem 0;
+        }
+
+        .card-custom {
             border: none;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            background: white;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
         }
 
-        .timeline-dot {
+        .card-header-custom {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            padding: 2rem;
+            border-bottom: none;
+        }
+
+        .btn-back {
+            background-color: white;
+            color: #059669;
+            border-radius: 50px;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-back:hover {
+            background-color: #ecfdf5;
+            color: #047857;
+            transform: translateY(-2px);
+        }
+
+        .timeline-wrapper {
+            padding-left: 1rem;
+            border-left: 2px solid #e2e8f0;
+            margin-left: 0.5rem;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-item::before {
+            content: '';
             width: 12px;
             height: 12px;
-            background: #e5e7eb;
+            background: #fff;
+            border: 2px solid #cbd5e1;
             border-radius: 50%;
-            display: inline-block;
-            margin-right: 8px;
+            position: absolute;
+            left: -23px;
+            top: 5px;
         }
 
-        .timeline-dot.active {
+        .timeline-item.active::before {
             background: #059669;
-            box-shadow: 0 0 0 4px #d1fae5;
+            border-color: #059669;
+            box-shadow: 0 0 0 3px #d1fae5;
+        }
+
+        .avatar-circle {
+            width: 45px;
+            height: 45px;
+            background-color: #ecfdf5;
+            color: #059669;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
         }
     </style>
 </head>
 
 <body>
+
     @include('components.navbar')
 
-    <div class="container py-5">
-        <div class="row">
+    <div class="container main-container">
 
-            <div class="col-lg-8 mb-4">
-                {{-- LOGIKA TOMBOL KEMBALI --}}
-                @if($laporan->status == 'selesai' && Auth::user()->role_id == 2)
-                <a href="{{ route('lapor.arsip') }}" class="btn btn-light mb-3 text-muted"><i class="bi bi-arrow-left"></i> Kembali ke Arsip</a>
-                @else
-                <a href="{{ route('lapor.index') }}" class="btn btn-light mb-3 text-muted"><i class="bi bi-arrow-left"></i> Kembali</a>
-                @endif
-
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                    <div class="card-header bg-white p-4 border-bottom">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <span class="badge bg-secondary bg-opacity-10 text-secondary mb-2">{{ $laporan->jenis }}</span>
-                                <h4 class="fw-bold mb-1">Laporan #{{ $laporan->id }}</h4>
-                                <small class="text-muted">
-                                    <i class="bi bi-clock me-1"></i> Diajukan pada {{ \Carbon\Carbon::parse($laporan->created_at)->translatedFormat('d F Y, H:i') }}
-                                </small>
+        <div class="card card-custom mb-4">
+            <div class="card-header-custom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        @php
+                        $backRoute = route('lapor.index');
+                        if($laporan->status == 'selesai' && Auth::user()->role_id == 2) {
+                        $backRoute = route('lapor.arsip');
+                        }
+                        @endphp
+                        <a href="{{ $backRoute }}" class="btn-back">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        <div>
+                            <h4 class="fw-bold mb-0 text-white">Laporan #{{ $laporan->id }}</h4>
+                            <div class="text-white text-opacity-75 small">
+                                <i class="bi bi-clock me-1"></i> Diajukan: {{ \Carbon\Carbon::parse($laporan->created_at)->translatedFormat('d F Y, H:i') }}
                             </div>
-                            @php
-                            $statusColor = match($laporan->status) {
-                            'pending' => 'warning',
-                            'proses' => 'primary',
-                            'selesai' => 'success',
-                            default => 'secondary'
-                            };
-                            @endphp
-                            <span class="badge bg-{{ $statusColor }} fs-6 px-3 py-2 rounded-pill text-uppercase">
-                                {{ $laporan->status }}
-                            </span>
                         </div>
                     </div>
 
+                    @php
+                    $statusClass = match($laporan->status) {
+                    'pending' => 'bg-warning text-dark',
+                    'proses' => 'bg-primary text-white',
+                    'selesai' => 'bg-light text-success fw-bold',
+                    default => 'bg-secondary'
+                    };
+                    @endphp
+                    <span class="badge {{ $statusClass }} px-3 py-2 rounded-pill text-uppercase shadow-sm">
+                        {{ $laporan->status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+
+            <div class="col-lg-8 mb-4">
+                <div class="card card-custom h-100">
                     <div class="card-body p-4">
+
                         <div class="mb-4">
-                            <label class="fw-bold text-muted small text-uppercase">Pelapor</label>
-                            <div class="d-flex align-items-center mt-2">
-                                <div class="bg-light rounded-circle p-2 me-3"><i class="bi bi-person fs-4"></i></div>
+                            <div class="info-label">Pelapor</div>
+                            <div class="d-flex align-items-center p-3 bg-light rounded-3 border border-light">
+                                <div class="avatar-circle me-3">
+                                    {{ strtoupper(substr($laporan->korban->name ?? 'A', 0, 1)) }}
+                                </div>
                                 <div>
-                                    <h6 class="mb-0 fw-bold">{{ $laporan->korban->name ?? 'Anonim' }}</h6>
+                                    <h6 class="mb-0 fw-bold text-dark">{{ $laporan->korban->name ?? 'Anonim' }}</h6>
                                     <small class="text-muted">{{ $laporan->korban->email ?? '-' }}</small>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="fw-bold text-muted small text-uppercase">Lokasi & Tanggal Kejadian</label>
-                            <p class="mt-1 fs-5">
-                                <i class="bi bi-geo-alt text-danger me-2"></i> {{ $laporan->lokasi }} <br>
-                                <i class="bi bi-calendar-event text-primary me-2"></i> {{ \Carbon\Carbon::parse($laporan->tanggal)->translatedFormat('d F Y') }}
-                            </p>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="fw-bold text-muted small text-uppercase">Kronologi Kejadian</label>
-                            <div class="p-3 bg-light rounded-3 mt-2" style="white-space: pre-line; line-height: 1.8;">
-                                {{ $laporan->kronologi }}
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="info-label">Jenis & Lokasi</div>
+                                <p class="mb-1 fw-medium text-dark"><i class="bi bi-tag-fill me-2 text-warning"></i> {{ $laporan->jenis }}</p>
+                                <p class="mb-0 text-secondary"><i class="bi bi-geo-alt-fill me-2 text-danger"></i> {{ $laporan->lokasi }}</p>
+                            </div>
+                            <div class="col-md-6 mt-3 mt-md-0">
+                                <div class="info-label">Waktu Kejadian</div>
+                                <p class="fw-medium text-dark">
+                                    <i class="bi bi-calendar-check-fill me-2 text-primary"></i>
+                                    {{ \Carbon\Carbon::parse($laporan->tanggal)->translatedFormat('l, d F Y') }}
+                                </p>
                             </div>
                         </div>
+
+                        <hr class="border-light">
+
+                        <div class="mt-4">
+                            <div class="info-label">Kronologi Kejadian</div>
+                            <div class="p-4 rounded-3 text-dark border border-light" style="background-color: #f8fafc; line-height: 1.8; text-align: justify;">
+                                {!! nl2br(e($laporan->kronologi)) !!}
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -110,34 +208,28 @@
             <div class="col-lg-4">
 
                 @if(Auth::user()->role_id == 1 || Auth::user()->role_id == 2)
-                <div class="card status-card mb-4">
+                <div class="card card-custom">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">Tindakan Psikolog</h5>
-                        <p class="text-muted small mb-3">Ubah status laporan ini untuk memberitahu korban mengenai perkembangan kasus.</p>
-
+                        <h6 class="fw-bold mb-3 text-dark d-flex align-items-center">
+                            <i class="bi bi-sliders2 me-2 text-primary"></i> Tindakan Laporan
+                        </h6>
                         <form action="{{ route('lapor.update', $laporan->id) }}" method="POST">
-                            @csrf
-                            @method('PUT')
-
+                            @csrf @method('PUT')
                             <div class="d-grid gap-2">
                                 @if($laporan->status == 'pending')
-                                <button name="status" value="proses" class="btn btn-primary py-2 fw-semibold">
+                                <button name="status" value="proses" class="btn btn-primary fw-semibold shadow-sm">
                                     <i class="bi bi-arrow-repeat me-2"></i> Proses Laporan
                                 </button>
-                                @endif
-
-                                @if($laporan->status == 'proses')
-                                <button name="status" value="selesai" class="btn btn-success py-2 fw-semibold">
-                                    <i class="bi bi-check-circle-fill me-2"></i> Tandai Selesai
+                                @elseif($laporan->status == 'proses')
+                                <button name="status" value="selesai" class="btn btn-success fw-semibold shadow-sm">
+                                    <i class="bi bi-check-lg me-2"></i> Selesai
                                 </button>
-                                @endif
-
-                                @if($laporan->status == 'selesai')
-                                <div class="alert alert-success text-center mb-2">
-                                    <i class="bi bi-check-circle-fill me-1"></i> Kasus Selesai
+                                @elseif($laporan->status == 'selesai')
+                                <div class="alert alert-success py-2 text-center small fw-bold mb-2">
+                                    <i class="bi bi-check-circle me-1"></i> Kasus Ditutup
                                 </div>
-                                <button name="status" value="proses" class="btn btn-outline-warning py-2 fw-semibold btn-sm">
-                                    <i class="bi bi-arrow-counterclockwise me-2"></i> Buka Kembali Kasus
+                                <button name="status" value="proses" class="btn btn-outline-secondary btn-sm">
+                                    Buka Kembali
                                 </button>
                                 @endif
                             </div>
@@ -146,84 +238,62 @@
                 </div>
                 @endif
 
-                {{-- ASSIGN (hanya admin) --}}
                 @if (Auth::user()->role_id == 1)
-                <div class="card status-card mb-4">
+                <div class="card card-custom">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-3">Assign ke Psikolog</h5>
+                        <h6 class="fw-bold mb-3 text-dark d-flex align-items-center">
+                            <i class="bi bi-person-fill-gear me-2 text-warning"></i> Petugas Psikolog
+                        </h6>
 
                         @if($laporan->assigned_psikolog)
-                            <div class="alert alert-info">
-                                <i class="bi bi-person-check-fill me-2"></i>
-                                Laporan ini sudah ditugaskan kepada:
-                                <strong>{{ $laporan->assigned_psikolog->name }}</strong>
+                        <div class="bg-light p-3 rounded-3 mb-3 border border-success border-opacity-25">
+                            <small class="text-muted d-block mb-1" style="font-size: 0.75rem;">DITANGANI OLEH:</small>
+                            <div class="fw-bold text-success d-flex align-items-center">
+                                <i class="bi bi-person-check-fill me-2 fs-5"></i>
+                                {{ $laporan->assigned_psikolog->name }}
                             </div>
-                        @endif
-
-                        @php
-                            $psikologs = \App\Models\Psikolog::with('user')->orderBy('id_psikolog')->get();
-                        @endphp
-
-                        <form action="{{ route('admin.lapor.assign', $laporan->id) }}" method="POST" class="mb-2">
-                            @csrf
-
-                            <label class="fw-semibold mb-2">Pilih Psikolog</label>
-
-                            <select name="id_psikolog" class="form-select mb-3" required>
-                                <option value="">-- Pilih Psikolog --</option>
-
-                                @foreach($psikologs as $psikolog)
-                                    <option value="{{ $psikolog->id_psikolog }}"
-                                        {{ $laporan->assigned_psikolog_id == $psikolog->id_psikolog ? 'selected' : '' }}>
-                                        {{ $psikolog->user->name }} ({{ $psikolog->user->email }})
-                                    </option>
-                                @endforeach
-                            </select>
-
-                            <button type="submit" class="btn btn-success w-100 fw-semibold">
-                                <i class="bi bi-send-check me-2"></i> Assign Sekarang
-                            </button>
-                        </form>
-
-                        {{-- FORM UNASSIGN TERPISAH dengan konfirmasi --}}
+                        </div>
                         <form id="form-unassign-{{ $laporan->id }}" action="{{ route('admin.lapor.unassign', $laporan->id) }}" method="POST">
                             @csrf
-                            {{-- tombol type button supaya tidak submit tanpa konfirmasi JS --}}
-                            <button type="button" class="btn btn-outline-danger w-100 fw-semibold btn-unassign" data-id="{{ $laporan->id }}">
-                                <i class="bi bi-person-x me-2"></i> Unassign / Batalkan
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 btn-unassign fw-semibold" data-id="{{ $laporan->id }}">
+                                Ganti / Batalkan
                             </button>
                         </form>
+                        @else
+                        <form action="{{ route('admin.lapor.assign', $laporan->id) }}" method="POST">
+                            @csrf
+                            <select name="id_psikolog" class="form-select mb-2 text-sm" required>
+                                <option value="">-- Pilih Psikolog --</option>
+                                @foreach(\App\Models\Psikolog::with('user')->get() as $p)
+                                <option value="{{ $p->id_psikolog }}">{{ $p->user->name }}</option>
+                                @endforeach
+                            </select>
+                            <button class="btn btn-dark btn-sm w-100 fw-semibold">Assign Sekarang</button>
+                        </form>
+                        @endif
                     </div>
                 </div>
                 @endif
-                <div class="card status-card">
+
+                <div class="card card-custom">
                     <div class="card-body p-4">
-                        <h5 class="fw-bold mb-4">Tracking Status</h5>
-
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="timeline-dot {{ in_array($laporan->status, ['pending', 'proses', 'selesai']) ? 'active' : '' }}"></div>
-                            <div class="flex-grow-1 ms-2">
-                                <h6 class="mb-0 fw-semibold">Laporan Masuk</h6>
-                                <small class="text-muted">Laporan telah diterima sistem.</small>
+                        <h6 class="fw-bold mb-3 text-dark d-flex align-items-center">
+                            <i class="bi bi-activity me-2 text-info"></i> Tracking
+                        </h6>
+                        <div class="timeline-wrapper">
+                            <div class="timeline-item {{ in_array($laporan->status, ['pending', 'proses', 'selesai']) ? 'active' : '' }}">
+                                <small class="d-block fw-bold text-dark">Laporan Masuk</small>
+                                <span class="text-muted" style="font-size: 0.75rem">Diterima sistem</span>
+                            </div>
+                            <div class="timeline-item {{ in_array($laporan->status, ['proses', 'selesai']) ? 'active' : '' }}">
+                                <small class="d-block fw-bold text-dark">Diproses</small>
+                                <span class="text-muted" style="font-size: 0.75rem">Sedang ditangani</span>
+                            </div>
+                            <div class="timeline-item {{ $laporan->status == 'selesai' ? 'active' : '' }}">
+                                <small class="d-block fw-bold text-dark">Selesai</small>
+                                <span class="text-muted" style="font-size: 0.75rem">Kasus ditutup</span>
                             </div>
                         </div>
-
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="timeline-dot {{ in_array($laporan->status, ['proses', 'selesai']) ? 'active' : '' }}"></div>
-                            <div class="flex-grow-1 ms-2">
-                                <h6 class="mb-0 fw-semibold">Sedang Diproses</h6>
-                                <small class="text-muted">Psikolog sedang meninjau kasus.</small>
-                            </div>
-                        </div>
-
-                        <div class="d-flex align-items-center">
-                            <div class="timeline-dot {{ $laporan->status == 'selesai' ? 'active' : '' }}"></div>
-                            <div class="flex-grow-1 ms-2">
-                                <h6 class="mb-0 fw-semibold">Selesai</h6>
-                                <small class="text-muted">Kasus telah ditutup/diselesaikan.</small>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
@@ -231,43 +301,37 @@
         </div>
     </div>
 
-    @include('components.footer')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // SweetAlert2 konfirmasi unassign
-        document.addEventListener('DOMContentLoaded', function () {
-            document.querySelectorAll('.btn-unassign').forEach(function(btn){
-                btn.addEventListener('click', function(e){
-                    const id = btn.getAttribute('data-id');
-                    Swal.fire({
-                        title: 'Batalkan assign?',
-                        text: "Tindakan ini akan mengosongkan penugasan psikolog pada laporan.",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonColor: '#d33',
-                        confirmButtonText: 'Ya, batalkan',
-                        cancelButtonText: 'Batal'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // submit form unassign
-                            document.getElementById('form-unassign-' + id).submit();
-                        }
-                    });
+        document.querySelectorAll('.btn-unassign').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                Swal.fire({
+                    title: 'Batalkan petugas?',
+                    text: 'Petugas saat ini akan dilepas dari laporan.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Lepas',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) document.getElementById('form-unassign-' + id).submit();
                 });
             });
         });
-    </script>
-    @if(session('success'))
-    <script>
+
+        @if(session('success'))
         Swal.fire({
             title: "Berhasil!",
             text: "{{ session('success') }}",
             icon: "success",
-            confirmButtonColor: "#059669"
+            confirmButtonColor: "#059669",
+            timer: 3000
         });
+        @endif
     </script>
-    @endif
+
 </body>
 
 </html>

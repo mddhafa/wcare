@@ -6,18 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dashboard - Sistem Curhat</title>
 
-  <!-- Fonts: Poppins -->
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
     :root {
       --primary-color: #059669;
-      /* Emerald 600 */
       --primary-dark: #047857;
       --primary-light: #d1fae5;
       --text-dark: #1f2937;
@@ -31,7 +26,6 @@
       overflow-x: hidden;
     }
 
-    /* Banner & Hero */
     .banner-img {
       height: 320px;
       object-fit: cover;
@@ -49,7 +43,6 @@
       padding-bottom: 3rem;
     }
 
-    /* Feature Cards */
     .feature-card {
       border: none;
       border-radius: 16px;
@@ -68,11 +61,9 @@
       position: absolute;
       top: 0;
       left: 0;
-      w-100;
-      h-100;
-      background: var(--primary-color);
       width: 100%;
       height: 0%;
+      background: var(--primary-color);
       z-index: -1;
       transition: all 0.3s ease;
       opacity: 0.05;
@@ -108,7 +99,6 @@
       transform: rotateY(180deg);
     }
 
-    /* Psikolog Cards */
     .psikolog-card {
       border: none;
       border-radius: 20px;
@@ -116,6 +106,9 @@
       overflow: hidden;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       transition: all 0.3s;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     .psikolog-card:hover {
@@ -123,38 +116,45 @@
       box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
     }
 
-    .psikolog-img-wrapper {
-      height: 220px;
-      overflow: hidden;
+    .psikolog-header {
+      background: linear-gradient(135deg, #059669 0%, #34d399 100%);
+      height: 80px;
       position: relative;
+    }
+
+    .psikolog-avatar-wrapper {
+      width: 90px;
+      height: 90px;
+      margin: -45px auto 10px;
+      border-radius: 50%;
+      border: 4px solid white;
+      overflow: hidden;
+      background-color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+      z-index: 2;
     }
 
     .psikolog-img {
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.5s;
-    }
-
-    .psikolog-card:hover .psikolog-img {
-      transform: scale(1.05);
     }
 
     .status-badge {
       position: absolute;
       top: 15px;
       right: 15px;
-      background: rgba(255, 255, 255, 0.9);
+      background-color: #ffffff;
       padding: 5px 12px;
       border-radius: 20px;
       font-size: 0.75rem;
       font-weight: 600;
-      color: var(--primary-color);
-      backdrop-filter: blur(4px);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      color: #374151;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 10;
     }
 
-    /* Buttons */
     .btn-custom-primary {
       background-color: var(--primary-color);
       color: white;
@@ -187,7 +187,6 @@
       color: white;
     }
 
-    /* Emotion Modal */
     input[type="radio"]:checked+.emosi-card {
       background-color: var(--primary-light);
       border: 2px solid var(--primary-color);
@@ -211,16 +210,13 @@
 
 <body>
 
-  <!-- NAVBAR -->
   @include('components.navbar')
 
-  <!-- 1. HERO SECTION -->
   <section class="hero-section pt-5">
     <div class="container">
       <div class="row align-items-center">
-        <!-- Text Side -->
         <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
-          <div class="d-inline-block px-3 py-1 mb-3 text-xs font-semibold tracking-wider text-success text-uppercase bg-green-100 rounded-full">
+          <div class="d-inline-block px-3 py-1 mb-3 text-xs font-semibold tracking-wider text-success text-uppercase bg-green-100 rounded-full" style="background-color: #d1fae5; color: #065f46; font-size: 0.75rem; border-radius: 99px;">
             👋 Welcome back
           </div>
           <h1 class="display-5 fw-bold mb-3 lh-sm text-dark">
@@ -240,7 +236,6 @@
           </div>
         </div>
 
-        <!-- Carousel Side -->
         <div class="col-lg-6">
           <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel">
             <div class="carousel-indicators">
@@ -265,7 +260,6 @@
     </div>
   </section>
 
-  <!-- MODAL PILIH EMOSI -->
   <form action="{{ route('emosi.pilih') }}" method="POST">
     @csrf
     <div class="modal fade" id="modalEmosi" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
@@ -324,16 +318,14 @@
     </div>
   </form>
 
-  <!-- 2. LAYANAN SECTION -->
   <section class="py-5">
     <div class="container py-4">
       <div class="text-center mb-5">
-        <h6 class="text-success fw-bold text-uppercase ls-1">Fitur Unggulan</h6>
+        <h6 class="text-success fw-bold text-uppercase ls-1" style="letter-spacing: 1px;">Fitur Unggulan</h6>
         <h2 class="fw-bold">Apa yang Bisa Kamu Lakukan?</h2>
       </div>
 
       <div class="row g-4">
-        <!-- Chatbot -->
         <div class="col-md-6 col-lg-3">
           <div class="feature-card text-center">
             <div class="icon-wrapper"><i class="bi bi-robot"></i></div>
@@ -343,7 +335,6 @@
           </div>
         </div>
 
-        <!-- Konsultasi -->
         <div class="col-md-6 col-lg-3">
           <div class="feature-card text-center">
             <div class="icon-wrapper"><i class="bi bi-person-heart"></i></div>
@@ -353,7 +344,6 @@
           </div>
         </div>
 
-        <!-- Lapor -->
         <div class="col-md-6 col-lg-3">
           <div class="feature-card text-center">
             <div class="icon-wrapper"><i class="bi bi-shield-exclamation"></i></div>
@@ -363,7 +353,6 @@
           </div>
         </div>
 
-        <!-- Self Healing -->
         <div class="col-md-6 col-lg-3">
           <div class="feature-card text-center">
             <div class="icon-wrapper"><i class="bi bi-journal-album"></i></div>
@@ -382,7 +371,6 @@
     </div>
   </section>
 
-  <!-- 3. TENTANG KAMI -->
   <section class="py-5 bg-white border-top">
     <div class="container py-3">
       <div class="row align-items-center">
@@ -414,76 +402,82 @@
     </div>
   </section>
 
-  <!-- 4. TIM PSIKOLOG (DINAMIS) -->
   <section class="py-5" style="background-color: #f3f4f6;">
     <div class="container py-4">
       <div class="d-flex justify-content-between align-items-end mb-5">
         <div>
-          <h6 class="text-success fw-bold text-uppercase ls-1">Tim Ahli</h6>
+          <h6 class="text-success fw-bold text-uppercase ls-1" style="letter-spacing: 1px;">Tim Ahli</h6>
           <h2 class="fw-bold">Psikolog Profesional</h2>
         </div>
-        <!-- Tombol Lihat Semua (Opsional) -->
-        <!-- <a href="#" class="btn btn-outline-dark rounded-pill">Lihat Semua</a> -->
       </div>
 
-      <!-- LOGIKA PHP: Mengambil data Psikolog langsung dari DB -->
       @php
-      // Mengambil 4 user dengan role_id 2 (Psikolog) terbaru
-      $team_psikolog = \App\Models\User::where('role_id', 2)->with('psikolog')->latest()->take(4)->get();
+      $team_psikolog = \App\Models\User::where('role_id', 2)
+      ->with('psikolog')
+      ->whereHas('psikolog', function($q) {
+      $q->whereNotNull('jam_mulai')->whereNotNull('jam_selesai');
+      })
+      ->latest()
+      ->take(4)
+      ->get();
       @endphp
 
       <div class="row g-4">
         @forelse($team_psikolog as $psi)
         <div class="col-md-6 col-lg-3">
-          <div class="psikolog-card h-100">
-            <div class="psikolog-img-wrapper">
-              <!-- Cek Foto: Jika ada pakai storage, jika tidak pakai inisial/default -->
+          <div class="psikolog-card">
+
+            <div class="psikolog-header">
+              <div class="status-badge">
+                @if($psi->active_status == 1)
+                <span class="text-success fw-bold d-flex align-items-center">
+                  <i class="bi bi-circle-fill small me-1"></i> Online
+                </span>
+                @else
+                <span class="text-secondary fw-bold d-flex align-items-center">
+                  <i class="bi bi-circle-fill small me-1"></i> Offline
+                </span>
+                @endif
+              </div>
+            </div>
+
+            <div class="psikolog-avatar-wrapper">
               @if($psi->avatar && $psi->avatar != 'avatar.png')
               <img src="{{ asset('storage/' . $psi->avatar) }}" alt="{{ $psi->name }}" class="psikolog-img">
               @else
-              <!-- Placeholder Image Generator jika tidak ada foto -->
-              <img src="https://ui-avatars.com/api/?name={{ urlencode($psi->name) }}&background=059669&color=fff&size=512" alt="{{ $psi->name }}" class="psikolog-img">
-              @endif
-
-              <div class="status-badge">
-                <i class="bi bi-circle-fill text-success small me-1"></i> Available
+              <div class="d-flex align-items-center justify-content-center w-100 h-100 bg-light text-success fw-bold fs-2">
+                {{ strtoupper(substr($psi->name, 0, 1)) }}
               </div>
+              @endif
             </div>
-            <div class="card-body p-4 text-center">
-              <h5 class="fw-bold text-dark mb-1">{{ $psi->name }}</h5>
+
+            <div class="card-body p-4 text-center pt-0">
+              <h5 class="fw-bold text-dark mb-1">{{ Str::limit($psi->name, 20) }}</h5>
               <p class="text-muted small mb-3">Psikolog Klinis</p>
 
-              <!-- Jadwal (jika ada data relasi) -->
-              @if($psi->psikolog && $psi->psikolog->jadwal_tersedia)
-              <div class="badge bg-light text-dark border mb-3">
-                <i class="bi bi-clock me-1"></i>
-                {{ \Carbon\Carbon::parse($psi->psikolog->jadwal_tersedia)->format('d M, H:i') }}
-              </div>
-              @else
-              <div class="badge bg-light text-muted border mb-3">
-                <i class="bi bi-calendar-x me-1"></i> Jadwal belum diatur
-              </div>
-              @endif
-
-              <div class="d-grid">
-                <button class="btn btn-sm btn-outline-success rounded-pill">Buat Janji</button>
+              <div class="bg-light rounded-3 p-2 border border-dashed mb-3">
+                <div class="text-muted" style="font-size: 0.75rem;">Jadwal Praktik:</div>
+                <div class="fw-bold text-success">
+                  <i class="bi bi-clock me-1"></i>
+                  {{ \Carbon\Carbon::parse($psi->psikolog->jam_mulai)->format('H:i') }} -
+                  {{ \Carbon\Carbon::parse($psi->psikolog->jam_selesai)->format('H:i') }} WIB
+                </div>
               </div>
             </div>
           </div>
         </div>
         @empty
         <div class="col-12 text-center py-5">
-          <p class="text-muted">Belum ada data psikolog yang ditampilkan.</p>
+          <img src="https://cdn-icons-png.flaticon.com/512/7486/7486747.png" width="80" class="mb-3 opacity-50">
+          <p class="text-muted">Belum ada data psikolog yang tersedia saat ini.</p>
         </div>
         @endforelse
       </div>
     </div>
   </section>
 
-  <!-- FOOTER -->
   @include('components.footer')
 
-  <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -492,8 +486,7 @@
     Swal.fire({
       icon: 'success',
       title: 'Berhasil!',
-      text: '{{ session('
-      success ') }}',
+      text: "{{ session('success') }}",
       confirmButtonColor: '#059669',
       timer: 3000
     });
