@@ -44,7 +44,6 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($psikologs as $p) {
-            // A. Buat User (Data Login & Nama)
             $user = User::create([
                 'name' => $p['name'],
                 'email' => $p['email'],
@@ -54,10 +53,10 @@ class DatabaseSeeder extends Seeder
                 'active_status' => 0,
             ]);
 
-            // B. Buat Detail Psikolog (Hanya data tambahan)
             Psikolog::create([
-                'user_id' => $user->user_id, // Terhubung otomatis
-                'jadwal_tersedia' => now()->addDay(),
+                'user_id' => $user->user_id,
+                'jam_mulai' => '08:00',
+                'jam_selesai' => '16:00',
             ]);
         }
 
@@ -87,7 +86,7 @@ class DatabaseSeeder extends Seeder
 
             // B. Buat Detail Korban
             Korban::create([
-                'user_id' => $user->user_id, // Terhubung otomatis
+                'user_id' => $user->user_id,
                 'umur' => $k['umur'],
                 'jenis_kelamin' => $k['jk'],
             ]);

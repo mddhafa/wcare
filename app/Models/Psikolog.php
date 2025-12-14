@@ -14,7 +14,8 @@ class Psikolog extends Model
 
     protected $fillable = [
         'user_id',         
-        'jadwal_tersedia',
+        'jam_mulai',
+        'jam_selesai',
     ];
 
     public function user()

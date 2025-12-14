@@ -16,7 +16,8 @@ return new class extends Migration
                 ->on('users')
                 ->onDelete('cascade');
 
-            $table->dateTime('jadwal_tersedia')->nullable();
+            $table->time('jam_mulai')->nullable();
+            $table->time('jam_selesai')->nullable();
 
             $table->timestamps();
         });
