@@ -98,7 +98,8 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 50px;
             padding: 0.6rem 1.2rem 0.6rem 2.5rem;
-            width: 300px;
+            width: 100%;
+            min-width: 200px;
             color: white;
             transition: all 0.3s;
         }
@@ -111,87 +112,110 @@
             outline: none;
             background: rgba(255, 255, 255, 0.25);
             border-color: rgba(255, 255, 255, 0.5);
-            width: 320px;
         }
 
-        .badge-total {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(5px);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-size: 0.9rem;
-            font-weight: 500;
+        .hover-scale {
+            transition: transform 0.2s;
+        }
+
+        .hover-scale:hover {
+            transform: scale(1.05);
         }
     </style>
 </head>
 
 <body>
+
+    @include('components.navbar')
+
     <div class="container main-container">
 
         <div class="card card-custom">
 
             <div class="card-header-custom">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-4">
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-4">
 
-                    <div class="d-flex align-items-center gap-4 w-100">
-                        <a href="{{ route('admin.dashboard') }}" class="btn btn-back">
+                    <div class="d-flex align-items-center gap-4 w-100 w-lg-auto">
+                        <a href="{{ route('admin.dashboard') }}" class="btn btn-back shadow-sm" data-bs-toggle="tooltip" title="Kembali ke Dashboard">
                             <i class="bi bi-arrow-left"></i>
                         </a>
                         <div>
-                            <h3 class="fw-bold mb-1">Data Psikolog</h3>
-                            <div class="d-flex align-items-center gap-2 text-white text-opacity-75">
-                                <i class="bi bi-person-heart"></i>
-                                <span>Tim ahli profesional yang tersedia</span>
+                            <h4 class="fw-bold mb-0 text-white">Data Psikolog</h4>
+                            <div class="d-flex align-items-center gap-2 text-white text-opacity-75 small">
+                                <i class="bi bi-people-fill"></i>
+                                <span id="totalCount">{{ $users->count() }}</span><span> tenaga ahli terdaftar</span>
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-3">
-                        <!-- PERBAIKAN: Menambahkan parameter source=psikolog -->
-                        <a href="{{ route('admin.users.trash', ['source' => 'psikolog']) }}" class="btn btn-warning shadow-sm rounded-pill text-dark fw-bold btn-sm px-3">
-                            <i class="bi bi-trash3-fill me-1"></i> Tong Sampah
+                    <div class="d-flex flex-wrap align-items-center justify-content-end gap-3 w-100 w-lg-auto">
+
+                        <div class="position-relative flex-grow-1 flex-lg-grow-0">
+                            <i class="bi bi-search position-absolute text-white text-opacity-75" style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
+                            <input type="text" id="searchInput" class="search-box" placeholder="Cari nama atau email...">
+                        </div>
+
+                        <a href="{{ route('admin.users.trash', ['source' => 'psikolog']) }}" class="btn btn-outline-light rounded-pill px-3 d-flex align-items-center gap-2" data-bs-toggle="tooltip" title="Lihat Data Terhapus">
+                            <i class="bi bi-trash3"></i>
+                            <span class="d-none d-md-inline">Sampah</span>
                         </a>
 
-                        <span class="badge-total border border-white border-opacity-25">
-                            Total: {{ $users->count() }}
-                        </span>
+                        <a href="{{ route('admin.psikolog.create') }}" class="btn btn-light text-success fw-bold rounded-pill px-4 d-flex align-items-center gap-2 shadow-sm hover-scale">
+                            <i class="bi bi-plus-lg"></i>
+                            <span>Tambah Baru</span>
+                        </a>
 
-                        <div class="position-relative">
-                            <i class="bi bi-search position-absolute text-white text-opacity-75" style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
-                            <input type="text" class="search-box" placeholder="Cari psikolog...">
-                        </div>
                     </div>
                 </div>
             </div>
 
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-custom table-hover mb-0">
+                    <table class="table table-custom table-hover mb-0" id="psikologTable">
                         <thead>
                             <tr>
                                 <th class="text-center" width="5%">No</th>
-                                <th width="35%">Psikolog</th>
-                                <th width="30%">Email</th>
+                                <th width="40%">Psikolog & Email</th>
+                                <th width="25%">Jadwal Praktik</th>
                                 <th width="20%" class="text-center">Status Akun</th>
                                 <th width="10%" class="text-end">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($users as $user)
-                            <tr>
-                                <td class="text-center text-muted">{{ $loop->iteration }}</td>
+                            <tr class="data-row">
+                                <td class="text-center text-muted loop-number">{{ $loop->iteration }}</td>
+
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="avatar-circle me-3 flex-shrink-0 border border-success border-opacity-25">
                                             {{ strtoupper(substr($user->name, 0, 1)) }}
                                         </div>
                                         <div>
-                                            <div class="fw-bold text-dark fs-6">{{ $user->name }}</div>
-                                            <small class="text-muted d-block" style="font-size: 0.8rem;">Psikolog Klinis</small>
+                                            <div class="fw-bold text-dark fs-6 user-name">{{ $user->name }}</div>
+                                            <div class="text-muted small user-email" style="font-size: 0.8rem;">
+                                                <i class="bi bi-envelope me-1"></i>{{ $user->email }}
+                                            </div>
                                         </div>
                                     </div>
                                 </td>
-                                <td class="text-secondary">{{ $user->email }}</td>
+
+                                <td>
+                                    @if($user->psikolog && $user->psikolog->jam_mulai && $user->psikolog->jam_selesai)
+                                    <div class="d-flex align-items-center text-secondary">
+                                        <i class="bi bi-clock me-2 text-success"></i>
+                                        <span class="fw-medium">
+                                            {{ \Carbon\Carbon::parse($user->psikolog->jam_mulai)->format('H:i') }} -
+                                            {{ \Carbon\Carbon::parse($user->psikolog->jam_selesai)->format('H:i') }}
+                                        </span>
+                                        <span class="badge bg-light text-dark border ms-2" style="font-size: 0.7rem;">WIB</span>
+                                    </div>
+                                    @else
+                                    <span class="badge bg-light text-muted border border-dashed fw-normal">
+                                        <i class="bi bi-calendar-x me-1"></i> Belum diatur
+                                    </span>
+                                    @endif
+                                </td>
 
                                 <td class="text-center">
                                     @if($user->active_status == 1)
@@ -230,7 +254,7 @@
                                 </td>
                             </tr>
                             @empty
-                            <tr>
+                            <tr id="noDataRow">
                                 <td colspan="5" class="text-center py-5 text-muted bg-light">
                                     <div class="d-flex flex-column align-items-center justify-content-center py-4">
                                         <div class="bg-white p-3 rounded-circle shadow-sm mb-3">
@@ -242,6 +266,17 @@
                                 </td>
                             </tr>
                             @endforelse
+
+                            <tr id="noSearchFound" style="display: none;">
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <div class="d-flex flex-column align-items-center justify-content-center py-4">
+                                        <i class="bi bi-search text-secondary fs-1 mb-3 opacity-50"></i>
+                                        <h6 class="fw-bold text-dark">Tidak Ditemukan</h6>
+                                        <p class="mb-0 small">Tidak ada psikolog dengan nama tersebut.</p>
+                                    </div>
+                                </td>
+                            </tr>
+
                         </tbody>
                     </table>
                 </div>
@@ -256,6 +291,40 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            let filter = this.value.toLowerCase();
+            let rows = document.querySelectorAll('.data-row');
+            let hasResult = false;
+
+            rows.forEach(row => {
+                let name = row.querySelector('.user-name').innerText.toLowerCase();
+                let email = row.querySelector('.user-email').innerText.toLowerCase();
+
+                if (name.includes(filter) || email.includes(filter)) {
+                    row.style.display = '';
+                    hasResult = true;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            let noDataRow = document.getElementById('noDataRow');
+            let noSearchFound = document.getElementById('noSearchFound');
+
+            if (!noDataRow) {
+                if (hasResult) {
+                    noSearchFound.style.display = 'none';
+                } else {
+                    noSearchFound.style.display = '';
+                }
+            }
+        });
+
         function confirmDelete(event) {
             event.preventDefault();
             const form = event.target;
@@ -280,8 +349,7 @@
         Swal.fire({
             icon: 'success',
             title: 'Berhasil',
-            text: '{{ session('
-            success ') }}',
+            text: "{{ session('success') }}",
             timer: 3000,
             showConfirmButton: false
         });

@@ -40,6 +40,9 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/mahasiswa', [AdminController::class, 'mahasiswa'])->name('mahasiswa');
         Route::get('/psikolog', [AdminController::class, 'psikolog'])->name('psikolog');
 
+        Route::get('/psikolog/create', [AdminController::class, 'createPsikolog'])->name('psikolog.create');
+        Route::post('/psikolog', [AdminController::class, 'storePsikolog'])->name('psikolog.store');
+
         Route::delete('/user/{id}', [AdminController::class, 'destroyUser'])->name('user.delete');
         Route::get('/user/{id}/edit', [AdminController::class, 'editUser'])->name('user.edit');
         Route::put('/user/{id}', [AdminController::class, 'updateUser'])->name('user.update');
@@ -58,21 +61,21 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware([Role::class . ':psikolog'])->prefix('psikolog')->name('psikolog.')->group(function () {
 
         Route::get('/dashboard', [AuthController::class, 'showdashboardpsi'])
-        ->name('dashboard-psikolog');
+            ->name('dashboard-psikolog');
 
         Route::get('/chat', [PsikologChatController::class, 'index'])->name('chat');
         Route::get('/chat/{user}', [PsikologChatController::class, 'showJson'])->name('chat.show');
         Route::post('/chat/send', [PsikologChatController::class, 'send'])->name('chat.send');
     });
 
-    Route::middleware([Role::class.':korban'])->group(function () {
+    Route::middleware([Role::class . ':korban'])->group(function () {
 
         Route::get('/chatbot', function () {
             return view('chatbot');
         });
-        Route::post('/chat/session', [ChatbotController::class, 'newSession']);      
-        Route::get('/chat/sessions', [ChatbotController::class, 'sessions']);        
-        Route::get('/chat/messages/{id}', [ChatbotController::class, 'messages']);   
+        Route::post('/chat/session', [ChatbotController::class, 'newSession']);
+        Route::get('/chat/sessions', [ChatbotController::class, 'sessions']);
+        Route::get('/chat/messages/{id}', [ChatbotController::class, 'messages']);
         Route::post('/chat/generate', [ChatbotController::class, 'send']);
 
         Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');

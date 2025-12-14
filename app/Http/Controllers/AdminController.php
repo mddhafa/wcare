@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Laporan;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -38,6 +39,46 @@ class AdminController extends Controller
         if (Auth::user()->role_id != 1) abort(403);
         $users = User::where('role_id', 2)->with('psikolog')->latest()->get();
         return view('Admin.psikolog-index', compact('users'));
+    }
+
+    public function createPsikolog()
+    {
+        if (Auth::user()->role_id != 1) abort(403);
+        return view('Admin.psikolog-create');
+    }
+
+    public function storePsikolog(Request $request)
+    {
+        if (Auth::user()->role_id != 1) abort(403);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'jam_mulai' => 'nullable|date_format:H:i',
+            'jam_selesai' => 'nullable|date_format:H:i|after:jam_mulai',
+        ]);
+
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'role_id' => 2,
+                'active_status' => 0,
+                'email_verified_at' => now(),
+            ]);
+
+            \App\Models\Psikolog::create([
+                'user_id' => $user->user_id,
+                'jam_mulai' => $request->jam_mulai,
+                'jam_selesai' => $request->jam_selesai,
+            ]);
+
+            return redirect()->route('admin.psikolog')->with('success', 'Psikolog berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            return back()->withInput()->withErrors(['error' => 'Gagal menambahkan data: ' . $e->getMessage()]);
+        }
     }
 
     public function destroyUser($id)
@@ -82,7 +123,6 @@ class AdminController extends Controller
     {
         if (Auth::user()->role_id != 1) abort(403);
 
-        // Ambil user beserta relasinya (korban atau psikolog)
         $user = User::with(['korban', 'psikolog'])->findOrFail($id);
 
         return view('Admin.user-edit', compact('user'));
@@ -110,7 +150,7 @@ class AdminController extends Controller
 
         $user->update($updateData);
 
-        if ($user->role_id == 3) { 
+        if ($user->role_id == 3) {
             $request->validate([
                 'umur' => 'nullable|integer',
                 'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
@@ -123,7 +163,7 @@ class AdminController extends Controller
                     'jenis_kelamin' => $request->jenis_kelamin
                 ]
             );
-        } elseif ($user->role_id == 2) { 
+        } elseif ($user->role_id == 2) {
             $request->validate([
                 'jadwal_tersedia' => 'nullable|date',
             ]);
