@@ -216,9 +216,6 @@
     <div class="container">
       <div class="row align-items-center">
         <div class="col-lg-6 mb-5 mb-lg-0 pe-lg-5">
-          <div class="d-inline-block px-3 py-1 mb-3 text-xs font-semibold tracking-wider text-success text-uppercase bg-green-100 rounded-full" style="background-color: #d1fae5; color: #065f46; font-size: 0.75rem; border-radius: 99px;">
-            👋 Welcome back
-          </div>
           <h1 class="display-5 fw-bold mb-3 lh-sm text-dark">
             Kesehatan Mentalmu <br> Adalah <span style="color: var(--primary-color);">Prioritas Kami</span>
           </h1>

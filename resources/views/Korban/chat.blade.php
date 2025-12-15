@@ -6,68 +6,157 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat</title>
 
+    <!-- Bootstrap & Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        /* Chat Wrapper */
+        .chat-wrapper {
+            max-width: 900px;
+            margin: auto;
+            height: calc(100vh - 110px);
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
+        }
+
+        /* Header */
+        .chat-header {
+            background: linear-gradient(135deg, #198754, #20c997);
+            color: white;
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .chat-header img {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #fff;
+        }
+
+        /* Chat Box */
+        .chat-box {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px;
+            background-color: #e5ddd5;
+            background-image: url('https://i.imgur.com/8fK4h7R.png');
+        }
+
+        /* Bubble */
+        .chat-bubble {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 14px;
+            font-size: 14px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .chat-me {
+            background: #dcf8c6;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-other {
+            background: #ffffff;
+            border-bottom-left-radius: 4px;
+        }
+
+        /* Footer Input */
+        .chat-input {
+            padding: 12px;
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+        }
+
+        .chat-input .form-control {
+            border-radius: 999px;
+            padding-left: 44px;
+        }
+
+        .attach-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #6c757d;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 576px) {
+            .chat-wrapper {
+                height: calc(100vh - 80px);
+                border-radius: 0;
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-light">
+<body>
 
     @include('components.navbar')
 
-    <div class="container mt-5 pt-4">
+    <div class="container-fluid mt-3">
+        <div class="chat-wrapper">
 
-        <!-- Header Chat WhatsApp Style -->
-        <div class="bg-success text-white rounded-top-3 p-3 d-flex align-items-center gap-3 mt-3">
-            <img src="https://ui-avatars.com/api/?name={{ urlencode($psikolog->name) }}&background=ffffff&color=157347"
-                class="rounded-circle bg-white" style="width: 45px; height: 45px; object-fit: cover;">
-
-            <div>
-                <h5 class="mb-0 fw-bold">{{ $psikolog->name }}</h5>
-                <small class="opacity-75">Psikolog UMY</small>
-            </div>
-        </div>
-
-        <!-- Chat Box -->
-        <div class="border border-top-0 rounded-bottom-3 p-3 overflow-auto"
-            id="chatBox"
-            style="height: 480px; background-color: #e5ddd5; background-image: url('https://i.imgur.com/8fK4h7R.png'); background-repeat: repeat;">
-
-            @foreach($messages as $msg)
-            <div class="my-2 d-flex {{ $msg->sender_id == Auth::id() ? 'justify-content-end' : 'justify-content-start' }}">
-                <div class="shadow-sm rounded-3 px-3 py-2"
-                    style="max-width: 70%; background-color: {{ $msg->sender_id == Auth::id() ? '#dcf8c6' : '#ffffff' }};">
-                    <p class="mb-0" style="font-size: 15px; line-height: 1.4;">{{ $msg->message }}</p>
-                    <small class="text-muted d-block text-end" style="font-size: 11px;">
-                        {{ $msg->created_at->format('H:i') }}
-                    </small>
+            <!-- Header -->
+            <div class="chat-header">
+                <img src="https://ui-avatars.com/api/?name={{ urlencode($psikolog->name) }}&background=ffffff&color=198754">
+                <div>
+                    <div class="fw-semibold">{{ $psikolog->name }}</div>
+                    <small class="opacity-75">Psikolog UMY</small>
                 </div>
             </div>
-            @endforeach
-        </div>
 
-        <!-- Send Message -->
-        <form action="{{ route('chat.send') }}" method="POST" class="d-flex align-items-center gap-2 mb-5 mt-3">
-            @csrf
-            <input type="hidden" name="receiver_id" value="{{ $psikolog->user_id }}">
-
-            <div class="position-relative flex-grow-1">
-                <span class="position-absolute text-secondary" style="left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px; cursor: pointer;">
-                    <i class="bi bi-paperclip"></i>
-                </span>
-
-                <input type="text"
-                    name="message"
-                    class="form-control rounded-pill bg-white border ps-5 pe-4 py-2"
-                    placeholder="Tulis pesan..."
-                    required>
+            <!-- Chat Box -->
+            <div class="chat-box" id="chatBox">
+                @foreach($messages as $msg)
+                <div class="d-flex mb-2 {{ $msg->sender_id == Auth::id() ? 'justify-content-end' : 'justify-content-start' }}">
+                    <div class="chat-bubble {{ $msg->sender_id == Auth::id() ? 'chat-me' : 'chat-other' }}">
+                        {{ $msg->message }}
+                        <div class="text-end text-muted mt-1" style="font-size:11px;">
+                            {{ $msg->created_at->format('H:i') }}
+                        </div>
+                    </div>
+                </div>
+                @endforeach
             </div>
 
-            <button type="submit" class="btn btn-success rounded-circle border-0 d-flex align-items-center justify-content-center"
-                style="width: 48px; height: 48px; min-width: 48px;">
-                <i class="bi bi-send-fill fs-5"></i>
-            </button>
-        </form>
+            <!-- Input -->
+            <form class="chat-input d-flex gap-2" id="chatForm">
+                @csrf
+                <input type="hidden" name="receiver_id" value="{{ $psikolog->user_id }}">
 
+                <div class="position-relative flex-grow-1">
+                    <i class="bi bi-paperclip attach-icon"></i>
+                    <input type="text" name="message" class="form-control" placeholder="Tulis pesan..." required>
+                </div>
+
+                <button class="btn btn-success rounded-circle" style="width:46px;height:46px">
+                    <i class="bi bi-send-fill"></i>
+                </button>
+            </form>
+
+        </div>
     </div>
 
     @include('components.footer')
@@ -76,82 +165,57 @@
 
     <script>
         const chatBox = document.getElementById('chatBox');
+        const form = document.getElementById('chatForm');
 
-        /** 🔽 Auto scroll ke bawah */
         function scrollToBottom() {
             chatBox.scrollTop = chatBox.scrollHeight;
         }
-
         scrollToBottom();
 
-        /** 🔄 Refresh Chat (Polling) */
         function refreshChat() {
             fetch("{{ route('chat.refresh', $psikolog->user_id) }}")
                 .then(res => res.json())
                 .then(data => {
-                    if (!data.messages) return;
-
-                    // Kosongkan chat
                     chatBox.innerHTML = "";
-
-                    // Render ulang pesan
                     data.messages.forEach(msg => {
-
                         const isMe = msg.sender_id == "{{ Auth::id() }}";
-
-                        const wrapper = document.createElement("div");
-                        wrapper.className = `my-2 d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'}`;
-
-                        const bubble = `
-                        <div class="shadow-sm rounded-3 px-3 py-2"
-                             style="max-width: 70%; background-color: ${isMe ? '#dcf8c6' : '#ffffff'};">
-                            <p class="mb-0" style="font-size: 15px;">${msg.message}</p>
-                            <small class="text-muted d-block text-end" style="font-size: 11px;">
-                                ${new Date(msg.created_at).toLocaleTimeString('id-ID', {hour: '2-digit', minute: '2-digit'})}
-                            </small>
-                        </div>
-                    `;
-
-                        wrapper.innerHTML = bubble;
-                        chatBox.appendChild(wrapper);
+                        chatBox.innerHTML += `
+                        <div class="d-flex mb-2 ${isMe ? 'justify-content-end' : 'justify-content-start'}">
+                            <div class="chat-bubble ${isMe ? 'chat-me' : 'chat-other'}">
+                                ${msg.message}
+                                <div class="text-end text-muted mt-1" style="font-size:11px;">
+                                    ${new Date(msg.created_at).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}
+                                </div>
+                            </div>
+                        </div>`;
                     });
-
                     scrollToBottom();
-                })
-                .catch(err => console.error("Refresh chat error:", err));
+                });
         }
 
-        /** ⏳ Polling tiap 3 detik */
         setInterval(refreshChat, 3000);
 
-        /** ✉️ Kirim pesan AJAX */
-        document.querySelector("form").addEventListener("submit", function(e) {
+        form.addEventListener("submit", e => {
             e.preventDefault();
-
-            const messageField = this.querySelector("input[name='message']");
-            const text = messageField.value.trim();
-            if (!text) return;
+            const input = form.querySelector("input[name='message']");
+            if (!input.value.trim()) return;
 
             fetch("{{ route('chat.send') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify({
-                        receiver_id: "{{ $psikolog->user_id }}",
-                        message: text
-                    })
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                },
+                body: JSON.stringify({
+                    receiver_id: "{{ $psikolog->user_id }}",
+                    message: input.value
                 })
-                .then(res => res.json())
-                .then(data => {
-                    messageField.value = "";
-                    refreshChat();
-                })
-                .catch(err => console.error("Send message error:", err));
+            }).then(() => {
+                input.value = "";
+                refreshChat();
+            });
         });
     </script>
-
 
 </body>
 

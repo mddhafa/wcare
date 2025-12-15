@@ -299,6 +299,7 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  @if(session('success'))
   <script>
     function previewImage(input) {
       if (input.files && input.files[0]) {
@@ -312,7 +313,7 @@
       }
     }
 
-    @if(session('success'))
+
     Swal.fire({
       title: "Berhasil!",
       text: "{{ session('success') }}",
@@ -321,9 +322,8 @@
       confirmButtonText: "Oke, Lanjut",
       timer: 3000
     });
-    @endif
   </script>
-
+  @endif
 </body>
 
 </html>

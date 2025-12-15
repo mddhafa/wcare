@@ -86,6 +86,57 @@
             background-color: #006A4E;
             border-radius: 50%;
         }
+
+        /* Toast Notification Styles */
+        .toast-notification {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            z-index: 9999;
+            min-width: 300px;
+            max-width: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast-notification.hiding {
+            animation: slideOutRight 0.3s ease;
+        }
+
+        .notification-sound-btn {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .notification-sound-btn:hover {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 
@@ -102,9 +153,14 @@
                 </h3>
                 <p class="text-muted mb-0 small">Kelola percakapan dengan pasien Anda</p>
             </div>
-            <span class="badge bg-success">
-                <i class="bi bi-person-fill me-1"></i>{{ ($users ?? collect())->count() }} Pasien
-            </span>
+            <div class="d-flex align-items-center gap-3">
+                <div class="notification-sound-btn" id="soundToggle" title="Aktifkan/Nonaktifkan Suara Notifikasi">
+                    <i class="bi bi-bell-fill text-success" style="font-size: 1.2rem;"></i>
+                </div>
+                <span class="badge bg-success">
+                    <i class="bi bi-person-fill me-1"></i>{{ ($users ?? collect())->count() }} Pasien
+                </span>
+            </div>
         </div>
 
         <!-- Chat Container -->
@@ -257,221 +313,23 @@
         </div>
     </main>
 
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Chat JS - Load external file -->
     <script>
-        const chatUsers = document.querySelectorAll('.chat-user-item');
-        const messagesDiv = document.getElementById('messages');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const messageForm = document.getElementById('messageForm');
-        const emptyState = document.getElementById('emptyState');
-        const chatHeader = document.getElementById('chatHeader');
-        const chatUsername = document.getElementById('chatUsername');
-        const chatAvatar = document.getElementById('chatAvatar');
-        const searchInput = document.getElementById('searchPatient');
-
-        let activeUserId = null;
-        let pollInterval = null;
-        let lastMessageCount = 0;
-        let isAtBottom = true;
-        const psikologId = "{{ auth()->user()->user_id }}";
-
-        /** SEARCH PATIENT */
-        searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase();
-            chatUsers.forEach(user => {
-                const userName = user.dataset.userName.toLowerCase();
-                if (userName.includes(searchTerm)) {
-                    user.style.display = 'block';
-                } else {
-                    user.style.display = 'none';
-                }
-            });
-        });
-
-        /** CHECK IF USER AT BOTTOM */
-        messagesDiv.addEventListener('scroll', function() {
-            const threshold = 50;
-            isAtBottom = messagesDiv.scrollHeight - messagesDiv.scrollTop - messagesDiv.clientHeight < threshold;
-        });
-
-        /** RENDER SINGLE MESSAGE */
-        function renderMessage(msg, isNew = false) {
-            const isMe = msg.sender_id == psikologId;
-
-            const messageWrapper = document.createElement('div');
-            messageWrapper.className = `d-flex mb-3 ${isMe ? 'justify-content-end' : 'justify-content-start'}`;
-            messageWrapper.dataset.messageId = msg.id;
-
-            const messageBubble = document.createElement('div');
-            messageBubble.className = `message-bubble rounded-3 px-3 py-2 shadow-sm ${isMe ? 'text-white' : 'bg-white'} ${isNew ? 'new-message' : ''}`;
-            messageBubble.style.backgroundColor = isMe ? '#006A4E' : '#ffffff';
-
-            const messageText = document.createElement('p');
-            messageText.className = 'mb-1';
-            messageText.textContent = msg.message;
-
-            const messageTime = document.createElement('small');
-            messageTime.className = isMe ? 'text-white-50' : 'text-muted';
-            messageTime.style.fontSize = '11px';
-            messageTime.textContent = new Date(msg.created_at).toLocaleTimeString('id-ID', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
-
-            messageBubble.appendChild(messageText);
-            messageBubble.appendChild(messageTime);
-            messageWrapper.appendChild(messageBubble);
-
-            return messageWrapper;
-        }
-
-        /** REFRESH CHAT - HANYA UPDATE JIKA ADA PERUBAHAN */
-        function refreshChat(data) {
-            emptyState.style.display = 'none';
-
-            if (!data.messages || data.messages.length === 0) {
-                if (messagesDiv.children.length <= 1) { // Only empty state exists
-                    messagesDiv.innerHTML = `
-                        <div class="text-center text-muted py-5">
-                            <i class="bi bi-chat-left-dots display-4 d-block mb-3"></i>
-                            <p>Belum ada pesan. Mulai percakapan!</p>
-                        </div>
-                    `;
-                }
-                return;
-            }
-
-            // Cek apakah ada pesan baru
-            if (data.messages.length === lastMessageCount) {
-                return; // Tidak ada perubahan, skip refresh
-            }
-
-            // Jika ada pesan baru, tambahkan hanya pesan baru
-            const existingMessageIds = Array.from(messagesDiv.querySelectorAll('[data-message-id]'))
-                .map(el => el.dataset.messageId);
-
-            data.messages.forEach(msg => {
-                if (!existingMessageIds.includes(msg.id.toString())) {
-                    const messageElement = renderMessage(msg, true);
-                    messagesDiv.appendChild(messageElement);
-                }
-            });
-
-            lastMessageCount = data.messages.length;
-
-            // Auto scroll hanya jika user sudah di bawah
-            if (isAtBottom) {
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }
-        }
-
-        /** LOAD INITIAL CHAT */
-        function loadChat(userId) {
-            fetch(`/psikolog/chat/${userId}`)
-                .then(r => r.json())
-                .then(data => {
-                    // Clear dan render semua pesan
-                    messagesDiv.innerHTML = '';
-                    emptyState.style.display = 'none';
-
-                    if (!data.messages || data.messages.length === 0) {
-                        messagesDiv.innerHTML = `
-                            <div class="text-center text-muted py-5">
-                                <i class="bi bi-chat-left-dots display-4 d-block mb-3"></i>
-                                <p>Belum ada pesan. Mulai percakapan!</p>
-                            </div>
-                        `;
-                        lastMessageCount = 0;
-                    } else {
-                        data.messages.forEach(msg => {
-                            const messageElement = renderMessage(msg, false);
-                            messagesDiv.appendChild(messageElement);
-                        });
-                        lastMessageCount = data.messages.length;
-                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                    }
-                })
-                .catch(err => console.error('Error loading chat:', err));
-        }
-
-        /** KLIK PASIEN */
-        chatUsers.forEach(user => {
-            user.addEventListener('click', function() {
-                chatUsers.forEach(u => u.classList.remove('active'));
-                this.classList.add('active');
-
-                activeUserId = this.dataset.userId;
-                const userName = this.dataset.userName;
-
-                // Update header
-                chatHeader.style.display = 'block';
-                chatUsername.textContent = userName;
-                chatAvatar.textContent = userName.charAt(0).toUpperCase();
-
-                messageInput.disabled = false;
-                sendBtn.disabled = false;
-                messageInput.focus();
-
-                // Load initial messages
-                loadChat(activeUserId);
-
-                // Start polling dengan interval lebih lama
-                if (pollInterval) clearInterval(pollInterval);
-
-                pollInterval = setInterval(() => {
-                    if (activeUserId) {
-                        fetch(`/psikolog/chat/${activeUserId}`)
-                            .then(r => r.json())
-                            .then(data => refreshChat(data))
-                            .catch(err => console.error('Error polling:', err));
-                    }
-                }, 3000); // Poll setiap 3 detik (lebih lambat)
-            });
-        });
-
-        /** KIRIM PESAN */
-        messageForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            const text = messageInput.value.trim();
-            if (!text || !activeUserId) return;
-
-            sendBtn.disabled = true;
-
-            fetch('/psikolog/chat/send', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        receiver_id: activeUserId,
-                        message: text
-                    })
-                })
-                .then(r => r.json())
-                .then(data => {
-                    messageInput.value = "";
-                    sendBtn.disabled = false;
-                    messageInput.focus();
-
-                    // Reload messages setelah kirim
-                    loadChat(activeUserId);
-                })
-                .catch(err => {
-                    console.error('Error sending message:', err);
-                    sendBtn.disabled = false;
-                    alert('Gagal mengirim pesan. Coba lagi.');
-                });
-        });
-
-        // Stop polling when leaving page
-        window.addEventListener('beforeunload', function() {
-            if (pollInterval) clearInterval(pollInterval);
-        });
+        // Pass Laravel data to JavaScript
+        document.body.dataset.psikologId = "{{ auth()->user()->user_id }}";
     </script>
+
+    <!-- Add CSRF Token to meta tag -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Load external chat.js file -->
+    <script src="{{ asset('js/chat.js') }}"></script>
 
 </body>
 

@@ -13,6 +13,7 @@ use App\Http\Controllers\HomeChatController;
 use App\Http\Controllers\PsikologChatController;
 use App\Http\Middleware\Role;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -61,6 +62,20 @@ Route::middleware(['auth'])->group(function () {
     // --- PSIKOLOG ---
     Route::middleware([Role::class . ':psikolog'])->prefix('psikolog')->name('psikolog.')->group(function () {
         Route::get('/dashboard', [AuthController::class, 'showdashboardpsi'])->name('dashboard-psikolog');
+
+        // !!! Rute BARU untuk Polling Real-time !!!
+        Route::get('/check-assigned-reports', function (Request $request) {
+            // Logika sederhana untuk menghitung laporan 'proses' yang ditugaskan
+            $psikologId = Auth::user()->psikolog->id; // Ambil ID psikolog dari user yang login
+
+            $assignedProcessCount = \App\Models\Laporan::where('psikolog_id', $psikologId)
+                ->where('status', 'proses')
+                ->count();
+
+            return response()->json([
+                'assigned_process_count' => $assignedProcessCount
+            ]);
+        })->name('api.check-assigned-reports'); // Nama rute yang akan dipanggil di JavaScript
 
         Route::get('/profile', [ProfileController::class, 'show'])->name('profilepsikolog');
 

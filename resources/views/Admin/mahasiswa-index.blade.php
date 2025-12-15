@@ -279,7 +279,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    @if(session('success'))
     <script>
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
@@ -335,7 +335,7 @@
             });
         }
 
-        @if(session('success'))
+
         Swal.fire({
             icon: 'success',
             title: 'Berhasil',
@@ -343,8 +343,8 @@
             timer: 3000,
             showConfirmButton: false
         });
-        @endif
     </script>
+    @endif
 </body>
 
 </html>

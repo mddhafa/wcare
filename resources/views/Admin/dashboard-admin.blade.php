@@ -94,6 +94,11 @@
                 padding-top: 2rem;
             }
         }
+        
+        /* Gaya untuk Toast Container */
+        .toast-container {
+            z-index: 1090; 
+        }
     </style>
 </head>
 
@@ -173,7 +178,7 @@
 
             <div class="col-md-3">
                 <div class="stat-card bg-gradient-warning">
-                    <h2 class="fw-bold mb-1">{{ $stats['laporan_pending'] }}</h2>
+                    <h2 class="fw-bold mb-1" id="pending-reports-count">{{ $stats['laporan_pending'] }}</h2>
                     <p class="mb-0 fw-medium opacity-75">Perlu Diproses</p>
                     <i class="bi bi-exclamation-triangle-fill stat-icon"></i>
                 </div>
@@ -254,8 +259,100 @@
         </div>
 
     </div>
+    
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+        <div id="newReportToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body fw-bold">
+                    <i class="bi bi-bell-fill me-2"></i>
+                    Ada <span id="toast-count"></span> Laporan **BARU** yang Perlu Diproses! 
+                    <a href="{{ route('lapor.index') }}" class="text-white text-decoration-underline fw-bold ms-2">Lihat Sekarang</a>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // 1. Definisikan variabel kunci
+        const toastEl = document.getElementById('newReportToast');
+        const toastCountEl = document.getElementById('toast-count');
+        const pendingReportsCardCount = document.getElementById('pending-reports-count');
+
+        // Jumlah laporan pending terakhir yang diketahui oleh frontend
+        // Mengambil nilai awal dari tampilan stat-card saat halaman dimuat
+        let lastKnownPendingCount = parseInt(pendingReportsCardCount.textContent) || 0;
+
+        // Inisialisasi Toast
+        const newReportToast = new bootstrap.Toast(toastEl, {
+            autohide: false // Biarkan Toast tetap terbuka sampai ditutup pengguna
+        });
+
+        // 2. Fungsi untuk menampilkan notifikasi 
+        function showNotification(newCount) {
+            toastCountEl.textContent = newCount;
+            newReportToast.show();
+        }
+
+        // 3. Fungsi utama Polling
+        function checkNewReports() {
+            // !!! Ganti URL ini dengan endpoint API Anda yang sebenarnya di backend Laravel !!!
+            // Contoh URL: /api/check-new-reports
+            const API_ENDPOINT = '{{ route("api.check-new-reports") }}'; 
+
+            fetch(API_ENDPOINT)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    // Asumsi API mengembalikan JSON seperti: { "pending_count": N }
+                    return response.json(); 
+                })
+                .then(data => {
+                    const currentPendingCount = data.pending_count; 
+
+                    // A. Cek apakah ada laporan baru yang masuk (jumlahnya bertambah)
+                    if (currentPendingCount > lastKnownPendingCount) {
+                        
+                        // Tampilkan notifikasi
+                        showNotification(currentPendingCount);
+                        
+                        // Update tampilan kartu dashboard secara dinamis
+                        pendingReportsCardCount.textContent = currentPendingCount; 
+
+                    } else if (currentPendingCount <= lastKnownPendingCount) {
+                         // Sembunyikan notifikasi jika jumlah laporan berkurang atau tetap nol/sama
+                         // Jika operator sudah memprosesnya di halaman lain.
+                         newReportToast.hide();
+                         pendingReportsCardCount.textContent = currentPendingCount; 
+                    }
+                    
+                    // B. Update jumlah terakhir yang diketahui
+                    lastKnownPendingCount = currentPendingCount;
+
+                })
+                .catch(error => {
+                    console.error('Error saat mengambil laporan baru:', error);
+                })
+                .finally(() => {
+                    // C. Jadwal Polling berikutnya setelah 10 detik
+                    setTimeout(checkNewReports, 10000); // Polling setiap 10 detik (10000 ms)
+                });
+        }
+
+        // 4. Inisialisasi: Cek status saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', function() {
+            if (lastKnownPendingCount > 0) {
+                // Tampilkan notifikasi awal jika ada laporan pending saat load
+                showNotification(lastKnownPendingCount);
+            }
+            // Mulai Polling untuk Real-Time Update
+            // Mulai 5 detik setelah load untuk memberi waktu inisialisasi
+            setTimeout(checkNewReports, 5000); 
+        });
+    </script>
 </body>
 
 </html>

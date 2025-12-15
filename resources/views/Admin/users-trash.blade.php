@@ -16,7 +16,7 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#059669', 
+                        primary: '#059669',
                         secondary: '#047857',
                         bgsoft: '#f0fdf4',
                         dark: '#334155',
@@ -147,7 +147,7 @@
 
         </div>
     </div>
-
+    @if(session('success'))
     <script>
         function confirmDelete(event) {
             event.preventDefault();
@@ -169,7 +169,7 @@
             });
         }
 
-        @if(session('success'))
+
         Swal.fire({
             title: "Berhasil!",
             text: "{{ session('success') }}",
@@ -177,9 +177,8 @@
             confirmButtonColor: "#059669",
             timer: 3000
         });
-        @endif
     </script>
-
+    @endif
 </body>
 
 </html>
