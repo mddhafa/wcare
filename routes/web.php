@@ -11,7 +11,6 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HomeChatController;
 use App\Http\Controllers\PsikologChatController;
-use App\Http\Controllers\ChatBotHistoryController;
 use App\Http\Middleware\Role;
 use Illuminate\Support\Facades\Auth;
 
@@ -19,27 +18,26 @@ Route::get('/', function () {
     return redirect('/dashboard');
 });
 
+// AUTH
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/register', 'auth.register')->name('register');
-
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::post('/me', [AuthController::class, 'me'])->name('me');
-Route::post('/refresh', [AuthController::class, 'refresh'])->name('refresh');
 
+// DASHBOARD UMUM
 Route::get('/dashboard', [SelfHealingController::class, 'indexdash'])->name('dashboard');
 
+// GROUP AUTH
 Route::middleware(['auth'])->group(function () {
 
+    // --- ADMIN ---
     Route::middleware([Role::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', function () {
-            return view('admin.dashboard-admin');
-        })->name('dashboard-admin');
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+
+        // Data User
         Route::get('/mahasiswa', [AdminController::class, 'mahasiswa'])->name('mahasiswa');
         Route::get('/psikolog', [AdminController::class, 'psikolog'])->name('psikolog');
-
         Route::get('/psikolog/create', [AdminController::class, 'createPsikolog'])->name('psikolog.create');
         Route::post('/psikolog', [AdminController::class, 'storePsikolog'])->name('psikolog.store');
 
@@ -51,25 +49,31 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/user/{id}/restore', [AdminController::class, 'restoreUser'])->name('user.restore');
         Route::delete('/user/{id}/force', [AdminController::class, 'forceDeleteUser'])->name('user.force_delete');
 
+        // Konten & Laporan
         Route::get('/tambah/selfhealing', [SelfHealingController::class, 'tambahkonten'])->name('tambahkontensh');
         Route::post('/tambah/selfhealing', [SelfHealingController::class, 'store'])->name('storekontensh');
         Route::delete('/selfhealing/{id}', [SelfHealingController::class, 'destroy'])->name('deletekontensh');
+
         Route::post('lapor/{laporan}/assign', [LaporanController::class, 'assign'])->name('lapor.assign');
         Route::post('lapor/{laporan}/unassign', [LaporanController::class, 'unassign'])->name('lapor.unassign');
     });
 
+    // --- PSIKOLOG ---
     Route::middleware([Role::class . ':psikolog'])->prefix('psikolog')->name('psikolog.')->group(function () {
+        Route::get('/dashboard', [AuthController::class, 'showdashboardpsi'])->name('dashboard-psikolog');
 
-        Route::get('/dashboard', [AuthController::class, 'showdashboardpsi'])
-            ->name('dashboard-psikolog');
+        Route::get('/profile', [ProfileController::class, 'show'])->name('profilepsikolog');
 
+        // Chat Psikolog
         Route::get('/chat', [PsikologChatController::class, 'index'])->name('chat');
         Route::get('/chat/{user}', [PsikologChatController::class, 'showJson'])->name('chat.show');
         Route::post('/chat/send', [PsikologChatController::class, 'send'])->name('chat.send');
     });
 
+    // --- KORBAN / MAHASISWA ---
     Route::middleware([Role::class . ':korban'])->group(function () {
 
+        // Chatbot
         Route::get('/chatbot', function () {
             return view('chatbot');
         });
@@ -80,23 +84,19 @@ Route::middleware(['auth'])->group(function () {
 
         Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');
 
-        Route::get('/profile', [ProfileController::class, 'index'])->name('korban.profilekorban');
+        Route::get('/profile', [ProfileController::class, 'show'])->name('korban.profilekorban');
 
-        Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.update.avatar');
-
-        Route::get('/profile/korban/add', [ProfileController::class, 'createKorban'])->name('korban.korban-create');
-        Route::post('/profile/korban/add', [ProfileController::class, 'addprofilekorban'])->name('profile.korban.store');
-        Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-        Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update.data');
-
-        // Home Chat (Daftar Psikolog)
+        // Chat dengan Psikolog
         Route::get('/homechat', [HomeChatController::class, 'index'])->name('homechat');
-
-        // Chat dengan psikolog
         Route::get('/chat/{id_psikolog}', [ChatController::class, 'index'])->name('chat.psikolog');
         Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
         Route::get('/chat/refresh/{id}', [ChatController::class, 'refresh'])->name('chat.refresh');
     });
+
+    // --- GLOBAL AUTH ROUTES (Bisa diakses Psikolog & Korban) ---
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update.data');
+    Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.update.avatar');
 
     Route::get('/selfhealing', [SelfHealingController::class, 'index'])->name('halamanselfhealing');
 

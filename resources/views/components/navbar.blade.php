@@ -233,7 +233,11 @@
             <li><a class="dropdown-item-modern" href="{{ route('psikolog.dashboard-psikolog') }}"><i class="bi bi-grid"></i> Dashboard</a></li>
             @endif
 
+            @if(Auth::user()->role_id == 2)
+            <li><a class="dropdown-item-modern" href="{{ route('psikolog.profilepsikolog') }}"><i class="bi bi-person-gear"></i> Profil Saya</a></li>
+            @else
             <li><a class="dropdown-item-modern" href="{{ route('korban.profilekorban') }}"><i class="bi bi-person-gear"></i> Profil Saya</a></li>
+            @endif
 
             <li>
               <hr class="dropdown-divider my-2 opacity-25">
