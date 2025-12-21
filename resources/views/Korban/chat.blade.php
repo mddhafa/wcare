@@ -19,7 +19,6 @@
             background-color: #f0f2f5;
         }
 
-        /* Chat Wrapper */
         .chat-wrapper {
             max-width: 900px;
             margin: auto;
@@ -32,7 +31,6 @@
             box-shadow: 0 10px 30px rgba(0, 0, 0, .08);
         }
 
-        /* Header */
         .chat-header {
             background: linear-gradient(135deg, #198754, #20c997);
             color: white;
@@ -50,7 +48,6 @@
             background: #fff;
         }
 
-        /* Chat Box */
         .chat-box {
             flex-grow: 1;
             overflow-y: auto;
@@ -59,7 +56,6 @@
             background-image: url('https://i.imgur.com/8fK4h7R.png');
         }
 
-        /* Bubble */
         .chat-bubble {
             max-width: 75%;
             padding: 10px 14px;
@@ -79,7 +75,6 @@
             border-bottom-left-radius: 4px;
         }
 
-        /* Footer Input */
         .chat-input {
             padding: 12px;
             background: #f8f9fa;
@@ -101,7 +96,6 @@
             cursor: pointer;
         }
 
-        /* Responsive */
         @media (max-width: 576px) {
             .chat-wrapper {
                 height: calc(100vh - 80px);
@@ -112,7 +106,6 @@
 </head>
 
 <body>
-
     @include('components.navbar')
 
     <div class="container-fluid mt-3">
@@ -145,12 +138,10 @@
             <form class="chat-input d-flex gap-2" id="chatForm">
                 @csrf
                 <input type="hidden" name="receiver_id" value="{{ $psikolog->user_id }}">
-
                 <div class="position-relative flex-grow-1">
                     <i class="bi bi-paperclip attach-icon"></i>
                     <input type="text" name="message" class="form-control" placeholder="Tulis pesan..." required>
                 </div>
-
                 <button class="btn btn-success rounded-circle" style="width:46px;height:46px">
                     <i class="bi bi-send-fill"></i>
                 </button>
@@ -166,6 +157,8 @@
     <script>
         const chatBox = document.getElementById('chatBox');
         const form = document.getElementById('chatForm');
+        const sendBtn = form.querySelector("button");
+        const psikologId = "{{ $psikolog->user_id }}";
 
         function scrollToBottom() {
             chatBox.scrollTop = chatBox.scrollHeight;
@@ -215,6 +208,21 @@
                 refreshChat();
             });
         });
+
+        // ==============================
+        // Tombol kirim disable sampai psikolog mulai chat
+        async function checkPsikologStarted() {
+            try {
+                const res = await fetch(`/api/check-psikolog-started/${psikologId}`);
+                const data = await res.json();
+                sendBtn.disabled = !data.started;
+            } catch (err) {
+                console.error(err);
+                sendBtn.disabled = true;
+            }
+        }
+
+        
     </script>
 
 </body>

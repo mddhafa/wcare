@@ -36,6 +36,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware([Role::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
+      
+
         // Data User
         Route::get('/mahasiswa', [AdminController::class, 'mahasiswa'])->name('mahasiswa');
         Route::get('/psikolog', [AdminController::class, 'psikolog'])->name('psikolog');
@@ -87,6 +89,9 @@ Route::middleware(['auth'])->group(function () {
 
     // --- KORBAN / MAHASISWA ---
     Route::middleware([Role::class . ':korban'])->group(function () {
+        // Cek Notifikasi Pesan Baru
+        Route::get('/chat/check', [ChatController::class, 'checkNewMessage'])
+    ->name('chat.check');
 
         // Chatbot
         Route::get('/chatbot', function () {
@@ -96,12 +101,22 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/chat/sessions', [ChatbotController::class, 'sessions']);
         Route::get('/chat/messages/{id}', [ChatbotController::class, 'messages']);
         Route::post('/chat/generate', [ChatbotController::class, 'send']);
-
+        Route::post('/homechat/send', [HomeChatController::class, 'sendChat'])->name('homechat.send');
         Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');
 
         Route::get('/profile', [ProfileController::class, 'show'])->name('korban.profilekorban');
 
         // Chat dengan Psikolog
+        Route::get('/api/check-psikolog-started/{psikologId}', function($psikologId) {
+    $korbanId = auth()->user()->user_id;
+
+    $started = \App\Models\Chat::where('sender_id', $psikologId)
+                                ->where('receiver_id', $korbanId)
+                                ->exists();
+
+    return response()->json(['started' => $started]);
+})->middleware(['auth', \App\Http\Middleware\Role::class . ':korban']);
+
         Route::get('/homechat', [HomeChatController::class, 'index'])->name('homechat');
         Route::get('/chat/{id_psikolog}', [ChatController::class, 'index'])->name('chat.psikolog');
         Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');

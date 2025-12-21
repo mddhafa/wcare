@@ -12,7 +12,7 @@
 
     <style>
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Poppins', sans-serif
             padding-top: 70px;
         }
 

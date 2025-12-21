@@ -2,39 +2,42 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Chat;
+use App\Models\Laporan;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PsikologChatController extends Controller
 {
-    // Tampilkan daftar pasien yang pernah chat
+    // 1. TAMPILKAN KORBAN YANG LAPORANNYA SUDAH DIPROSES
     public function index()
     {
-        $psikologId = Auth::user()->user_id; // ini ID psikolog login
+        $psikologId = Auth::user()->user_id;
 
         $users = User::where('role_id', 3)
-            ->where(function ($q) use ($psikologId) {
-                $q->whereHas('sentChats', fn($qq) => $qq->where('receiver_id', $psikologId))
-                    ->orWhereHas('receivedChats', fn($qq) => $qq->where('sender_id', $psikologId));
+            ->whereHas('laporan', function ($q) {
+                $q->whereIn('status', ['proses', 'selesai']);
             })
             ->get();
 
-        return view('Psikolog.chat', compact('users', 'psikologId'));
+        return view('Psikolog.chat', compact('users'));
     }
 
-    // Ambil chat untuk satu pasien
+    // 2. AMBIL CHAT DENGAN KORBAN
     public function showJson(User $user)
     {
         $psikologId = Auth::user()->user_id;
 
         $messages = Chat::where(function ($q) use ($psikologId, $user) {
-            $q->where('sender_id', $psikologId)->where('receiver_id', $user->user_id)
-                ->orWhere(function ($qq) use ($psikologId, $user) {
-                    $qq->where('sender_id', $user->user_id)->where('receiver_id', $psikologId);
-                });
-        })->orderBy('created_at')->get();
+            $q->where('sender_id', $psikologId)
+              ->where('receiver_id', $user->user_id);
+        })->orWhere(function ($q) use ($psikologId, $user) {
+            $q->where('sender_id', $user->user_id)
+              ->where('receiver_id', $psikologId);
+        })
+        ->orderBy('created_at')
+        ->get();
 
         return response()->json([
             'messages' => $messages,
@@ -42,12 +45,24 @@ class PsikologChatController extends Controller
         ]);
     }
 
+    // 3. PSIKOLOG MEMULAI CHAT (CHAT PERTAMA)
     public function send(Request $request)
     {
         $request->validate([
-            'receiver_id' => 'required',
-            'message' => 'required'
+            'receiver_id' => 'required|exists:users,user_id',
+            'message' => 'required|string'
         ]);
+
+        // pastikan korban punya laporan yang sudah diproses
+        $allowed = Laporan::where('user_id', $request->receiver_id)
+            ->whereIn('status', ['proses', 'selesai'])
+            ->exists();
+
+        if (!$allowed) {
+            return response()->json([
+                'error' => 'Laporan belum diproses admin'
+            ], 403);
+        }
 
         $chat = Chat::create([
             'sender_id' => Auth::user()->user_id,

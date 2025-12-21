@@ -15,6 +15,7 @@ use App\Models\Korban;
 use App\Models\Emosi;
 use App\Models\Role;
 use App\Models\Chat;
+use App\Models\Laporan;
 
 class User extends Authenticatable
 {
@@ -60,6 +61,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(Admin::class, 'user_id', 'user_id');
     }
+    public function laporan()
+{
+    return $this->hasMany(Laporan::class, 'user_id', 'user_id');
+}
+
 
     public function psikolog()
     {
