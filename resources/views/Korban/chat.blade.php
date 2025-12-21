@@ -222,13 +222,10 @@
             }
         }
 
-        // Cek pertama kali saat halaman load
-        checkPsikologStarted();
-
-        // Cek berkala tiap 5 detik
-        setInterval(checkPsikologStarted, 5000);
-    </script>
+       
 
 </body>
 
-</html>
+</html> 
+   
+
