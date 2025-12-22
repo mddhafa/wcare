@@ -15,7 +15,9 @@ class ProfileController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->role_id == 2) {
+        if ($user->role_id == 1) {
+            return view('admin.profile', compact('user'));
+        } elseif ($user->role_id == 2) {
             $profile = $user->psikolog;
             return view('psikolog.profile', compact('user', 'profile'));
         } elseif ($user->role_id == 3) {
@@ -55,8 +57,9 @@ class ProfileController extends Controller
             'email' => $request->email,
         ]);
 
-        if ($user->role_id == 3) {
-
+        if ($user->role_id == 1) {
+            return redirect()->route('admin.profile')->with('success', 'Profil berhasil diperbarui');
+        } elseif ($user->role_id == 3) {
             $request->validate([
                 'umur' => 'nullable|integer',
                 'jenis_kelamin' => 'nullable|string',
@@ -72,7 +75,6 @@ class ProfileController extends Controller
 
             return redirect()->route('korban.profilekorban')->with('success', 'Profil berhasil diperbarui');
         } elseif ($user->role_id == 2) {
-
             $request->validate([
                 'jam_mulai' => 'nullable',
                 'jam_selesai' => 'nullable',

@@ -36,7 +36,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware([Role::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-
+        // [ADDED] Profile Admin Route
+        Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 
         // Data User
         Route::get('/mahasiswa', [AdminController::class, 'mahasiswa'])->name('mahasiswa');
@@ -65,10 +66,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware([Role::class . ':psikolog'])->prefix('psikolog')->name('psikolog.')->group(function () {
         Route::get('/dashboard', [AuthController::class, 'showdashboardpsi'])->name('dashboard-psikolog');
 
-        // !!! Rute BARU untuk Polling Real-time !!!
         Route::get('/check-assigned-reports', function (Request $request) {
-            // Logika sederhana untuk menghitung laporan 'proses' yang ditugaskan
-            $psikologId = Auth::user()->psikolog->id; // Ambil ID psikolog dari user yang login
+            $psikologId = Auth::user()->psikolog->id;
 
             $assignedProcessCount = \App\Models\Laporan::where('psikolog_id', $psikologId)
                 ->where('status', 'proses')
@@ -77,7 +76,7 @@ Route::middleware(['auth'])->group(function () {
             return response()->json([
                 'assigned_process_count' => $assignedProcessCount
             ]);
-        })->name('api.check-assigned-reports'); // Nama rute yang akan dipanggil di JavaScript
+        })->name('api.check-assigned-reports');
 
         Route::get('/profile', [ProfileController::class, 'show'])->name('profilepsikolog');
 
