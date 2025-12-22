@@ -38,7 +38,7 @@ class PsikologChatController extends Controller
         })
         ->orderBy('created_at')
         ->get();
-
+ 
         return response()->json([
             'messages' => $messages,
             'psikolog_id' => $psikologId
