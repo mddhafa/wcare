@@ -12,7 +12,7 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
         }
 
         .navbar-wrapper {
@@ -22,7 +22,7 @@
             width: 100%;
             z-index: 1050;
             background-color: white;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
             height: 70px;
         }
 
@@ -36,28 +36,77 @@
             border-right: 1px solid #e2e8f0;
             z-index: 1040;
             overflow-y: auto;
-            padding-top: 1.5rem;
+            padding: 1.5rem 1rem;
         }
 
         .main-content {
             margin-left: 260px;
             margin-top: 70px;
             padding: 2rem;
+            min-height: calc(100vh - 70px);
+        }
+
+        .menu-title {
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin: 1.5rem 0 0.8rem 0.5rem;
+        }
+
+        .nav-link-custom {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1rem;
+            margin-bottom: 0.4rem;
+            border-radius: 12px;
+            color: #475569;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid transparent;
+        }
+
+        .nav-link-custom:hover {
+            background-color: #f1f5f9;
+            color: #059669;
+            border-color: #e2e8f0;
+            transform: translateX(5px);
+        }
+
+        .nav-link-custom.active {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border-color: #059669;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+        }
+
+        .nav-link-custom i {
+            width: 24px;
+            margin-right: 10px;
+            font-size: 1.1rem;
         }
 
         .stat-card {
             border: none;
-            border-radius: 16px;
-            padding: 1.5rem;
+            border-radius: 18px;
+            padding: 1.8rem;
             color: white;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            height: 100%;
         }
 
         .stat-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .bg-gradient-info {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
         }
 
         .bg-gradient-primary {
@@ -72,16 +121,144 @@
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
         }
 
-        .bg-gradient-info {
-            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
-        }
-
         .stat-icon {
             position: absolute;
-            right: 15px;
-            bottom: 15px;
-            font-size: 3rem;
-            opacity: 0.2;
+            right: 20px;
+            bottom: 20px;
+            font-size: 3.5rem;
+            opacity: 0.25;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .dashboard-header {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .date-badge {
+            background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+            border: 1px solid #e2e8f0;
+            padding: 0.7rem 1.3rem;
+            border-radius: 12px;
+            font-weight: 600;
+            color: #475569;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .reports-card {
+            background: white;
+            border-radius: 18px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .card-header-custom {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-custom thead {
+            background-color: #f8fafc;
+        }
+
+        .table-custom th {
+            font-weight: 600;
+            color: #475569;
+            padding: 1.2rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .table-custom td {
+            padding: 1.2rem 2rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f5f9;
+            font-weight: 500;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .user-avatar-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0ea5e9 0%, #4f46e5 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .badge-status {
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid;
+        }
+
+        .badge-pending {
+            background: rgba(245, 158, 11, 0.15);
+            color: #d97706;
+            border-color: rgba(245, 158, 11, 0.3);
+        }
+
+        .badge-proses {
+            background: rgba(79, 70, 229, 0.15);
+            color: #4f46e5;
+            border-color: rgba(79, 70, 229, 0.3);
+        }
+
+        .badge-selesai {
+            background: rgba(16, 185, 129, 0.15);
+            color: #059669;
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-view {
+            padding: 0.5rem 1.2rem;
+            background: linear-gradient(135deg, #f1f5f9 0%, #ffffff 100%);
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-view:hover {
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+            color: white;
+            border-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(5, 150, 105, 0.2);
         }
 
         @media (max-width: 768px) {
@@ -91,13 +268,33 @@
 
             .main-content {
                 margin-left: 0;
-                padding-top: 2rem;
+                padding: 1.5rem;
+            }
+
+            .dashboard-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
             }
         }
-        
-        /* Gaya untuk Toast Container */
-        .toast-container {
-            z-index: 1090; 
+
+        .logout-btn {
+            margin-top: 2rem;
+            padding: 0.85rem 1rem;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            border-radius: 12px;
+            font-weight: 600;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            color: white;
+            transform: translateX(5px);
         }
     </style>
 </head>
@@ -109,250 +306,143 @@
     </div>
 
     <div class="sidebar d-none d-md-block">
-        <div class="list-group list-group-flush px-3">
-            <small class="text-muted fw-bold px-3 mb-2 text-uppercase" style="font-size: 0.75rem;">Menu Utama</small>
+        <div class="menu-title">Menu Utama</div>
+        <a href="{{ route('admin.dashboard') }}" class="nav-link-custom active">
+            <i class="bi bi-grid-fill"></i>Dashboard
+        </a>
+        <a href="{{ route('admin.mahasiswa') }}" class="nav-link-custom">
+            <i class="bi bi-people-fill"></i>Data Mahasiswa
+        </a>
+        <a href="{{ route('admin.psikolog') }}" class="nav-link-custom">
+            <i class="bi bi-person-heart"></i>Data Psikolog
+        </a>
+        <a href="{{ route('lapor.index') }}" class="nav-link-custom">
+            <i class="bi bi-file-earmark-text-fill"></i>Laporan Curhat
+        </a>
 
-            <a href="{{ route('admin.dashboard') }}" class="list-group-item list-group-item-action active rounded-3 mb-2 border-0 bg-success">
-                <i class="bi bi-grid-fill me-3"></i>Dashboard
-            </a>
+        <div class="menu-title">Konten</div>
+        <a href="{{ route('admin.tambahkontensh') }}" class="nav-link-custom">
+            <i class="bi bi-plus-square-fill"></i>Tambah Self-Healing
+        </a>
+        <a href="{{ route('halamanselfhealing') }}" class="nav-link-custom">
+            <i class="bi bi-journal-album"></i>Konten Self-Healing
+        </a>
 
-            <a href="{{ route('admin.mahasiswa') }}" class="list-group-item list-group-item-action rounded-3 mb-2 border-0 text-secondary">
-                <i class="bi bi-people-fill me-3"></i>Data Mahasiswa
-            </a>
-            <a href="{{ route('admin.psikolog') }}" class="list-group-item list-group-item-action rounded-3 mb-2 border-0 text-secondary">
-                <i class="bi bi-person-heart me-3"></i>Data Psikolog
-            </a>
-
-            <a href="{{ route('lapor.index') }}" class="list-group-item list-group-item-action rounded-3 mb-2 border-0 text-secondary">
-                <i class="bi bi-file-earmark-text-fill me-3"></i>Laporan Curhat
-            </a>
-
-            <small class="text-muted fw-bold px-3 mb-2 mt-3 text-uppercase" style="font-size: 0.75rem;">Konten</small>
-
-            <a href="{{ route('admin.tambahkontensh') }}" class="list-group-item list-group-item-action rounded-3 mb-2 border-0 text-secondary">
-                <i class="bi bi-plus-square-fill me-3"></i>Tambah Self-Healing
-            </a>
-            <a href="{{ route('halamanselfhealing') }}" class="list-group-item list-group-item-action rounded-3 mb-2 border-0 text-secondary">
-                <i class="bi bi-journal-album me-3"></i>Konten Self-Healing
-            </a>
-
-            <form action="{{ route('logout') }}" method="POST" class="mt-4 border-top pt-3">
-                @csrf
-                <button type="submit" class="list-group-item list-group-item-action rounded-3 border-0 text-danger fw-bold">
-                    <i class="bi bi-box-arrow-left me-3"></i>Logout
-                </button>
-            </form>
-        </div>
+        <form action="{{ route('logout') }}" method="POST">
+            @csrf
+            <button type="submit" class="logout-btn">
+                <i class="bi bi-box-arrow-left me-2"></i>Logout
+            </button>
+        </form>
     </div>
 
     <div class="main-content">
-
-        <div class="d-flex justify-content-between align-items-end mb-4">
+        <div class="dashboard-header d-flex justify-content-between align-items-center">
             <div>
-                <h3 class="fw-bold text-dark">Ringkasan Sistem</h3>
-                <p class="text-muted mb-0">Selamat datang kembali, {{ Auth::user()->name }}! Berikut pantauan hari ini.</p>
+                <h3 class="fw-bold text-dark mb-2">Ringkasan Sistem</h3>
+                <p class="text-muted mb-0">Selamat datang kembali, {{ Auth::user()->name }}!</p>
             </div>
-            <div class="d-none d-md-block">
-                <span class="badge bg-white text-dark shadow-sm py-2 px-3 border">
-                    📅 {{ date('d F Y') }}
-                </span>
+            <div class="date-badge">
+                <i class="bi bi-calendar3 me-2"></i>{{ date('d F Y') }}
             </div>
         </div>
 
         <div class="row g-4 mb-5">
             <div class="col-md-3">
                 <div class="stat-card bg-gradient-info">
-                    <h2 class="fw-bold mb-1">{{ $stats['total_korban'] }}</h2>
-                    <p class="mb-0 fw-medium opacity-75">Pengguna (Korban)</p>
+                    <div class="stat-number">{{ $stats['total_korban'] }}</div>
+                    <div class="stat-label">Pengguna (Mahasiswa)</div>
                     <i class="bi bi-people-fill stat-icon"></i>
                 </div>
             </div>
-
             <div class="col-md-3">
                 <div class="stat-card bg-gradient-primary">
-                    <h2 class="fw-bold mb-1">{{ $stats['total_laporan'] }}</h2>
-                    <p class="mb-0 fw-medium opacity-75">Total Laporan</p>
+                    <div class="stat-number">{{ $stats['total_laporan'] }}</div>
+                    <div class="stat-label">Total Laporan</div>
                     <i class="bi bi-archive-fill stat-icon"></i>
                 </div>
             </div>
-
             <div class="col-md-3">
                 <div class="stat-card bg-gradient-warning">
-                    <h2 class="fw-bold mb-1" id="pending-reports-count">{{ $stats['laporan_pending'] }}</h2>
-                    <p class="mb-0 fw-medium opacity-75">Perlu Diproses</p>
+                    <div class="stat-number">{{ $stats['laporan_pending'] }}</div>
+                    <div class="stat-label">Perlu Diproses</div>
                     <i class="bi bi-exclamation-triangle-fill stat-icon"></i>
                 </div>
             </div>
-
             <div class="col-md-3">
                 <div class="stat-card bg-gradient-success">
-                    <h2 class="fw-bold mb-1">{{ $stats['total_psikolog'] }}</h2>
-                    <p class="mb-0 fw-medium opacity-75">Psikolog Terdaftar</p>
+                    <div class="stat-number">{{ $stats['total_psikolog'] }}</div>
+                    <div class="stat-label">Psikolog Terdaftar</div>
                     <i class="bi bi-person-heart stat-icon"></i>
                 </div>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="fw-bold mb-0">Laporan Terbaru Masuk</h5>
-                        <a href="{{ route('lapor.index') }}" class="btn btn-sm btn-outline-primary">Lihat Semua</a>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0 align-middle text-nowrap">
-                                <thead class="bg-light">
-                                    <tr>
-                                        <th class="ps-4 py-3">Pelapor</th>
-                                        <th>Jenis</th>
-                                        <th>Tanggal</th>
-                                        <th>Status</th>
-                                        <th>Psikolog</th>
-                                        <th class="text-end pe-4">Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($laporan_terbaru as $l)
-                                    <tr>
-                                        <td class="ps-4">
-                                            <div class="d-flex align-items-center">
-                                                <div class="bg-light rounded-circle p-2 me-2 text-primary">
-                                                    <i class="bi bi-person-fill"></i>
-                                                </div>
-                                                <span class="fw-medium">{{ $l->korban->name ?? 'Anonim' }}</span>
-                                            </div>
-                                        </td>
-                                        <td>{{ $l->jenis }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($l->tanggal)->format('d M Y') }}</td>
-                                        <td>
-                                            @if($l->status == 'pending')
-                                            <span class="badge bg-warning text-dark bg-opacity-25 border border-warning">Pending</span>
-                                            @elseif($l->status == 'proses')
-                                            <span class="badge bg-primary bg-opacity-25 text-primary border border-primary">Proses</span>
-                                            @else
-                                            <span class="badge bg-success bg-opacity-25 text-success border border-success">Selesai</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div>{{ $l->psikolog->user->name ?? '-' }}</div>
-                                        </td>
-
-                                        <td class="text-end pe-4">
-                                            <a href="{{ route('lapor.show', $l->id) }}" class="btn btn-sm btn-light text-primary">
-                                                <i class="bi bi-eye"></i> Detail
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4 text-muted">Belum ada laporan terbaru.</td>
-                                    </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+        <div class="reports-card">
+            <div class="card-header-custom">
+                <h5 class="fw-bold mb-0">Laporan Terbaru Masuk</h5>
+                <a href="{{ route('lapor.index') }}" class="btn-view">
+                    <i class="bi bi-arrow-right me-2"></i>Lihat Semua
+                </a>
             </div>
-        </div>
-
-    </div>
-    
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="newReportToast" class="toast align-items-center text-white bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="d-flex">
-                <div class="toast-body fw-bold">
-                    <i class="bi bi-bell-fill me-2"></i>
-                    Ada <span id="toast-count"></span> Laporan **BARU** yang Perlu Diproses! 
-                    <a href="{{ route('lapor.index') }}" class="text-white text-decoration-underline fw-bold ms-2">Lihat Sekarang</a>
-                </div>
-                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            <div class="table-responsive">
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>Pelapor</th>
+                            <th>Jenis</th>
+                            <th>Tanggal</th>
+                            <th>Status</th>
+                            <th>Psikolog</th>
+                            <th class="text-end">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($laporan_terbaru as $l)
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="user-avatar-small">
+                                        {{ substr($l->korban->name ?? 'A', 0, 1) }}
+                                    </div>
+                                    <span class="fw-medium">{{ $l->korban->name ?? 'Anonim' }}</span>
+                                </div>
+                            </td>
+                            <td>{{ $l->jenis }}</td>
+                            <td>{{ \Carbon\Carbon::parse($l->tanggal)->format('d M Y') }}</td>
+                            <td>
+                                @if($l->status == 'pending')
+                                <span class="badge-status badge-pending">Pending</span>
+                                @elseif($l->status == 'proses')
+                                <span class="badge-status badge-proses">Proses</span>
+                                @else
+                                <span class="badge-status badge-selesai">Selesai</span>
+                                @endif
+                            </td>
+                            <td>{{ $l->psikolog->user->name ?? '-' }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('lapor.show', $l->id) }}" class="btn-view">
+                                    <i class="bi bi-eye me-1"></i>Detail
+                                </a>
+                            </td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="text-muted">
+                                    <i class="bi bi-inbox display-6 mb-3"></i>
+                                    <p class="mb-0">Belum ada laporan terbaru</p>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        // 1. Definisikan variabel kunci
-        const toastEl = document.getElementById('newReportToast');
-        const toastCountEl = document.getElementById('toast-count');
-        const pendingReportsCardCount = document.getElementById('pending-reports-count');
-
-        // Jumlah laporan pending terakhir yang diketahui oleh frontend
-        // Mengambil nilai awal dari tampilan stat-card saat halaman dimuat
-        let lastKnownPendingCount = parseInt(pendingReportsCardCount.textContent) || 0;
-
-        // Inisialisasi Toast
-        const newReportToast = new bootstrap.Toast(toastEl, {
-            autohide: false // Biarkan Toast tetap terbuka sampai ditutup pengguna
-        });
-
-        // 2. Fungsi untuk menampilkan notifikasi 
-        function showNotification(newCount) {
-            toastCountEl.textContent = newCount;
-            newReportToast.show();
-        }
-
-        // 3. Fungsi utama Polling
-        function checkNewReports() {
-            // !!! Ganti URL ini dengan endpoint API Anda yang sebenarnya di backend Laravel !!!
-            // Contoh URL: /api/check-new-reports
-            const API_ENDPOINT = '{{ route("api.check-new-reports") }}'; 
-
-            fetch(API_ENDPOINT)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    // Asumsi API mengembalikan JSON seperti: { "pending_count": N }
-                    return response.json(); 
-                })
-                .then(data => {
-                    const currentPendingCount = data.pending_count; 
-
-                    // A. Cek apakah ada laporan baru yang masuk (jumlahnya bertambah)
-                    if (currentPendingCount > lastKnownPendingCount) {
-                        
-                        // Tampilkan notifikasi
-                        showNotification(currentPendingCount);
-                        
-                        // Update tampilan kartu dashboard secara dinamis
-                        pendingReportsCardCount.textContent = currentPendingCount; 
-
-                    } else if (currentPendingCount <= lastKnownPendingCount) {
-                         // Sembunyikan notifikasi jika jumlah laporan berkurang atau tetap nol/sama
-                         // Jika operator sudah memprosesnya di halaman lain.
-                         newReportToast.hide();
-                         pendingReportsCardCount.textContent = currentPendingCount; 
-                    }
-                    
-                    // B. Update jumlah terakhir yang diketahui
-                    lastKnownPendingCount = currentPendingCount;
-
-                })
-                .catch(error => {
-                    console.error('Error saat mengambil laporan baru:', error);
-                })
-                .finally(() => {
-                    // C. Jadwal Polling berikutnya setelah 10 detik
-                    setTimeout(checkNewReports, 10000); // Polling setiap 10 detik (10000 ms)
-                });
-        }
-
-        // 4. Inisialisasi: Cek status saat halaman pertama kali dimuat
-        document.addEventListener('DOMContentLoaded', function() {
-            if (lastKnownPendingCount > 0) {
-                // Tampilkan notifikasi awal jika ada laporan pending saat load
-                showNotification(lastKnownPendingCount);
-            }
-            // Mulai Polling untuk Real-Time Update
-            // Mulai 5 detik setelah load untuk memberi waktu inisialisasi
-            setTimeout(checkNewReports, 5000); 
-        });
-    </script>
 </body>
 
 </html>
