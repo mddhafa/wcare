@@ -265,7 +265,10 @@
                             <select name="id_psikolog" class="form-select mb-2 text-sm" required>
                                 <option value="">-- Pilih Psikolog --</option>
                                 @foreach(\App\Models\Psikolog::with('user')->get() as $p)
-                                <option value="{{ $p->id_psikolog }}">{{ $p->user->name }}</option>
+                               @if($p->user)
+    <option value="{{ $p->id_psikolog }}">{{ $p->user->name }}</option>
+@endif
+
                                 @endforeach
                             </select>
                             <button class="btn btn-dark btn-sm w-100 fw-semibold">Assign Sekarang</button>

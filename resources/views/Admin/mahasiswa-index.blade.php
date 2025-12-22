@@ -279,17 +279,22 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    @if(session('success'))
+    
     <script>
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        // Inisialisasi tooltip Bootstrap
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        })
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
 
+        // Fungsi pencarian
         document.getElementById('searchInput').addEventListener('keyup', function() {
             let filter = this.value.toLowerCase();
             let rows = document.querySelectorAll('.data-row');
             let hasResult = false;
+            
+            // Hitung jumlah hasil yang ditemukan
+            let visibleCount = 0;
 
             rows.forEach(row => {
                 let name = row.querySelector('.user-name').innerText.toLowerCase();
@@ -298,23 +303,63 @@
                 if (name.includes(filter) || email.includes(filter)) {
                     row.style.display = '';
                     hasResult = true;
+                    visibleCount++;
+                    
+                    // Update nomor urut
+                    let numberCell = row.querySelector('.loop-number');
+                    if (numberCell) {
+                        numberCell.innerText = visibleCount;
+                    }
                 } else {
                     row.style.display = 'none';
                 }
             });
 
-            let noDataRow = document.getElementById('noDataRow');
-            let noSearchFound = document.getElementById('noSearchFound');
+            // Update total count yang ditampilkan
+            document.getElementById('totalCount').innerText = visibleCount;
 
-            if (!noDataRow) {
+            // Tampilkan/sembunyikan pesan "Tidak Ditemukan"
+            let noSearchFound = document.getElementById('noSearchFound');
+            let noDataRow = document.getElementById('noDataRow');
+            
+            // Sembunyikan noDataRow jika ada pencarian
+            if (noDataRow && filter.length > 0) {
+                noDataRow.style.display = 'none';
+            }
+            
+            if (filter.length === 0) {
+                // Jika tidak ada filter, kembalikan semua ke kondisi awal
+                noSearchFound.style.display = 'none';
+                if (noDataRow) {
+                    noDataRow.style.display = '';
+                }
+                
+                // Reset nomor urut
+                rows.forEach((row, index) => {
+                    row.style.display = '';
+                    let numberCell = row.querySelector('.loop-number');
+                    if (numberCell) {
+                        numberCell.innerText = index + 1;
+                    }
+                });
+                
+                // Reset total count
+                document.getElementById('totalCount').innerText = rows.length;
+            } else {
+                // Jika ada filter
                 if (hasResult) {
                     noSearchFound.style.display = 'none';
                 } else {
                     noSearchFound.style.display = '';
                 }
+                
+                if (noDataRow) {
+                    noDataRow.style.display = 'none';
+                }
             }
         });
 
+        // Fungsi konfirmasi hapus
         function confirmDelete(event) {
             event.preventDefault();
             const form = event.target;
@@ -334,8 +379,10 @@
                 }
             });
         }
+    </script>
 
-
+    @if(session('success'))
+    <script>
         Swal.fire({
             icon: 'success',
             title: 'Berhasil',
@@ -345,6 +392,7 @@
         });
     </script>
     @endif
+
 </body>
 
 </html>
