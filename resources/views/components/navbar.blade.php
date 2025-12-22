@@ -97,17 +97,14 @@
     color: #dc2626;
   }
 
-  /* OFFCANVAS 50% WIDTH */
   .offcanvas-half {
     width: 50vw !important;
     max-width: 50vw !important;
   }
 
-  /* Mobile optimization */
   @media (max-width: 576px) {
     .offcanvas-half {
       width: 80vw !important;
-      /* HP kecil biar tetap nyaman */
       max-width: 80vw !important;
     }
   }
@@ -115,25 +112,33 @@
 
 @php
 $dashboardUrl = route('dashboard');
+$profileUrl = '#';
+
 if(auth()->check()) {
-if(auth()->user()->role_id == 1) $dashboardUrl = route('admin.dashboard');
-elseif(auth()->user()->role_id == 2) $dashboardUrl = route('psikolog.dashboard-psikolog');
+$role = auth()->user()->role_id;
+if($role == 1) {
+$dashboardUrl = route('admin.dashboard');
+$profileUrl = route('admin.profile');
+} elseif($role == 2) {
+$dashboardUrl = route('psikolog.dashboard-psikolog');
+$profileUrl = route('psikolog.profilepsikolog');
+} else {
+$profileUrl = route('korban.profilekorban');
+}
 }
 @endphp
 
 <nav class="navbar navbar-expand-lg navbar-theme sticky-top">
   <div class="container">
 
-    <!-- LOGO -->
     <a class="navbar-brand d-flex align-items-center" href="{{ $dashboardUrl }}">
-      <img src="{{ asset('images/Umy-logo.gif') }}" width="40" height="40" class="rounded-circle">
+      <img src="{{ asset('images/WeCare.png') }}" width="40" height="40" class="rounded-circle">
       <div class="ms-2 d-flex align-items-baseline">
         <span class="navbar-brand-text">Wcare</span>
         <span class="navbar-brand-sub d-none d-sm-inline">SISTEM CURHAT</span>
       </div>
     </a>
 
-    <!-- TOGGLER MOBILE -->
     <button class="navbar-toggler border-0"
       type="button"
       data-bs-toggle="offcanvas"
@@ -141,7 +146,6 @@ elseif(auth()->user()->role_id == 2) $dashboardUrl = route('psikolog.dashboard-p
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- DESKTOP MENU -->
     <ul class="navbar-nav ms-auto align-items-center gap-3 d-none d-lg-flex">
       @auth
       <li class="nav-item dropdown">
@@ -166,7 +170,7 @@ elseif(auth()->user()->role_id == 2) $dashboardUrl = route('psikolog.dashboard-p
 
         <ul class="dropdown-menu dropdown-menu-end dropdown-menu-modern">
           <li><a class="dropdown-item-modern" href="{{ $dashboardUrl }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-          <li><a class="dropdown-item-modern" href="{{ Auth::user()->role_id==2 ? route('psikolog.profilepsikolog') : route('korban.profilekorban') }}"><i class="bi bi-person"></i> Profil</a></li>
+          <li><a class="dropdown-item-modern" href="{{ $profileUrl }}"><i class="bi bi-person"></i> Profil</a></li>
           <li>
             <hr>
           </li>
@@ -187,7 +191,6 @@ elseif(auth()->user()->role_id == 2) $dashboardUrl = route('psikolog.dashboard-p
   </div>
 </nav>
 
-<!-- OFFCANVAS MOBILE -->
 <div class="offcanvas offcanvas-end offcanvas-half" id="mobileMenu">
   <div class="offcanvas-header border-bottom">
     <h5 class="fw-bold text-success">Menu</h5>
@@ -209,7 +212,7 @@ elseif(auth()->user()->role_id == 2) $dashboardUrl = route('psikolog.dashboard-p
       </li>
 
       <li><a class="dropdown-item-modern" href="{{ $dashboardUrl }}"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
-      <li><a class="dropdown-item-modern" href="{{ Auth::user()->role_id==2 ? route('psikolog.profilepsikolog') : route('korban.profilekorban') }}"><i class="bi bi-person"></i> Profil</a></li>
+      <li><a class="dropdown-item-modern" href="{{ $profileUrl }}"><i class="bi bi-person"></i> Profil</a></li>
       <li>
         <form action="{{ route('logout') }}" method="POST">@csrf
           <button class="dropdown-item-modern dropdown-item-logout w-100">
