@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use App\Events\LaporanDibatalkan;
+use App\Events\LaporanDitugaskan;
+use App\Events\LaporanMasuk;
 
 class LaporanController extends Controller
 {
@@ -27,7 +30,7 @@ class LaporanController extends Controller
             'tanggal' => 'required|date',
         ]);
 
-        Laporan::create([
+        $laporan = Laporan::create([
             'user_id' => Auth::id(),
             'lokasi' => $request->lokasi,
             'jenis' => $request->jenis,
@@ -36,6 +39,9 @@ class LaporanController extends Controller
             'status' => 'pending',
         ]);
 
+        $laporan->load('korban');
+
+        event(new LaporanMasuk($laporan));
         return back()->with('success', 'Laporan berhasil dikirim.');
     }
 
@@ -225,6 +231,12 @@ class LaporanController extends Controller
 
         $laporan->save();
 
+        if ($psikologId) {
+            $laporan->load(['korban', 'psikolog']);
+
+            event(new LaporanDitugaskan($laporan));
+        }
+
         return back()->with('success', 'Assign berhasil.');
     }
 
@@ -239,6 +251,10 @@ class LaporanController extends Controller
         $laporan->status = 'pending';
         $laporan->save();
 
-        return redirect()->back()->with('success', 'Assign dibatalkan.');
+        $laporan->load('korban');
+
+        event(new LaporanDibatalkan($laporan));
+
+        return back()->with('success', 'Assign dibatalkan.');
     }
 }

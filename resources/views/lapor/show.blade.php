@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <style>
         body {
@@ -25,7 +26,7 @@
         .card-custom {
             border: none;
             border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
             background: white;
             overflow: hidden;
             margin-bottom: 1.5rem;
@@ -92,9 +93,9 @@
             box-shadow: 0 0 0 3px #d1fae5;
         }
 
-        .avatar-circle {
-            width: 45px;
-            height: 45px;
+        .avatar-circle-detail {
+            width: 55px;
+            height: 55px;
             background-color: #ecfdf5;
             color: #059669;
             border-radius: 50%;
@@ -102,7 +103,16 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.5rem;
+            border: 2px solid #a7f3d0;
+        }
+
+        .avatar-img-detail {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #a7f3d0;
         }
 
         .info-label {
@@ -148,7 +158,7 @@
                     'pending' => 'bg-warning text-dark',
                     'proses' => 'bg-primary text-white',
                     'selesai' => 'bg-light text-success fw-bold',
-                    default => 'bg-secondary'
+                    'default' => 'bg-secondary'
                     };
                     @endphp
                     <span class="badge {{ $statusClass }} px-3 py-2 rounded-pill text-uppercase shadow-sm">
@@ -166,10 +176,25 @@
 
                         <div class="mb-4">
                             <div class="info-label">Pelapor</div>
-                            <div class="d-flex align-items-center p-3 bg-light rounded-3 border border-light">
-                                <div class="avatar-circle me-3">
-                                    {{ strtoupper(substr($laporan->korban->name ?? 'A', 0, 1)) }}
+                            <div class="d-flex align-items-center p-3 bg-light rounded-3 border border-light shadow-sm">
+
+                                <div class="me-3">
+                                    @php $user = $laporan->korban; @endphp
+                                    @if($user)
+                                    @if($user->avatar && file_exists(public_path('storage/' . $user->avatar)))
+                                    <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" class="avatar-img-detail shadow-sm">
+                                    @elseif($user->korban && $user->korban->foto && file_exists(public_path('uploads/' . $user->korban->foto)))
+                                    <img src="{{ asset('uploads/' . $user->korban->foto) }}" alt="{{ $user->name }}" class="avatar-img-detail shadow-sm">
+                                    @else
+                                    <div class="avatar-circle-detail shadow-sm">
+                                        {{ strtoupper(substr($user->name, 0, 1)) }}
+                                    </div>
+                                    @endif
+                                    @else
+                                    <div class="avatar-circle-detail bg-secondary text-white border-0">?</div>
+                                    @endif
                                 </div>
+
                                 <div>
                                     <h6 class="mb-0 fw-bold text-dark">{{ $laporan->korban->name ?? 'Anonim' }}</h6>
                                     <small class="text-muted">{{ $laporan->korban->email ?? '-' }}</small>
@@ -245,33 +270,45 @@
                             <i class="bi bi-person-fill-gear me-2 text-warning"></i> Petugas Psikolog
                         </h6>
 
-                        @if($laporan->assigned_psikolog)
-                        <div class="bg-light p-3 rounded-3 mb-3 border border-success border-opacity-25">
-                            <small class="text-muted d-block mb-1" style="font-size: 0.75rem;">DITANGANI OLEH:</small>
-                            <div class="fw-bold text-success d-flex align-items-center">
-                                <i class="bi bi-person-check-fill me-2 fs-5"></i>
-                                {{ $laporan->assigned_psikolog->name }}
+                        {{-- JIKA SUDAH DITUGASKAN --}}
+                        @if($laporan->assigned_psikolog_id && $laporan->psikolog)
+                        <div class="bg-light p-3 rounded-3 mb-3 border border-success border-opacity-25 animate__animated animate__fadeIn">
+                            <small class="text-muted d-block mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">DITANGANI OLEH:</small>
+                            <div class="fw-bold text-success d-flex align-items-center fs-5">
+                                <i class="bi bi-person-check-fill me-2"></i>
+                                {{ $laporan->psikolog->user->name ?? 'Psikolog' }}
                             </div>
                         </div>
+
+                        {{-- Tombol Ganti / Lepas --}}
                         <form id="form-unassign-{{ $laporan->id }}" action="{{ route('admin.lapor.unassign', $laporan->id) }}" method="POST">
                             @csrf
                             <button type="button" class="btn btn-outline-danger btn-sm w-100 btn-unassign fw-semibold" data-id="{{ $laporan->id }}">
-                                Ganti / Batalkan
+                                <i class="bi bi-x-circle me-1"></i> Ganti / Batalkan Petugas
                             </button>
                         </form>
+
+                        {{-- JIKA BELUM DITUGASKAN --}}
                         @else
+                        <div class="alert alert-warning py-2 small text-center mb-3 border-warning border-opacity-25 bg-warning bg-opacity-10 text-warning text-dark fw-medium">
+                            <i class="bi bi-exclamation-circle me-1"></i> Belum ada petugas assigned.
+                        </div>
                         <form action="{{ route('admin.lapor.assign', $laporan->id) }}" method="POST">
                             @csrf
-                            <select name="id_psikolog" class="form-select mb-2 text-sm" required>
-                                <option value="">-- Pilih Psikolog --</option>
-                                @foreach(\App\Models\Psikolog::with('user')->get() as $p)
-                               @if($p->user)
-    <option value="{{ $p->id_psikolog }}">{{ $p->user->name }}</option>
-@endif
-
-                                @endforeach
-                            </select>
-                            <button class="btn btn-dark btn-sm w-100 fw-semibold">Assign Sekarang</button>
+                            <div class="mb-2">
+                                <label class="form-label small text-muted fw-semibold">Pilih Psikolog:</label>
+                                <select name="id_psikolog" class="form-select form-select-sm" required>
+                                    <option value="" selected disabled>-- Daftar Psikolog --</option>
+                                    @foreach(\App\Models\Psikolog::with('user')->get() as $p)
+                                    @if($p->user)
+                                    <option value="{{ $p->id_psikolog }}">{{ $p->user->name }}</option>
+                                    @endif
+                                    @endforeach
+                                </select>
+                            </div>
+                            <button class="btn btn-dark btn-sm w-100 fw-semibold shadow-sm">
+                                <i class="bi bi-check2-square me-1"></i> Tugaskan Sekarang
+                            </button>
                         </form>
                         @endif
                     </div>
@@ -304,9 +341,59 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
 
     <script>
+        const currentUserRoleId = "{{ Auth::user()->role_id }}";
+        const currentUserId = "{{ Auth::user()->id }}";
+
+        window.Pusher = Pusher;
+        window.Echo = new Echo({
+            broadcaster: 'reverb',
+            key: 'my-app-key',
+            wsHost: '127.0.0.1',
+            wsPort: 8080,
+            wssPort: 8080,
+            forceTLS: false,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        window.Echo.channel('laporan-channel')
+            .listen('.laporan.masuk', (e) => {
+                if (currentUserRoleId == '3' && e.laporan.user_id == currentUserId) return;
+
+                playNotificationSound();
+                showMinimalistToast('Laporan Baru Masuk!');
+            });
+
+        function playNotificationSound() {
+            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log('Audio blocked'));
+        }
+
+        function showMinimalistToast(msg) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                background: '#fff',
+                color: '#1f2937',
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                }
+            });
+            Toast.fire({
+                icon: 'info',
+                title: msg
+            });
+        }
+
         document.querySelectorAll('.btn-unassign').forEach(btn => {
             btn.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
