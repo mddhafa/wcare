@@ -8,6 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
     <style>
         body {
@@ -214,6 +216,17 @@
             justify-content: center;
             font-weight: 600;
             font-size: 1rem;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .badge-status {
@@ -251,6 +264,9 @@
             font-weight: 500;
             font-size: 0.9rem;
             transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
         }
 
         .btn-view:hover {
@@ -357,14 +373,14 @@
             </div>
             <div class="col-md-3">
                 <div class="stat-card bg-gradient-primary">
-                    <div class="stat-number">{{ $stats['total_laporan'] }}</div>
+                    <div class="stat-number" id="statTotalLaporan">{{ $stats['total_laporan'] }}</div>
                     <div class="stat-label">Total Laporan</div>
                     <i class="bi bi-archive-fill stat-icon"></i>
                 </div>
             </div>
             <div class="col-md-3">
                 <div class="stat-card bg-gradient-warning">
-                    <div class="stat-number">{{ $stats['laporan_pending'] }}</div>
+                    <div class="stat-number" id="statPending">{{ $stats['laporan_pending'] }}</div>
                     <div class="stat-label">Perlu Diproses</div>
                     <i class="bi bi-exclamation-triangle-fill stat-icon"></i>
                 </div>
@@ -386,7 +402,7 @@
                 </a>
             </div>
             <div class="table-responsive">
-                <table class="table table-custom">
+                <table class="table table-custom" id="recentTable">
                     <thead>
                         <tr>
                             <th>Pelapor</th>
@@ -402,9 +418,17 @@
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center gap-3">
+                                    @php $user = $l->korban; @endphp
+                                    @if($user && $user->avatar && file_exists(public_path('storage/' . $user->avatar)))
+                                    <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" class="user-avatar-img">
+                                    @elseif($user && $user->korban && $user->korban->foto && file_exists(public_path('uploads/' . $user->korban->foto)))
+                                    <img src="{{ asset('uploads/' . $user->korban->foto) }}" alt="{{ $user->name }}" class="user-avatar-img">
+                                    @else
                                     <div class="user-avatar-small">
-                                        {{ substr($l->korban->name ?? 'A', 0, 1) }}
+                                        {{ strtoupper(substr($l->korban->name ?? 'A', 0, 1)) }}
                                     </div>
+                                    @endif
+
                                     <span class="fw-medium">{{ $l->korban->name ?? 'Anonim' }}</span>
                                 </div>
                             </td>
@@ -427,7 +451,7 @@
                             </td>
                         </tr>
                         @empty
-                        <tr>
+                        <tr id="noDataRow">
                             <td colspan="6" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="bi bi-inbox display-6 mb-3"></i>
@@ -442,7 +466,139 @@
         </div>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/laravel-echo@1.16.1/dist/echo.iife.js"></script>
+
+    <script>
+        window.Pusher = Pusher;
+        window.Echo = new Echo({
+            broadcaster: 'reverb',
+            key: 'my-app-key',
+            wsHost: '127.0.0.1',
+            wsPort: 8080,
+            wssPort: 8080,
+            forceTLS: false,
+            enabledTransports: ['ws', 'wss'],
+        });
+
+        window.Echo.channel('laporan-channel')
+            .listen('.laporan.masuk', (e) => {
+                let laporan = e.laporan;
+
+                playNotificationSound();
+                showMinimalistToast();
+
+                updateStats();
+
+                addNewRowToDashboard(laporan);
+            });
+
+        function playNotificationSound() {
+            let audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.volume = 0.5;
+            audio.play().catch(error => console.log('Audio dicegah browser.'));
+        }
+
+        function showMinimalistToast() {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 4000,
+                timerProgressBar: true,
+                background: '#ffffff',
+                color: '#1f2937',
+                customClass: {
+                    popup: 'rounded-pill shadow-lg border-0 px-4 py-2 mt-3 me-3 animate__animated animate__fadeInRight',
+                    title: 'fs-6 fw-bold mb-0',
+                    timerProgressBar: 'bg-success'
+                },
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            });
+            Toast.fire({
+                icon: 'success',
+                iconColor: '#10b981',
+                title: 'Laporan Baru Masuk!'
+            });
+        }
+
+        function updateStats() {
+            let totalEl = document.getElementById('statTotalLaporan');
+            let pendingEl = document.getElementById('statPending');
+
+            if (totalEl) {
+                let val = parseInt(totalEl.innerText);
+                totalEl.innerText = val + 1;
+                totalEl.parentElement.classList.add('animate__animated', 'animate__pulse');
+            }
+            if (pendingEl) {
+                let val = parseInt(pendingEl.innerText);
+                pendingEl.innerText = val + 1;
+            }
+        }
+
+        function addNewRowToDashboard(data) {
+            let noDataRow = document.getElementById('noDataRow');
+            if (noDataRow) noDataRow.remove();
+
+            let dateObj = new Date(data.tanggal);
+            let dateStr = dateObj.toLocaleDateString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+
+            let namaPelapor = data.korban ? data.korban.name : 'Anonim';
+            let profileContent = '';
+
+            let avatarPath = data.korban ? data.korban.avatar : null;
+            let fotoKorbanPath = (data.korban && data.korban.korban) ? data.korban.korban.foto : null;
+
+            if (avatarPath) {
+                let url = avatarPath.startsWith('http') ? avatarPath : `/storage/${avatarPath}`;
+                profileContent = `<img src="${url}" alt="${namaPelapor}" class="user-avatar-img">`;
+            } else if (fotoKorbanPath) {
+                let url = `/uploads/${fotoKorbanPath}`;
+                profileContent = `<img src="${url}" alt="${namaPelapor}" class="user-avatar-img">`;
+            } else {
+                let inisial = namaPelapor.charAt(0).toUpperCase();
+                profileContent = `<div class="user-avatar-small">${inisial}</div>`;
+            }
+
+            let rowHtml = `
+            <tr class="animate__animated animate__fadeInDown" style="background-color: #f0fdf4;">
+                <td>
+                    <div class="d-flex align-items-center gap-3">
+                        ${profileContent}
+                        <span class="fw-medium">${namaPelapor}</span>
+                    </div>
+                </td>
+                <td>${data.jenis}</td>
+                <td>${dateStr}</td>
+                <td><span class="badge-status badge-pending">Pending</span></td>
+                <td>-</td>
+                <td class="text-end">
+                    <a href="/lapor/${data.id}" class="btn-view">
+                        <i class="bi bi-eye me-1"></i>Detail
+                    </a>
+                </td>
+            </tr>`;
+
+            let tbody = document.querySelector('#recentTable tbody');
+            if (tbody) {
+                tbody.insertAdjacentHTML('afterbegin', rowHtml);
+
+                if (tbody.children.length > 5) {
+                    tbody.lastElementChild.remove();
+                }
+            }
+        }
+    </script>
 </body>
 
 </html>
