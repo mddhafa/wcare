@@ -6,6 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Data Psikolog - Admin</title>
 
+    {{-- VITE WAJIB ADA UNTUK REALTIME --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -25,7 +28,7 @@
         .card-custom {
             border: none;
             border-radius: 16px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             background: white;
             overflow: hidden;
         }
@@ -40,8 +43,6 @@
         .avatar-circle {
             width: 45px;
             height: 45px;
-            background-color: #d1fae5;
-            color: #065f46;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -49,6 +50,23 @@
             font-weight: 700;
             font-size: 1.1rem;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .avatar-placeholder {
+            background-color: #d1fae5;
+            color: #065f46;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .table-custom th {
@@ -99,7 +117,7 @@
             border-radius: 50px;
             padding: 0.6rem 1.2rem 0.6rem 2.5rem;
             width: 100%;
-            min-width: 200px;
+            min-width: 250px;
             color: white;
             transition: all 0.3s;
         }
@@ -114,12 +132,24 @@
             border-color: rgba(255, 255, 255, 0.5);
         }
 
-        .hover-scale {
-            transition: transform 0.2s;
+        .badge-online {
+            background-color: rgba(25, 135, 84, 0.1) !important;
+            color: #198754 !important;
+            border-color: rgba(25, 135, 84, 0.25) !important;
         }
 
-        .hover-scale:hover {
-            transform: scale(1.05);
+        .badge-offline {
+            background-color: rgba(108, 117, 125, 0.1) !important;
+            color: #6c757d !important;
+            border-color: rgba(108, 117, 125, 0.25) !important;
+        }
+
+        .dot-online {
+            background-color: #198754 !important;
+        }
+
+        .dot-offline {
+            background-color: #6c757d !important;
         }
     </style>
 </head>
@@ -129,12 +159,9 @@
     @include('components.navbar')
 
     <div class="container main-container">
-
         <div class="card card-custom">
-
             <div class="card-header-custom">
                 <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-4">
-
                     <div class="d-flex align-items-center gap-4 w-100 w-lg-auto">
                         <a href="{{ route('admin.dashboard') }}" class="btn btn-back shadow-sm" data-bs-toggle="tooltip" title="Kembali ke Dashboard">
                             <i class="bi bi-arrow-left"></i>
@@ -149,22 +176,16 @@
                     </div>
 
                     <div class="d-flex flex-wrap align-items-center justify-content-end gap-3 w-100 w-lg-auto">
-
                         <div class="position-relative flex-grow-1 flex-lg-grow-0">
                             <i class="bi bi-search position-absolute text-white text-opacity-75" style="top: 50%; left: 15px; transform: translateY(-50%);"></i>
                             <input type="text" id="searchInput" class="search-box" placeholder="Cari nama atau email...">
                         </div>
-
                         <a href="{{ route('admin.users.trash', ['source' => 'psikolog']) }}" class="btn btn-outline-light rounded-pill px-3 d-flex align-items-center gap-2" data-bs-toggle="tooltip" title="Lihat Data Terhapus">
-                            <i class="bi bi-trash3"></i>
-                            <span class="d-none d-md-inline">Sampah</span>
+                            <i class="bi bi-trash3"></i> <span class="d-none d-md-inline">Sampah</span>
                         </a>
-
                         <a href="{{ route('admin.psikolog.create') }}" class="btn btn-light text-success fw-bold rounded-pill px-4 d-flex align-items-center gap-2 shadow-sm hover-scale">
-                            <i class="bi bi-plus-lg"></i>
-                            <span>Tambah Baru</span>
+                            <i class="bi bi-plus-lg"></i> <span>Tambah Baru</span>
                         </a>
-
                     </div>
                 </div>
             </div>
@@ -183,14 +204,24 @@
                         </thead>
                         <tbody>
                             @forelse($users as $user)
-                            <tr class="data-row">
+                            <tr class="data-row" data-user-id="{{ $user->user_id }}">
                                 <td class="text-center text-muted loop-number">{{ $loop->iteration }}</td>
-
                                 <td>
                                     <div class="d-flex align-items-center">
+
+                                        {{-- LOGIKA FOTO PROFIL --}}
                                         <div class="avatar-circle me-3 flex-shrink-0 border border-success border-opacity-25">
-                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                            @if($user->avatar && file_exists(public_path('storage/' . $user->avatar)))
+                                            <img src="{{ asset('storage/' . $user->avatar) }}" alt="{{ $user->name }}" class="avatar-img">
+                                            @elseif($user->foto && file_exists(public_path('uploads/' . $user->foto)))
+                                            <img src="{{ asset('uploads/' . $user->foto) }}" alt="{{ $user->name }}" class="avatar-img">
+                                            @else
+                                            <div class="avatar-placeholder">
+                                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                                            </div>
+                                            @endif
                                         </div>
+
                                         <div>
                                             <div class="fw-bold text-dark fs-6 user-name">{{ $user->name }}</div>
                                             <div class="text-muted small user-email" style="font-size: 0.8rem;">
@@ -218,15 +249,12 @@
                                 </td>
 
                                 <td class="text-center">
-                                    @if($user->active_status == 1)
-                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-2">
-                                        <span class="d-inline-block bg-success rounded-circle me-1" style="width: 8px; height: 8px;"></span> Online
+                                    {{-- ID UNIK UNTUK TARGET JS --}}
+                                    <span id="status-badge-{{ $user->user_id }}"
+                                        class="badge border rounded-pill px-3 py-2 {{ $user->active_status == 1 ? 'badge-online' : 'badge-offline' }}">
+                                        <span class="d-inline-block rounded-circle me-1 {{ $user->active_status == 1 ? 'dot-online' : 'dot-offline' }}" style="width: 8px; height: 8px;"></span>
+                                        <span class="status-text">{{ $user->active_status == 1 ? 'Online' : 'Offline' }}</span>
                                     </span>
-                                    @else
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 rounded-pill px-3 py-2">
-                                        <span class="d-inline-block bg-secondary rounded-circle me-1" style="width: 8px; height: 8px;"></span> Offline
-                                    </span>
-                                    @endif
                                 </td>
 
                                 <td class="text-end">
@@ -236,14 +264,12 @@
                                         </button>
                                         <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-3">
                                             <li><a class="dropdown-item py-2" href="{{ route('admin.user.edit', $user->user_id) }}"><i class="bi bi-pencil me-2 text-warning"></i> Edit Data</a></li>
-
                                             <li>
                                                 <hr class="dropdown-divider">
                                             </li>
                                             <li>
                                                 <form action="{{ route('admin.user.delete', $user->user_id) }}" method="POST" onsubmit="return confirmDelete(event)">
-                                                    @csrf
-                                                    @method('DELETE')
+                                                    @csrf @method('DELETE')
                                                     <button type="submit" class="dropdown-item py-2 text-danger">
                                                         <i class="bi bi-trash me-2"></i> Hapus
                                                     </button>
@@ -257,16 +283,13 @@
                             <tr id="noDataRow">
                                 <td colspan="5" class="text-center py-5 text-muted bg-light">
                                     <div class="d-flex flex-column align-items-center justify-content-center py-4">
-                                        <div class="bg-white p-3 rounded-circle shadow-sm mb-3">
-                                            <i class="bi bi-person-x text-secondary display-6"></i>
-                                        </div>
+                                        <div class="bg-white p-3 rounded-circle shadow-sm mb-3"><i class="bi bi-person-x text-secondary display-6"></i></div>
                                         <h6 class="fw-bold text-dark">Data Kosong</h6>
                                         <p class="mb-0 small">Belum ada psikolog yang terdaftar.</p>
                                     </div>
                                 </td>
                             </tr>
                             @endforelse
-
                             <tr id="noSearchFound" style="display: none;">
                                 <td colspan="5" class="text-center py-5 text-muted">
                                     <div class="d-flex flex-column align-items-center justify-content-center py-4">
@@ -276,12 +299,10 @@
                                     </div>
                                 </td>
                             </tr>
-
                         </tbody>
                     </table>
                 </div>
             </div>
-
             <div class="card-footer bg-white border-top py-3">
                 <small class="text-muted">Menampilkan semua data</small>
             </div>
@@ -289,94 +310,100 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <script>
-        // Inisialisasi tooltip Bootstrap
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
         var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
 
-        // Fungsi pencarian
+        function updateTableStatus(userId, isOnline) {
+            const badge = document.getElementById(`status-badge-${userId}`);
+            if (badge) {
+                const dot = badge.querySelector('span');
+                const text = badge.querySelector('.status-text');
+
+                if (isOnline) {
+                    badge.classList.remove('badge-offline');
+                    badge.classList.add('badge-online');
+                    dot.classList.remove('dot-offline');
+                    dot.classList.add('dot-online');
+                    text.innerText = 'Online';
+                } else {
+                    badge.classList.remove('badge-online');
+                    badge.classList.add('badge-offline');
+                    dot.classList.remove('dot-online');
+                    dot.classList.add('dot-offline');
+                    text.innerText = 'Offline';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof Echo !== "undefined") {
+                window.Echo.join('presence-chat')
+                    .listen('.user.status', (e) => {
+                        console.log("Admin Psikolog: Status Update", e);
+                        if (e && e.userId) {
+                            updateTableStatus(e.userId, e.status == 1);
+                        }
+                    })
+                    .here((users) => {
+                        users.forEach(user => {
+                            const uid = user.user_id || user.id;
+                            updateTableStatus(uid, true);
+                        });
+                    });
+            }
+        });
+
         document.getElementById('searchInput').addEventListener('keyup', function() {
             let filter = this.value.toLowerCase();
             let rows = document.querySelectorAll('.data-row');
             let hasResult = false;
-            
-            // Hitung jumlah hasil yang ditemukan
             let visibleCount = 0;
 
             rows.forEach(row => {
                 let name = row.querySelector('.user-name').innerText.toLowerCase();
                 let email = row.querySelector('.user-email').innerText.toLowerCase();
-
                 if (name.includes(filter) || email.includes(filter)) {
                     row.style.display = '';
                     hasResult = true;
                     visibleCount++;
-                    
-                    // Update nomor urut
                     let numberCell = row.querySelector('.loop-number');
-                    if (numberCell) {
-                        numberCell.innerText = visibleCount;
-                    }
+                    if (numberCell) numberCell.innerText = visibleCount;
                 } else {
                     row.style.display = 'none';
                 }
             });
 
-            // Update total count yang ditampilkan
             document.getElementById('totalCount').innerText = visibleCount;
-
-            // Tampilkan/sembunyikan pesan "Tidak Ditemukan"
             let noSearchFound = document.getElementById('noSearchFound');
             let noDataRow = document.getElementById('noDataRow');
-            
-            // Sembunyikan noDataRow jika ada pencarian
-            if (noDataRow && filter.length > 0) {
-                noDataRow.style.display = 'none';
-            }
-            
+
+            if (noDataRow && filter.length > 0) noDataRow.style.display = 'none';
+
             if (filter.length === 0) {
-                // Jika tidak ada filter, kembalikan semua ke kondisi awal
                 noSearchFound.style.display = 'none';
-                if (noDataRow) {
-                    noDataRow.style.display = '';
-                }
-                
-                // Reset nomor urut
+                if (noDataRow) noDataRow.style.display = '';
                 rows.forEach((row, index) => {
                     row.style.display = '';
                     let numberCell = row.querySelector('.loop-number');
-                    if (numberCell) {
-                        numberCell.innerText = index + 1;
-                    }
+                    if (numberCell) numberCell.innerText = index + 1;
                 });
-                
-                // Reset total count
                 document.getElementById('totalCount').innerText = rows.length;
             } else {
-                // Jika ada filter
-                if (hasResult) {
-                    noSearchFound.style.display = 'none';
-                } else {
-                    noSearchFound.style.display = '';
-                }
-                
-                if (noDataRow) {
-                    noDataRow.style.display = 'none';
-                }
+                noSearchFound.style.display = hasResult ? 'none' : '';
+                if (noDataRow) noDataRow.style.display = 'none';
             }
         });
 
-        // Fungsi konfirmasi hapus
         function confirmDelete(event) {
             event.preventDefault();
             const form = event.target;
-
             Swal.fire({
                 title: 'Apakah Anda yakin?',
-                text: "Data akun psikolog ini akan dihapus sementara dan masuk ke Tong Sampah!",
+                text: "Data akun psikolog ini akan dihapus sementara!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#d33',
@@ -384,9 +411,7 @@
                 confirmButtonText: 'Ya, Hapus!',
                 cancelButtonText: 'Batal'
             }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
+                if (result.isConfirmed) form.submit();
             });
         }
     </script>

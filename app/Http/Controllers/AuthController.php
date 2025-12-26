@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Models\Korban;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Events\UserStatusChanged;
 
 class AuthController extends Controller
 {
@@ -90,6 +91,9 @@ class AuthController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
             $user->update(['active_status' => 1]);
+
+            broadcast(new UserStatusChanged($user->user_id, 1));
+
             $user->load('role');
             $roleName = $user->role?->name ?? 'user';
 
@@ -131,7 +135,10 @@ class AuthController extends Controller
     {
         if (Auth::guard('web')->check()) {
             $user = Auth::guard('web')->user();
+
             $user->update(['active_status' => 0]);
+
+            broadcast(new UserStatusChanged($user->user_id, 0));
         }
 
         Auth::guard('web')->logout();
