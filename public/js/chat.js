@@ -1,560 +1,338 @@
-// chat.js - Konsultasi Chat Management
+document.addEventListener("DOMContentLoaded", function () {
+    const chatBox = document.getElementById("messages");
+    const form = document.getElementById("messageForm");
+    const sendBtn = document.getElementById("sendBtn");
+    const messageInput = document.getElementById("messageInput");
+    const toastContainer = document.getElementById("toastContainer");
+    const soundToggle = document.getElementById("soundToggle");
+    const patientList = document.getElementById("patientList");
+    const searchInput = document.getElementById("searchPatient");
 
-// DOM Elements
-const chatUsers = document.querySelectorAll(".chat-user-item");
-const messagesDiv = document.getElementById("messages");
-const messageInput = document.getElementById("messageInput");
-const sendBtn = document.getElementById("sendBtn");
-const messageForm = document.getElementById("messageForm");
-const emptyState = document.getElementById("emptyState");
-const chatHeader = document.getElementById("chatHeader");
-const chatUsername = document.getElementById("chatUsername");
-const chatAvatar = document.getElementById("chatAvatar");
-const searchInput = document.getElementById("searchPatient");
-const toastContainer = document.getElementById("toastContainer");
-const soundToggle = document.getElementById("soundToggle");
+    const chatHeader = document.getElementById("chatHeader");
+    const chatUsername = document.getElementById("chatUsername");
+    const chatAvatar = document.getElementById("chatAvatar");
+    const chatUserStatus = document.getElementById("chatUserStatus");
+    const emptyState = document.getElementById("emptyState");
 
-// State Variables
-let activeUserId = null;
-let globalPollInterval = null;
-let activeChatPollInterval = null;
-let lastMessageCount = 0;
-let isAtBottom = true;
-let notificationSound = true;
-let lastMessageIds = new Set();
-let globalLastMessageIds = new Set();
+    const psikologId = document.body.dataset.psikologId;
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
-// Get psikolog ID from data attribute
-const psikologId =
-    document.body.dataset.psikologId ||
-    document.querySelector("[data-psikolog-id]")?.dataset.psikologId;
-const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+    let activeUserId = null;
+    let notificationSound = true;
 
-// Create notification sound
-const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
-/**
- * Play notification sound
- */
-function playNotificationSound() {
-    if (!notificationSound) return;
+    function playNotificationSound() {
+        if (!notificationSound) return;
+        if (audioContext.state === "suspended") audioContext.resume();
 
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
+        const o = audioContext.createOscillator();
+        const g = audioContext.createGain();
+        o.connect(g);
+        g.connect(audioContext.destination);
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
+        o.frequency.value = 1000;
+        g.gain.setValueAtTime(0.1, audioContext.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
 
-    oscillator.frequency.value = 800;
-    oscillator.type = "sine";
-
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(
-        0.01,
-        audioContext.currentTime + 0.3
-    );
-
-    oscillator.start(audioContext.currentTime);
-    oscillator.stop(audioContext.currentTime + 0.3);
-}
-
-/**
- * Toggle notification sound on/off
- */
-function initSoundToggle() {
-    soundToggle.addEventListener("click", function () {
-        notificationSound = !notificationSound;
-        const icon = this.querySelector("i");
-
-        if (notificationSound) {
-            icon.className = "bi bi-bell-fill text-success";
-            showToast("Notifikasi suara diaktifkan", null, "success");
-        } else {
-            icon.className = "bi bi-bell-slash-fill text-muted";
-            showToast("Notifikasi suara dinonaktifkan", null, "info");
-        }
-    });
-}
-
-/**
- * Request notification permission
- */
-function requestNotificationPermission() {
-    if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
+        o.start();
+        o.stop(audioContext.currentTime + 0.5);
     }
-}
 
-/**
- * Show toast notification
- */
-function showToast(message, userName = null, type = "info") {
-    const toast = document.createElement("div");
-    toast.className = "toast-notification";
+    document.body.addEventListener("click", () => {
+        if (audioContext.state === "suspended") audioContext.resume();
+    }, { once: true });
 
-    const bgColor =
-        type === "success"
-            ? "#d4edda"
-            : type === "info"
-            ? "#d1ecf1"
-            : "#fff3cd";
-    const iconColor =
-        type === "success"
-            ? "#155724"
-            : type === "info"
-            ? "#0c5460"
-            : "#856404";
-    const icon =
-        type === "success"
-            ? "check-circle-fill"
-            : type === "info"
-            ? "info-circle-fill"
-            : "chat-dots-fill";
-
-    toast.innerHTML = `
-        <div class="d-flex align-items-center p-3 border-start border-4" style="border-color: ${iconColor} !important; background-color: ${bgColor};">
-            <i class="bi bi-${icon} me-3" style="font-size: 1.5rem; color: ${iconColor};"></i>
-            <div class="flex-grow-1">
-                ${
-                    userName
-                        ? `<strong class="d-block">${userName}</strong>`
-                        : ""
-                }
-                <span class="small">${message}</span>
-            </div>
-            <button class="btn-close btn-sm ms-2" onclick="this.closest('.toast-notification').remove()"></button>
-        </div>
-    `;
-
-    toastContainer.appendChild(toast);
-
-    setTimeout(() => {
-        toast.classList.add("hiding");
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
-}
-
-/**
- * Show browser notification
- */
-function showBrowserNotification(userName, message) {
-    if ("Notification" in window && Notification.permission === "granted") {
-        const notification = new Notification(`Pesan Baru dari ${userName}`, {
-            body: message,
-            icon: "/path-to-icon.png",
-            badge: "/path-to-badge.png",
-            tag: "chat-notification",
-            renotify: true,
-        });
-
-        notification.onclick = function () {
-            window.focus();
-            notification.close();
-        };
-    }
-}
-
-/**
- * Initialize search patient functionality
- */
-function initSearchPatient() {
-    searchInput.addEventListener("input", function () {
-        const searchTerm = this.value.toLowerCase();
-        chatUsers.forEach((user) => {
-            const userName = user.dataset.userName.toLowerCase();
-            if (userName.includes(searchTerm)) {
-                user.style.display = "block";
+    if (soundToggle) {
+        soundToggle.addEventListener("click", () => {
+            notificationSound = !notificationSound;
+            const icon = soundToggle.querySelector("i");
+            if (notificationSound) {
+                icon.className = "bi bi-bell-fill text-success fs-5";
+                playNotificationSound();
             } else {
-                user.style.display = "none";
+                icon.className = "bi bi-bell-slash-fill text-muted fs-5";
             }
         });
-    });
-}
+    }
 
-/**
- * Check if user is at bottom of chat
- */
-function initScrollDetection() {
-    messagesDiv.addEventListener("scroll", function () {
-        const threshold = 50;
-        isAtBottom =
-            messagesDiv.scrollHeight -
-                messagesDiv.scrollTop -
-                messagesDiv.clientHeight <
-            threshold;
-    });
-}
-
-/**
- * Render single message
- */
-function renderMessage(msg, isNew = false) {
-    const isMe = msg.sender_id == psikologId;
-
-    const messageWrapper = document.createElement("div");
-    messageWrapper.className = `d-flex mb-3 ${
-        isMe ? "justify-content-end" : "justify-content-start"
-    }`;
-    messageWrapper.dataset.messageId = msg.id;
-
-    const messageBubble = document.createElement("div");
-    messageBubble.className = `message-bubble rounded-3 px-3 py-2 shadow-sm ${
-        isMe ? "text-white" : "bg-white"
-    } ${isNew ? "new-message" : ""}`;
-    messageBubble.style.backgroundColor = isMe ? "#006A4E" : "#ffffff";
-
-    const messageText = document.createElement("p");
-    messageText.className = "mb-1";
-    messageText.textContent = msg.message;
-
-    const messageTime = document.createElement("small");
-    messageTime.className = isMe ? "text-white-50" : "text-muted";
-    messageTime.style.fontSize = "11px";
-    messageTime.textContent = new Date(msg.created_at).toLocaleTimeString(
-        "id-ID",
-        {
-            hour: "2-digit",
-            minute: "2-digit",
-        }
-    );
-
-    messageBubble.appendChild(messageText);
-    messageBubble.appendChild(messageTime);
-    messageWrapper.appendChild(messageBubble);
-
-    return messageWrapper;
-}
-
-/**
- * Refresh chat with new messages
- */
-function refreshChat(data) {
-    emptyState.style.display = "none";
-
-    if (!data.messages || data.messages.length === 0) {
-        if (messagesDiv.children.length <= 1) {
-            messagesDiv.innerHTML = `
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-chat-left-dots display-4 d-block mb-3"></i>
-                    <p>Belum ada pesan. Mulai percakapan!</p>
+    function showToast(title, message) {
+        const toast = document.createElement("div");
+        toast.className = "toast-notification";
+        toast.innerHTML = `
+            <div class="d-flex align-items-center gap-2">
+                <div class="bg-success rounded-circle p-2 text-white d-flex align-items-center justify-content-center" style="width:32px;height:32px">
+                    <i class="bi bi-chat-dots-fill" style="font-size:0.8rem"></i>
                 </div>
-            `;
+                <div class="overflow-hidden">
+                    <strong class="d-block text-dark text-truncate" style="font-size:0.9rem">${title}</strong>
+                    <small class="text-muted text-truncate d-block" style="max-width: 250px;">${message}</small>
+                </div>
+            </div>
+        `;
+        toastContainer.appendChild(toast);
+
+        setTimeout(() => {
+            toast.style.transform = "translateX(0)";
+            toast.style.opacity = "1";
+        }, 10);
+        setTimeout(() => {
+            toast.style.opacity = "0";
+            toast.style.transform = "translateX(100%)";
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    function scrollToBottom() {
+        if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function appendMessageToDOM(msg, type) {
+        if (!chatBox) return;
+        if (emptyState) emptyState.style.display = "none";
+
+        const isMe = type === "outgoing";
+        const time = new Date(msg.created_at || new Date()).toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+
+        let readIcon = "";
+        if (isMe) {
+            const statusClass = msg.is_read == 1 || msg.is_read === true ? "read" : "unread";
+            const msgId = msg.id || Date.now();
+            readIcon = `<i class="bi bi-check-all read-icon ${statusClass}" id="msg-check-${msgId}"></i>`;
         }
-        return;
-    }
 
-    if (data.messages.length === lastMessageCount) {
-        return;
-    }
-
-    const existingMessageIds = Array.from(
-        messagesDiv.querySelectorAll("[data-message-id]")
-    ).map((el) => el.dataset.messageId);
-
-    let hasNewIncomingMessage = false;
-    let newMessageInfo = null;
-
-    data.messages.forEach((msg) => {
-        if (!existingMessageIds.includes(msg.id.toString())) {
-            const messageElement = renderMessage(msg, true);
-            messagesDiv.appendChild(messageElement);
-
-            // Check if this is an incoming message (not from psikolog)
-            if (
-                msg.sender_id != psikologId &&
-                !lastMessageIds.has(msg.id.toString())
-            ) {
-                hasNewIncomingMessage = true;
-                newMessageInfo = {
-                    userName: data.userName || chatUsername.textContent,
-                    message: msg.message,
-                };
-            }
-
-            lastMessageIds.add(msg.id.toString());
-        }
-    });
-
-    // Show notification for new incoming messages
-    if (hasNewIncomingMessage && newMessageInfo) {
-        playNotificationSound();
-        showToast(newMessageInfo.message, newMessageInfo.userName, "warning");
-        showBrowserNotification(
-            newMessageInfo.userName,
-            newMessageInfo.message
-        );
-    }
-
-    lastMessageCount = data.messages.length;
-
-    if (isAtBottom) {
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }
-}
-
-/**
- * Load initial chat
- */
-function loadChat(userId) {
-    fetch(`/psikolog/chat/${userId}`)
-        .then((r) => r.json())
-        .then((data) => {
-            messagesDiv.innerHTML = "";
-            emptyState.style.display = "none";
-            lastMessageIds.clear();
-
-            if (!data.messages || data.messages.length === 0) {
-                messagesDiv.innerHTML = `
-                    <div class="text-center text-muted py-5">
-                        <i class="bi bi-chat-left-dots display-4 d-block mb-3"></i>
-                        <p>Belum ada pesan. Mulai percakapan!</p>
+        const html = `
+            <div class="d-flex mb-3 ${isMe ? "justify-content-end" : "justify-content-start"}">
+                <div class="message-bubble rounded-3 px-3 py-2 shadow-sm ${isMe ? "chat-me text-white" : "bg-white border text-dark"}">
+                    <div class="message-text">${msg.message}</div>
+                    <div class="d-flex justify-content-end align-items-center mt-1 gap-1">
+                        <small class="${isMe ? "text-white-50" : "text-muted"}" style="font-size: 0.65rem;">${time}</small>
+                        ${readIcon}
                     </div>
-                `;
-                lastMessageCount = 0;
-            } else {
-                data.messages.forEach((msg) => {
-                    const messageElement = renderMessage(msg, false);
-                    messagesDiv.appendChild(messageElement);
-                    lastMessageIds.add(msg.id.toString());
-                });
-                lastMessageCount = data.messages.length;
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-            }
-        })
-        .catch((err) => console.error("Error loading chat:", err));
-}
+                </div>
+            </div>`;
 
-/**
- * Initialize chat user click handlers
- */
-function initChatUserHandlers() {
-    chatUsers.forEach((user) => {
-        user.addEventListener("click", function () {
-            chatUsers.forEach((u) => u.classList.remove("active"));
-            this.classList.add("active");
+        chatBox.insertAdjacentHTML("beforeend", html);
+        scrollToBottom();
+    }
 
-            activeUserId = this.dataset.userId;
-            const userName = this.dataset.userName;
+    function updateSidebarPreview(userId, message, isOutgoing) {
+        const item = document.querySelector(`.chat-user-item[data-user-id="${userId}"]`);
+        if (item) {
+            const preview = item.querySelector(".last-message-preview");
+            const timeEl = item.querySelector(".last-message-time");
+            const badge = item.querySelector(".unread-count");
 
-            chatHeader.style.display = "block";
-            chatUsername.textContent = userName;
-            chatAvatar.textContent = userName.charAt(0).toUpperCase();
+            if (preview) {
+                const icon = isOutgoing ? `<i id="sidebar-check-${userId}" class="bi bi-check-all me-1"></i> ` : "";
+                preview.innerHTML = icon + message;
 
-            messageInput.disabled = false;
-            sendBtn.disabled = false;
-            messageInput.focus();
-
-            // Remove unread badge when opening chat
-            const unreadBadge = this.querySelector(".unread-badge");
-            if (unreadBadge) {
-                unreadBadge.style.display = "none";
-            }
-
-            loadChat(activeUserId);
-
-            // Clear previous active chat polling
-            if (activeChatPollInterval) clearInterval(activeChatPollInterval);
-
-            // Start polling for active chat (faster refresh)
-            activeChatPollInterval = setInterval(() => {
-                if (activeUserId) {
-                    fetch(`/psikolog/chat/${activeUserId}`)
-                        .then((r) => r.json())
-                        .then((data) => refreshChat(data))
-                        .catch((err) =>
-                            console.error("Error polling active chat:", err)
-                        );
+                if (!isOutgoing && userId != activeUserId) {
+                    preview.classList.add("fw-bold", "text-dark");
+                    preview.classList.remove("text-muted");
+                } else {
+                    preview.classList.remove("fw-bold", "text-dark");
+                    preview.classList.add("text-muted");
                 }
-            }, 3000);
-        });
-    });
-}
+            }
 
-/**
- * Initialize message form
- */
-function initMessageForm() {
-    messageForm.addEventListener("submit", function (e) {
-        e.preventDefault();
+            if (timeEl) {
+                const now = new Date();
+                timeEl.innerText = now.getHours() + ":" + String(now.getMinutes()).padStart(2, "0");
+            }
 
-        const text = messageInput.value.trim();
-        if (!text || !activeUserId) return;
+            if (!isOutgoing && userId != activeUserId && badge) {
+                let count = parseInt(badge.innerText || 0) + 1;
+                badge.innerText = count;
+                badge.style.display = "inline-block";
+            }
 
-        sendBtn.disabled = true;
+            if (patientList) patientList.prepend(item);
+        }
+    }
 
-        fetch("/psikolog/chat/send", {
+    function markMessagesAsRead(senderId) {
+        fetch("/psikolog/chat/mark-read", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRF-TOKEN": csrfToken,
             },
-            body: JSON.stringify({
-                receiver_id: activeUserId,
-                message: text,
-            }),
-        })
+            body: JSON.stringify({ sender_id: senderId }),
+        }).catch(console.error);
+    }
+
+    function loadChatHistory(userId) {
+        chatBox.innerHTML = '<div class="text-center py-5 text-muted"><div class="spinner-border spinner-border-sm" role="status"></div> Memuat...</div>';
+
+        fetch(`/psikolog/chat/get/${userId}`)
             .then((r) => r.json())
             .then((data) => {
-                messageInput.value = "";
-                sendBtn.disabled = false;
-                messageInput.focus();
-                loadChat(activeUserId);
-            })
-            .catch((err) => {
-                console.error("Error sending message:", err);
-                sendBtn.disabled = false;
-                alert("Gagal mengirim pesan. Coba lagi.");
-            });
-    });
-}
-
-/**
- * Check all patients for new messages
- */
-function checkAllPatientsForNewMessages() {
-    const allUserIds = Array.from(chatUsers).map((user) => user.dataset.userId);
-
-    allUserIds.forEach((userId) => {
-        fetch(`/psikolog/chat/${userId}`)
-            .then((r) => r.json())
-            .then((data) => {
-                if (!data.messages || data.messages.length === 0) return;
-
-                // Check for new incoming messages from this patient
-                data.messages.forEach((msg) => {
-                    const messageId = msg.id.toString();
-
-                    // If message is new and from patient (not from psikolog)
-                    if (
-                        !globalLastMessageIds.has(messageId) &&
-                        msg.sender_id != psikologId
-                    ) {
-                        // Show notification only if not currently viewing this chat
-                        if (userId !== activeUserId) {
-                            const userName =
-                                data.userName ||
-                                Array.from(chatUsers).find(
-                                    (u) => u.dataset.userId === userId
-                                )?.dataset.userName ||
-                                "Pasien";
-                            playNotificationSound();
-                            showToast(msg.message, userName, "warning");
-                            showBrowserNotification(userName, msg.message);
-
-                            // Add unread indicator to patient list item
-                            const patientItem = document.querySelector(
-                                `[data-user-id="${userId}"]`
-                            );
-                            if (patientItem) {
-                                const unreadBadge =
-                                    patientItem.querySelector(".unread-badge");
-                                if (unreadBadge) {
-                                    unreadBadge.style.display = "block";
-                                }
-                            }
-                        }
-                    }
-
-                    globalLastMessageIds.add(messageId);
-                });
-            })
-            .catch((err) =>
-                console.error("Error checking patient messages:", err)
-            );
-    });
-}
-
-/**
- * Initialize global message tracking
- */
-function initializeGlobalMessageTracking() {
-    const allUserIds = Array.from(chatUsers).map((user) => user.dataset.userId);
-
-    let completedRequests = 0;
-    const totalRequests = allUserIds.length;
-
-    allUserIds.forEach((userId) => {
-        fetch(`/psikolog/chat/${userId}`)
-            .then((r) => r.json())
-            .then((data) => {
-                if (data.messages) {
+                chatBox.innerHTML = "";
+                if (data.messages.length === 0) {
+                    if (emptyState) emptyState.style.display = "flex";
+                } else {
+                    if (emptyState) emptyState.style.display = "none";
                     data.messages.forEach((msg) => {
-                        globalLastMessageIds.add(msg.id.toString());
+                        const type = msg.sender_id == psikologId ? "outgoing" : "incoming";
+                        appendMessageToDOM(msg, type);
                     });
                 }
-                completedRequests++;
-
-                // Start global polling after all initial data is loaded
-                if (completedRequests === totalRequests) {
-                    console.log("✅ Global message tracking initialized");
-                    // Start global polling (slower refresh for all patients)
-                    globalPollInterval = setInterval(
-                        checkAllPatientsForNewMessages,
-                        5000
-                    );
-                }
+                markMessagesAsRead(userId);
             })
-            .catch((err) => {
-                console.error("Error initializing:", err);
-                completedRequests++;
+            .catch(() => (chatBox.innerHTML = '<div class="text-center text-danger">Gagal memuat pesan.</div>'));
+    }
 
-                // Still start polling even if some requests fail
-                if (completedRequests === totalRequests) {
-                    globalPollInterval = setInterval(
-                        checkAllPatientsForNewMessages,
-                        5000
-                    );
+    if (patientList) {
+        patientList.addEventListener("click", function (e) {
+            const item = e.target.closest(".chat-user-item");
+            if (!item) return;
+
+            document.querySelectorAll(".chat-user-item").forEach((i) => i.classList.remove("active"));
+            item.classList.add("active");
+
+            activeUserId = item.dataset.userId;
+            const userName = item.dataset.userName;
+            const isOnline = item.dataset.userStatus == "1";
+
+            const badge = item.querySelector(".unread-count");
+            if (badge) {
+                badge.innerText = "";
+                badge.style.display = "none";
+            }
+            const preview = item.querySelector(".last-message-preview");
+            if (preview) {
+                preview.classList.remove("fw-bold", "text-dark");
+                preview.classList.add("text-muted");
+            }
+
+            if (chatHeader) chatHeader.style.display = "flex";
+            if (chatUsername) chatUsername.innerText = userName;
+            if (chatAvatar) chatAvatar.innerText = userName.charAt(0).toUpperCase();
+            if (chatUserStatus) {
+                chatUserStatus.innerHTML = isOnline
+                    ? '<i class="bi bi-circle-fill text-success" style="font-size: 6px;"></i> Online'
+                    : '<i class="bi bi-circle-fill text-secondary" style="font-size: 6px;"></i> Offline';
+            }
+
+            if (messageInput) {
+                messageInput.disabled = false;
+                messageInput.focus();
+            }
+            if (sendBtn) sendBtn.disabled = false;
+
+            loadChatHistory(activeUserId);
+        });
+    }
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const text = messageInput.value.trim();
+            if (!text || !activeUserId) return;
+
+            const tempId = Date.now();
+            const tempMsg = {
+                id: tempId,
+                message: text,
+                created_at: new Date(),
+                sender_id: psikologId,
+                is_read: 0,
+            };
+
+            appendMessageToDOM(tempMsg, "outgoing");
+            updateSidebarPreview(activeUserId, text, true);
+            messageInput.value = "";
+
+            fetch("/psikolog/chat/send", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken,
+                },
+                body: JSON.stringify({
+                    receiver_id: activeUserId,
+                    message: text,
+                }),
+            })
+                .then((r) => r.json())
+                .then((data) => {
+                    const icon = document.getElementById(`msg-check-${tempId}`);
+                    if (icon) icon.id = `msg-check-${data.id}`;
+                });
+        });
+    }
+
+    if (searchInput) {
+        searchInput.addEventListener("input", function () {
+            const term = this.value.toLowerCase();
+            document.querySelectorAll(".chat-user-item").forEach((item) => {
+                const name = item.dataset.userName.toLowerCase();
+                item.style.display = name.includes(term) ? "block" : "none";
+            });
+        });
+    }
+
+    if (typeof Echo !== "undefined") {
+        window.Echo.private(`chat.user.${psikologId}`)
+            .listen(".message.sent", (e) => {
+                const senderId = e.chat.sender_id;
+
+                if (activeUserId && senderId == activeUserId) {
+                    appendMessageToDOM(e.chat, "incoming");
+                    markMessagesAsRead(senderId);
+                } else {
+                    playNotificationSound();
+                    const item = document.querySelector(`.chat-user-item[data-user-id="${senderId}"]`);
+                    const name = item ? item.dataset.userName : "Pasien";
+                    showToast(name, e.chat.message);
+                }
+                updateSidebarPreview(senderId, e.chat.message, false);
+            })
+            .listen(".message.read", (e) => {
+                if (activeUserId == e.sender_id) {
+                    document.querySelectorAll(".read-icon.unread").forEach((icon) => {
+                        icon.classList.remove("unread");
+                        icon.classList.add("read");
+                    });
+                }
+
+                const sidebarIcon = document.getElementById(`sidebar-check-${e.sender_id}`);
+                if (sidebarIcon) {
+                    sidebarIcon.classList.add("text-primary");
                 }
             });
-    });
-}
 
-/**
- * Cleanup on page unload
- */
-function cleanupOnUnload() {
-    window.addEventListener("beforeunload", function () {
-        if (globalPollInterval) clearInterval(globalPollInterval);
-        if (activeChatPollInterval) clearInterval(activeChatPollInterval);
-    });
-}
+        window.Echo.join("presence-chat")
+            .listen(".user.status", (e) => {
+                const item = document.querySelector(`.chat-user-item[data-user-id="${e.userId}"]`);
+                if (item) {
+                    item.dataset.userStatus = e.status;
+                    const dot = document.getElementById(`status-dot-${e.userId}`);
+                    if (dot) e.status == 1 ? dot.classList.add("online") : dot.classList.remove("online");
 
-/**
- * Initialize all chat functionality
- */
-function initChat() {
-    if (!psikologId) {
-        console.error("❌ Psikolog ID not found");
-        return;
+                    if (activeUserId == e.userId && chatUserStatus) {
+                        chatUserStatus.innerHTML = e.status == 1
+                            ? '<i class="bi bi-circle-fill text-success" style="font-size: 6px;"></i> Online'
+                            : '<i class="bi bi-circle-fill text-secondary" style="font-size: 6px;"></i> Offline';
+                    }
+                }
+            })
+            .here((users) => {
+                users.forEach((u) => {
+                    const dot = document.getElementById(`status-dot-${u.id}`);
+                    if (dot) dot.classList.add("online");
+                    const item = document.querySelector(`.chat-user-item[data-user-id="${u.id}"]`);
+                    if (item) item.dataset.userStatus = "1";
+                });
+            })
+            .joining((u) => {
+                const dot = document.getElementById(`status-dot-${u.id}`);
+                if (dot) dot.classList.add("online");
+            })
+            .leaving((u) => {
+                const dot = document.getElementById(`status-dot-${u.id}`);
+                if (dot) dot.classList.remove("online");
+            });
     }
-
-    if (!csrfToken) {
-        console.error("❌ CSRF Token not found");
-        return;
-    }
-
-    // Initialize all components
-    requestNotificationPermission();
-    initSoundToggle();
-    initSearchPatient();
-    initScrollDetection();
-    initChatUserHandlers();
-    initMessageForm();
-    cleanupOnUnload();
-
-    // Initialize global message tracking if there are patients
-    if (chatUsers.length > 0) {
-        initializeGlobalMessageTracking();
-    } else {
-        console.log("⚠️ No patients found");
-    }
-
-    console.log("✅ Chat initialized");
-}
-
-// Initialize when DOM is ready
-if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initChat);
-} else {
-    initChat();
-}
+});
