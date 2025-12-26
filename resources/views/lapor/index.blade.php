@@ -257,7 +257,10 @@
 
     <script>
         const currentUserRoleId = "{{ Auth::user()->role_id }}";
-        const currentUserId = "{{ Auth::user()->id }}";
+        const currentUserId = "{{ Auth::id() }}";
+        const currentUserName = "{{ Auth::user()->name }}";
+
+        console.log("System Ready. Logged as User ID:", currentUserId, "Role:", currentUserRoleId);
 
         window.Pusher = Pusher;
         window.Echo = new Echo({
@@ -273,8 +276,8 @@
         const channel = window.Echo.channel('laporan-channel');
 
         channel.listen('.laporan.masuk', (e) => {
-            if (currentUserRoleId == '2') return;
-            if (currentUserRoleId == '3' && String(e.laporan.user_id) !== String(currentUserId)) return;
+            if (currentUserRoleId == '2') return; 
+            if (currentUserRoleId == '3' && String(e.laporan.user_id) !== currentUserId) return; 
 
             playNotificationSound();
             showMinimalistToast('Laporan Baru Masuk!');
@@ -284,22 +287,37 @@
         });
 
         channel.listen('.laporan.ditugaskan', (e) => {
+            console.log("EVENT ASSIGN DITERIMA:", e);
             let laporan = e.laporan;
 
-            if (currentUserRoleId == '2' && laporan.psikolog) {
+            if (currentUserRoleId == '1') {
+                playNotificationSound();
+                addNewRow(laporan);
+                updateNumbers();
+            }
+
+            else if (currentUserRoleId == '2' && laporan.psikolog) {
                 let assignedUserId = String(laporan.psikolog.user_id);
-                if (assignedUserId === String(currentUserId)) {
+
+                console.log(`Cek Tugas: Ditugaskan ke ${assignedUserId}, Saya ${currentUserId}`);
+
+                if (assignedUserId == currentUserId) {
+                    console.log("MATCH! Menampilkan notifikasi...");
                     playNotificationSound();
                     showMinimalistToast('Tugas Laporan Baru!');
                     addNewRow(laporan);
                     updateCounter(1);
                     updateNumbers();
+                } else {
+                    console.warn("Bukan tugas saya, skip update.");
                 }
             }
         });
 
         channel.listen('.laporan.dibatalkan', (e) => {
+            console.log("EVENT UNASSIGN:", e);
             let laporan = e.laporan;
+
             let row = document.getElementById(`row-${laporan.id}`);
             if (!row) {
                 let link = document.querySelector(`a[href*="/lapor/${laporan.id}"]`);
@@ -307,6 +325,9 @@
             }
 
             if (row) {
+                if (currentUserRoleId == '1') {
+                    addNewRow(laporan);
+                }
                 if (currentUserRoleId == '2') {
                     playNotificationSound();
                     showMinimalistToast('Tugas Dibatalkan Admin');
@@ -365,10 +386,12 @@
         }
 
         function addNewRow(data) {
-            let noDataRow = document.getElementById('noDataRow');
-            if (noDataRow) noDataRow.remove();
-            let existingRow = document.getElementById(`row-${data.id}`);
-            if (existingRow) existingRow.remove();
+            console.log("Rendering Row Data:", data);
+
+            let oldRow = document.getElementById(`row-${data.id}`);
+            if (oldRow) oldRow.remove();
+            let noData = document.getElementById('noDataRow');
+            if (noData) noData.remove();
 
             let dateObj = new Date(data.tanggal);
             let dateStr = dateObj.toLocaleDateString('id-ID', {
@@ -377,8 +400,9 @@
                 year: 'numeric'
             });
 
-            let namaPelapor = data.korban ? data.korban.name : 'Anonim';
+            let namaPelapor = data.korban?.name || 'Mahasiswa';
             let profileContent = '';
+
             let avatarPath = data.korban?.avatar;
             let fotoKorbanPath = data.korban?.korban?.foto;
 
@@ -403,8 +427,12 @@
             if (data.psikolog) {
                 if (data.psikolog.user && data.psikolog.user.name) {
                     psikologName = `<div class="text-dark fw-medium small">${data.psikolog.user.name}</div>`;
-                } else {
-                    psikologName = `<div class="text-dark fw-medium small text-primary">Assigned (ID: ${data.psikolog.id_psikolog})</div>`;
+                }
+                else if (String(data.psikolog.user_id) == currentUserId) {
+                    psikologName = `<div class="text-dark fw-medium small fw-bold text-success">${currentUserName} (Anda)</div>`;
+                }
+                else {
+                    psikologName = `<div class="text-dark fw-medium small text-primary">Psikolog #${data.psikolog.id_psikolog}</div>`;
                 }
             }
 
@@ -439,26 +467,10 @@
         document.getElementById('searchInput').addEventListener('keyup', function() {
             let filter = this.value.toLowerCase();
             let rows = document.querySelectorAll('.data-row');
-            let hasResult = false;
             rows.forEach(row => {
-                let pelapor = row.querySelector('.search-pelapor') ? row.querySelector('.search-pelapor').innerText.toLowerCase() : '';
-                let jenis = row.querySelector('.search-jenis').innerText.toLowerCase();
-                if (pelapor.includes(filter) || jenis.includes(filter)) {
-                    row.style.display = '';
-                    hasResult = true;
-                } else {
-                    row.style.display = 'none';
-                }
+                let text = row.innerText.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
             });
-            let noDataRow = document.getElementById('noDataRow');
-            let noSearchFound = document.getElementById('noSearchFound');
-            if (!noDataRow) {
-                if (hasResult) {
-                    if (noSearchFound) noSearchFound.style.display = 'none';
-                } else {
-                    if (noSearchFound) noSearchFound.style.display = '';
-                }
-            }
         });
 
         const initTooltips = () => {

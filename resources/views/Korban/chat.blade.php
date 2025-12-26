@@ -13,7 +13,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="icon" href="{{ asset('images/WeCare.jpeg') }}" type="image/png">
 
-
     <style>
         :root {
             --primary: #059669;
@@ -393,7 +392,7 @@
             <div class="message-row {{ $msg->sender_id == Auth::id() ? 'me' : 'other' }}">
                 <div class="chat-bubble {{ $msg->sender_id == Auth::id() ? 'me' : 'other' }}">
                     <div class="message-text">
-                        {{ $msg.message }}
+                        {{ $msg->message }}
                     </div>
                     <div class="meta-info">
                         <span class="time">{{ $msg->created_at->format('H:i') }}</span>

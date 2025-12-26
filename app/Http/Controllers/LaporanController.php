@@ -208,14 +208,6 @@ class LaporanController extends Controller
 
     public function assign(Request $request, Laporan $laporan)
     {
-        Log::info('Request data:', $request->all());
-        if (Auth::user()->role_id != 1) {
-            abort(403, 'Akses Ditolak');
-        }
-
-        $request->validate([
-            'id_psikolog' => 'nullable|exists:psikolog,id_psikolog',
-        ]);
 
         $psikologId = $request->id_psikolog;
 
@@ -223,16 +215,12 @@ class LaporanController extends Controller
             $laporan->assigned_psikolog_id = $psikologId;
             $laporan->assigned_at = now();
             $laporan->status = 'proses';
-        } else {
-            $laporan->assigned_psikolog_id = null;
-            $laporan->assigned_at = null;
-            $laporan->status = 'pending';
         }
 
         $laporan->save();
 
         if ($psikologId) {
-            $laporan->load(['korban', 'psikolog']);
+            $laporan->load(['korban', 'psikolog.user']);
 
             event(new LaporanDitugaskan($laporan));
         }
