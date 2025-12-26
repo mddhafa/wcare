@@ -1,606 +1,575 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daftar Psikolog</title>
+    <title>Konsultasi Saya</title>
 
-    <!-- Fonts: Poppins -->
+    {{-- Load Vite untuk Realtime --}}
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 
     <style>
-        /* Toast Notification Container */
-        .toast-container {
+        :root {
+            --primary: #059669;
+            --primary-dark: #047857;
+            --card-bg: #ffffff;
+            --navbar-height: 70px;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8fafc;
+            color: #1f2937;
+            padding-top: var(--navbar-height);
+        }
+
+        .navbar-fixed-wrapper {
             position: fixed;
-            top: 20px;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .page-subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            border-radius: 10px;
+            padding: 8px 16px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .back-button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateX(-3px);
+        }
+
+        .chat-cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .chat-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+            border: 1px solid #e5e7eb;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary);
+        }
+
+        .chat-card.new-msg {
+            background-color: #f0fdf4;
+            border-left: 5px solid var(--primary);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status-dot {
+            position: absolute;
+            bottom: -4px;
+            right: -4px;
+            width: 16px;
+            height: 16px;
+            background: #9ca3af;
+            border: 2px solid white;
+            border-radius: 50%;
+            transition: background 0.3s;
+        }
+
+        .status-dot.online {
+            background: #10b981;
+            animation: pulse-green 2s infinite;
+        }
+
+        .psikolog-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 4px;
+        }
+
+        .psikolog-title {
+            color: var(--primary);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .last-message {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #e5e7eb;
+            min-height: 80px;
+        }
+
+        .last-message-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-bottom: 4px;
+            display: block;
+        }
+
+        .last-message-text {
+            font-size: 0.9rem;
+            color: #374151;
+            line-height: 1.4;
+            margin-bottom: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .action-button {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-weight: 600;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin-top: auto;
+        }
+
+        .action-button:hover {
+            transform: translateY(-2px);
+            color: white;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.3);
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: #d1d5db;
+            margin-bottom: 20px;
+        }
+
+        .waiting-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            background: #f3f4f6;
+            color: #6b7280;
+            border-radius: 50px;
+            font-weight: 500;
+            border: 1px solid #e5e7eb;
+        }
+
+        #toastContainer {
+            position: fixed;
+            top: 90px;
             right: 20px;
             z-index: 9999;
-            pointer-events: none;
         }
 
         .toast-notification {
-            pointer-events: auto;
-            min-width: 320px;
-            max-width: 420px;
-            margin-bottom: 12px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-            animation: slideInRight 0.3s ease-out;
             background: white;
-            overflow: hidden;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-left: 4px solid var(--primary);
+            margin-bottom: 10px;
+            min-width: 300px;
+            max-width: 350px;
+            animation: slideIn 0.3s ease;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: transform 0.2s;
         }
 
         .toast-notification:hover {
-            transform: translateX(-5px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
         }
 
-        .toast-notification.hiding {
-            animation: slideOutRight 0.3s ease-out forwards;
-        }
-
-        @keyframes slideInRight {
+        @keyframes slideIn {
             from {
-                transform: translateX(400px);
-                opacity: 0;
+                transform: translateX(100%);
             }
 
             to {
                 transform: translateX(0);
-                opacity: 1;
             }
         }
 
-        @keyframes slideOutRight {
-            from {
-                transform: translateX(0);
-                opacity: 1;
-            }
-
-            to {
-                transform: translateX(400px);
-                opacity: 0;
-            }
-        }
-
-        /* Notification Badge on Cards */
-        .notification-badge {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #dc3545;
-            color: white;
-            font-size: 11px;
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: 12px;
-            animation: pulse 1.5s ease-in-out infinite;
-            z-index: 10;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-
-            50% {
-                opacity: 0.8;
-                transform: scale(1.1);
-            }
-        }
-
-        /* Sound Toggle Button - Floating */
-        .sound-toggle-fab {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #198754, #20c997);
-            border: none;
+        .toast-avatar {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
             border-radius: 50%;
-            box-shadow: 0 6px 20px rgba(25, 135, 84, 0.4);
-            color: white;
-            font-size: 22px;
+            object-fit: cover;
+            object-position: center;
+            border: 1px solid #e5e7eb;
+            flex-shrink: 0;
+        }
+
+        .notification-sound-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            z-index: 1000;
-            transition: all 0.3s ease;
+            transition: background 0.2s;
+            border: 1px solid #e5e7eb;
+            background: white;
         }
 
-        .sound-toggle-fab:hover {
-            transform: scale(1.1);
-            box-shadow: 0 8px 28px rgba(25, 135, 84, 0.5);
+        .notification-sound-btn:hover {
+            background: #f1f5f9;
         }
 
-        .sound-toggle-fab:active {
-            transform: scale(0.95);
-        }
-
-        .sound-toggle-fab.muted {
-            background: linear-gradient(135deg, #6c757d, #adb5bd);
-            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
-        }
-
-        @media (max-width: 576px) {
-            .toast-container {
-                left: 20px;
-                right: 20px;
+        /* Animation */
+        @keyframes pulse-green {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
             }
 
-            .toast-notification {
-                min-width: auto;
-                width: 100%;
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
             }
 
-            .sound-toggle-fab {
-                bottom: 20px;
-                right: 20px;
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
             }
         }
     </style>
 </head>
 
-<body style="font-family: 'Poppins', sans-serif;" class="bg-light">
+<body>
 
-    <!-- NAVBAR -->
-    @include('components.navbar')
-
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
-
-    <!-- Sound Toggle FAB -->
-    <button class="sound-toggle-fab" id="soundToggleFab" title="Toggle Notifikasi Suara">
-        <i class="bi bi-bell-fill"></i>
-    </button>
-
-    <!-- Hero Section - Clean & Minimal -->
-    <div class=" border-bottom mt-5 py-5" style="background-color: whitesmoke;">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-8">
-                    <h1 class="display-6 fw-bold text-dark mb-2">
-                        Tim Psikolog Profesional
-                    </h1>
-                    <p class="lead text-muted mb-0">
-                        Temukan psikolog yang tepat untuk kebutuhan konsultasi Anda
-                    </p>
-                </div>
-                <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
-                    <div class="d-inline-flex align-items-center gap-2 bg-success bg-opacity-10 text-success px-4 py-3 rounded-pill">
-                        <i class="bi bi-people-fill fs-4"></i>
-                        <div class="text-start">
-                            <div class="fw-bold fs-10">{{ count($psikolog) }}</div>
-                            <small class="opacity-75">Tersedia</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    {{-- FIXED NAVBAR --}}
+    <div class="navbar-fixed-wrapper">
+        @include('components.navbar')
     </div>
 
-    <div class="container py-5">
-        <!-- Search Box - Modern Design -->
-        <div class="row justify-content-center mb-5">
-            <div class="col-12 col-lg-6">
-                <div class="position-relative">
-                    <i class="bi bi-search position-absolute text-muted" style="left: 20px; top: 50%; transform: translateY(-50%); font-size: 18px;"></i>
-                    <input type="text"
-                        class="form-control form-control-lg border-0 shadow-sm ps-5 pe-4 rounded-pill"
-                        placeholder="Cari nama atau email psikolog..."
-                        id="searchInput"
-                        style="background-color: white;">
+    {{-- TOAST CONTAINER --}}
+    <div id="toastContainer"></div>
+
+    <div class="main-container">
+        <div class="page-header">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="{{ route('dashboard') }}" class="back-button mb-0">
+                        <i class="bi bi-arrow-left"></i> Kembali
+                    </a>
                 </div>
+
+                {{-- TOMBOL SOUND --}}
+                <div class="notification-sound-btn" id="soundToggle" title="Toggle Suara Notifikasi">
+                    <i class="bi bi-bell-fill text-success"></i>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <h1 class="page-title">Konsultasi Saya</h1>
+                <p class="page-subtitle">Daftar percakapan dengan psikolog</p>
             </div>
         </div>
 
-        <!-- Cards Grid - Clean Layout -->
-        <div class="row g-4" id="psikologGrid">
+        @if($psikolog->isEmpty())
+        <div class="empty-state">
+            <div class="empty-icon"><i class="bi bi-chat-square-text"></i></div>
+            <h2 class="fw-bold mb-3">Belum Ada Konsultasi</h2>
+            <p class="text-muted mb-4">Saat ini Anda belum memiliki percakapan dengan psikolog.<br>Mohon tunggu, Psikolog akan segera menghubungi Anda.</p>
+            <div class="waiting-badge"><i class="bi bi-clock me-2"></i> Menunggu psikolog</div>
+        </div>
+        @else
+        <div class="chat-cards-container" id="cards-container">
             @foreach($psikolog as $p)
-            <div class="col-12 col-md-6 col-lg-4"
-                data-name="{{ strtolower($p->name) }}"
-                data-email="{{ strtolower($p->email) }}"
-                data-psikolog-id="{{ $p->user_id }}">
+            @php
+            $avatarUrl = '';
+            if($p->avatar && file_exists(public_path('storage/' . $p->avatar))) {
+            $avatarUrl = asset('storage/' . $p->avatar);
+            } elseif($p->foto && file_exists(public_path('uploads/' . $p->foto))) {
+            $avatarUrl = asset('uploads/' . $p->foto);
+            } else {
+            $avatarUrl = 'https://ui-avatars.com/api/?name='.urlencode($p->name).'&background=d1fae5&color=047857';
+            }
+            @endphp
 
-                <div class="card border-0 h-100 shadow-sm rounded-4 overflow-hidden position-relative" style="transition: all 0.3s ease;">
+            <div class="chat-card"
+                id="card-{{ $p->user_id }}"
+                data-psikolog-name="{{ $p->name }}"
+                data-avatar-url="{{ $avatarUrl }}"
+                data-chat-url="{{ route('korban.chat.show', $p->user_id) }}">
 
-                    <!-- Notification Badge (Hidden by default) -->
-                    <span class="notification-badge" data-badge-for="{{ $p->user_id }}" style="display: none;">
-                        <i class="bi bi-chat-dots-fill me-1"></i>Pesan Baru
-                    </span>
+                <div class="profile-header">
+                    <div class="avatar-container">
+                        <div class="avatar">
+                            <img src="{{ $avatarUrl }}" alt="{{ $p->name }}">
+                        </div>
 
-                    <!-- Avatar Header -->
-                    <div class="card-header bg-white border-0 text-center pt-4 pb-3">
-                        <div class="mx-auto rounded-circle bg-success bg-opacity-10 d-flex align-items-center justify-content-center"
-                            style="width: 80px; height: 80px;">
-                            <i class="bi bi-person-circle text-success" style="font-size: 48px;"></i>
+                        {{-- STATUS DOT --}}
+                        <div id="status-dot-{{ $p->user_id }}"
+                            class="status-dot {{ $p->active_status == 1 ? 'online' : '' }}"
+                            title="{{ $p->active_status == 1 ? 'Online' : 'Offline' }}">
                         </div>
                     </div>
 
-                    <div class="card-body text-center px-4 pb-4">
-                        <!-- Name -->
-                        <h5 class="fw-bold mb-2">{{ $p->name }}</h5>
-
-                        <!-- Role Badge -->
-                        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill px-3 py-1 mb-3">
-                            <i class="bi bi-star-fill me-1" style="font-size: 10px;"></i>
-                            Psikolog Profesional
-                        </span>
-
-                        <!-- Email -->
-                        <div class="d-flex align-items-center justify-content-center gap-2 mb-4 text-muted small">
-                            <i class="bi bi-envelope"></i>
-                            <span class="text-truncate">{{ $p->email }}</span>
-                        </div>
-
-                        <!-- Button -->
-                        <a href="{{ route('chat.psikolog', $p->user_id) }}"
-                            class="btn btn-success w-100 rounded-pill">
-                            <i class="bi bi-chat-dots me-2"></i>
-                            Mulai Konsultasi
-                        </a>
+                    <div class="profile-info">
+                        <h3 class="psikolog-name">{{ $p->name }}</h3>
+                        <div class="psikolog-title">Psikolog Klinis</div>
                     </div>
                 </div>
+
+                <div class="last-message">
+                    <div class="d-flex justify-content-between">
+                        <span class="last-message-label">Pesan terakhir:</span>
+                        <small class="text-muted" id="time-{{ $p->user_id }}"></small>
+                    </div>
+
+                    <p class="last-message-text" id="msg-text-{{ $p->user_id }}">
+                        @php
+                        $lastMessage = \App\Models\Chat::where(function($q) use ($p) {
+                        $q->where('sender_id', auth()->id())->where('receiver_id', $p->user_id);
+                        })->orWhere(function($q) use ($p) {
+                        $q->where('sender_id', $p->user_id)->where('receiver_id', auth()->id());
+                        })->latest('created_at')->first();
+                        @endphp
+
+                        @if($lastMessage)
+                        {{ $lastMessage->sender_id == auth()->id() ? 'Anda: ' : '' }}{{ $lastMessage->message }}
+                        @else
+                        <em>Belum ada percakapan</em>
+                        @endif
+                    </p>
+                </div>
+
+                <a href="{{ route('korban.chat.show', $p->user_id) }}" class="action-button">
+                    <i class="bi bi-chat-left-text"></i> Buka Chat
+                </a>
             </div>
             @endforeach
         </div>
-
-        <!-- No Results Message -->
-        <div id="noResults" class="text-center py-5 d-none">
-            <div class="mb-3">
-                <i class="bi bi-inbox text-muted" style="font-size: 64px; opacity: 0.3;"></i>
-            </div>
-            <h5 class="text-muted fw-normal">Tidak ada psikolog ditemukan</h5>
-            <p class="text-muted small">Coba kata kunci pencarian yang berbeda</p>
-        </div>
+        @endif
     </div>
 
-    <!-- FOOTER -->
-    @include('components.footer')
-
-    <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    @foreach($psikolog as $p)
+
     <script>
-        // ===========================
-        // STATE VARIABLES
-        // ===========================
-        const toastContainer = document.getElementById('toastContainer');
-        const soundToggleFab = document.getElementById('soundToggleFab');
-        const currentUserId = "{{ Auth::id() }}";
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUserId = "{{ Auth::id() }}";
 
-        let notificationSound = true;
-        let audioContext = null;
-        let globalLastMessageIds = new Set();
-        let pollInterval = null;
-        let isPageVisible = true;
+            const audioContext = new(window.AudioContext || window.webkitAudioContext)();
+            let notificationSound = true;
+            const soundToggle = document.getElementById('soundToggle');
 
-        // Store psikolog data for easy lookup
-        const psikologData = new Map();
+            document.body.addEventListener('click', function() {
+                if (audioContext.state === 'suspended') audioContext.resume();
+            }, {
+                once: true
+            });
 
-        psikologData.set("{{ $p->user_id }}", {
-            name: "{{ $p->name }}",
-            email: "{{ $p->email }}"
-        });
+            function playNotificationSound() {
+                if (!notificationSound) return;
+                if (audioContext.state === 'suspended') audioContext.resume();
 
-
-        // ===========================
-        // AUDIO CONTEXT
-        // ===========================
-        function initAudioContext() {
-            if (!audioContext) {
-                audioContext = new(window.AudioContext || window.webkitAudioContext)();
+                const o = audioContext.createOscillator();
+                const g = audioContext.createGain();
+                o.connect(g);
+                g.connect(audioContext.destination);
+                o.frequency.value = 1000;
+                g.gain.setValueAtTime(0.1, audioContext.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
+                o.start();
+                o.stop(audioContext.currentTime + 0.5);
             }
-            return audioContext;
-        }
 
-        // ===========================
-        // NOTIFICATION SOUND
-        // ===========================
-        function playNotificationSound() {
-            if (!notificationSound) return;
+            const toastContainer = document.getElementById('toastContainer');
 
-            const context = initAudioContext();
-            const oscillator = context.createOscillator();
-            const gainNode = context.createGain();
+            function showToast(senderName, message, avatarUrl, chatUrl) {
+                const toast = document.createElement('div');
+                toast.className = 'toast-notification';
 
-            oscillator.connect(gainNode);
-            gainNode.connect(context.destination);
+                const imgHtml = avatarUrl ?
+                    `<img src="${avatarUrl}" class="toast-avatar" alt="Avatar">` :
+                    `<div class="bg-success rounded-circle p-2 text-white"><i class="bi bi-chat-dots"></i></div>`;
 
-            oscillator.frequency.value = 800;
-            oscillator.type = "sine";
-
-            gainNode.gain.setValueAtTime(0.3, context.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(
-                0.01,
-                context.currentTime + 0.3
-            );
-
-            oscillator.start(context.currentTime);
-            oscillator.stop(context.currentTime + 0.3);
-        }
-
-        // ===========================
-        // SOUND TOGGLE
-        // ===========================
-        soundToggleFab.addEventListener('click', function() {
-            notificationSound = !notificationSound;
-            const icon = this.querySelector('i');
-
-            if (notificationSound) {
-                icon.className = 'bi bi-bell-fill';
-                this.classList.remove('muted');
-                showToast('Notifikasi suara diaktifkan', null, 'success');
-            } else {
-                icon.className = 'bi bi-bell-slash-fill';
-                this.classList.add('muted');
-                showToast('Notifikasi suara dinonaktifkan', null, 'info');
-            }
-        });
-
-        // ===========================
-        // TOAST NOTIFICATION
-        // ===========================
-        function showToast(message, psikologName = null, type = 'warning') {
-            const toast = document.createElement('div');
-            toast.className = 'toast-notification';
-
-            const bgColor = type === 'success' ? '#d4edda' :
-                type === 'info' ? '#d1ecf1' :
-                type === 'warning' ? '#fff3cd' : '#f8d7da';
-
-            const iconColor = type === 'success' ? '#155724' :
-                type === 'info' ? '#0c5460' :
-                type === 'warning' ? '#856404' : '#721c24';
-
-            const icon = type === 'success' ? 'check-circle-fill' :
-                type === 'info' ? 'info-circle-fill' :
-                type === 'warning' ? 'chat-dots-fill' : 'exclamation-triangle-fill';
-
-            toast.innerHTML = `
-                <div class="d-flex align-items-center p-3 border-start border-4" style="border-color: ${iconColor} !important; background-color: ${bgColor};">
-                    <i class="bi bi-${icon} me-3" style="font-size: 1.5rem; color: ${iconColor};"></i>
-                    <div class="flex-grow-1">
-                        ${psikologName ? `<strong class="d-block">${psikologName}</strong>` : ''}
-                        <span class="small">${message}</span>
+                toast.innerHTML = `
+                    <div class="d-flex align-items-center gap-3">
+                        ${imgHtml}
+                        <div style="flex: 1; min-width: 0;">
+                            <strong class="d-block text-dark text-truncate">${senderName}</strong>
+                            <small class="text-muted text-truncate d-block">${message}</small>
+                        </div>
                     </div>
-                    <button class="btn-close btn-sm ms-2" onclick="this.closest('.toast-notification').remove()"></button>
-                </div>
-            `;
+                `;
 
-            // Make toast clickable to navigate to chat
-            if (psikologName && type === 'warning') {
-                toast.style.cursor = 'pointer';
-                toast.addEventListener('click', function(e) {
-                    if (!e.target.classList.contains('btn-close')) {
-                        // Find psikolog ID by name
-                        for (let [id, data] of psikologData) {
-                            if (data.name === psikologName) {
-                                window.location.href = `/chat/psikolog/${id}`;
-                                break;
-                            }
-                        }
-                    }
-                });
-            }
-
-            toastContainer.appendChild(toast);
-
-            setTimeout(() => {
-                toast.classList.add('hiding');
-                setTimeout(() => toast.remove(), 300);
-            }, 6000);
-        }
-
-        // ===========================
-        // BROWSER NOTIFICATION
-        // ===========================
-        function requestNotificationPermission() {
-            if ('Notification' in window && Notification.permission === 'default') {
-                Notification.requestPermission();
-            }
-        }
-
-        function showBrowserNotification(psikologName, message) {
-            if ('Notification' in window && Notification.permission === 'granted') {
-                const notification = new Notification(`Pesan Baru dari ${psikologName}`, {
-                    body: message,
-                    icon: '/favicon.ico',
-                    badge: '/favicon.ico',
-                    tag: `chat-${psikologName}`,
-                    renotify: true,
-                });
-
-                notification.onclick = function() {
-                    window.focus();
-                    // Find psikolog ID by name
-                    for (let [id, data] of psikologData) {
-                        if (data.name === psikologName) {
-                            window.location.href = `/chat/psikolog/${id}`;
-                            break;
-                        }
-                    }
-                    notification.close();
+                toast.onclick = function() {
+                    window.location.href = chatUrl;
                 };
+
+                toastContainer.appendChild(toast);
+                setTimeout(() => toast.remove(), 4000);
             }
-        }
 
-        // ===========================
-        // NOTIFICATION BADGE
-        // ===========================
-        function showNotificationBadge(psikologId) {
-            const badge = document.querySelector(`[data-badge-for="${psikologId}"]`);
-            if (badge) {
-                badge.style.display = 'block';
-            }
-        }
+            if (soundToggle) {
+                soundToggle.addEventListener('click', () => {
+                    notificationSound = !notificationSound;
+                    if (audioContext.state === 'suspended') audioContext.resume();
 
-        function hideNotificationBadge(psikologId) {
-            const badge = document.querySelector(`[data-badge-for="${psikologId}"]`);
-            if (badge) {
-                badge.style.display = 'none';
-            }
-        }
-
-        // ===========================
-        // PAGE VISIBILITY TRACKING
-        // ===========================
-        document.addEventListener('visibilitychange', function() {
-            isPageVisible = !document.hidden;
-        });
-
-        // ===========================
-        // CHECK ALL PSIKOLOG FOR NEW MESSAGES
-        // ===========================
-        async function checkAllPsikologForNewMessages() {
-            const psikologIds = Array.from(psikologData.keys());
-
-            for (const psikologId of psikologIds) {
-                try {
-                    const response = await fetch(`/chat/refresh/${psikologId}`);
-                    const data = await response.json();
-
-                    if (!data.messages || data.messages.length === 0) continue;
-
-                    // Check for new incoming messages from this psikolog
-                    data.messages.forEach(msg => {
-                        const messageId = msg.id.toString();
-
-                        // If message is new and from psikolog (not from current user)
-                        if (!globalLastMessageIds.has(messageId) && msg.sender_id != currentUserId) {
-                            const psikolog = psikologData.get(psikologId);
-
-                            // Show notifications
-                            playNotificationSound();
-                            showToast(msg.message, psikolog.name, 'warning');
-                            showBrowserNotification(psikolog.name, msg.message);
-
-                            // Show badge on card
-                            showNotificationBadge(psikologId);
-
-                            // Update page title if not visible
-                            if (!isPageVisible) {
-                                document.title = '🔔 Pesan Baru - Daftar Psikolog';
-                            }
-                        }
-
-                        globalLastMessageIds.add(messageId);
-                    });
-                } catch (err) {
-                    console.error(`Error checking messages from psikolog ${psikologId}:`, err);
-                }
-            }
-        }
-
-        // ===========================
-        // INITIALIZE MESSAGE TRACKING
-        // ===========================
-        async function initializeMessageTracking() {
-            const psikologIds = Array.from(psikologData.keys());
-
-            console.log('🔄 Initializing message tracking...');
-
-            for (const psikologId of psikologIds) {
-                try {
-                    const response = await fetch(`/chat/refresh/${psikologId}`);
-                    const data = await response.json();
-
-                    if (data.messages) {
-                        data.messages.forEach(msg => {
-                            globalLastMessageIds.add(msg.id.toString());
-                        });
+                    const icon = soundToggle.querySelector('i');
+                    if (notificationSound) {
+                        icon.className = 'bi bi-bell-fill text-success';
+                        playNotificationSound();
+                    } else {
+                        icon.className = 'bi bi-bell-slash-fill text-muted';
                     }
-                } catch (err) {
-                    console.error(`Error initializing psikolog ${psikologId}:`, err);
+                });
+            }
+
+            function updateStatusUI(userId, isOnline) {
+                const dot = document.getElementById(`status-dot-${userId}`);
+                if (dot) {
+                    if (isOnline) {
+                        dot.classList.add('online');
+                        dot.title = "Online";
+                    } else {
+                        dot.classList.remove('online');
+                        dot.title = "Offline";
+                    }
                 }
             }
 
-            console.log('✅ Message tracking initialized');
+            function updateLastMessageUI(userId, message, isMe) {
+                const card = document.getElementById(`card-${userId}`);
+                const textEl = document.getElementById(`msg-text-${userId}`);
+                const timeEl = document.getElementById(`time-${userId}`);
 
-            // Start polling after initialization
-            pollInterval = setInterval(checkAllPsikologForNewMessages, 5000);
-        }
+                if (card && textEl) {
+                    textEl.innerText = (isMe ? 'Anda: ' : '') + message;
 
-        // ===========================
-        // CLEANUP ON PAGE UNLOAD
-        // ===========================
-        window.addEventListener('beforeunload', function() {
-            if (pollInterval) clearInterval(pollInterval);
-        });
+                    const now = new Date();
+                    const timeString = now.toLocaleTimeString('id-ID', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                    if (timeEl) timeEl.innerText = timeString;
 
-        // Reset title when page becomes visible
-        window.addEventListener('focus', function() {
-            document.title = 'Daftar Psikolog';
-        });
+                    const container = document.getElementById('cards-container');
+                    container.prepend(card);
 
-        // ===========================
-        // SEARCH FUNCTIONALITY
-        // ===========================
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const cards = document.querySelectorAll('#psikologGrid > div');
-            let visibleCount = 0;
+                    if (!isMe) {
+                        playNotificationSound();
 
-            cards.forEach(card => {
-                const name = card.getAttribute('data-name');
-                const email = card.getAttribute('data-email');
+                        const senderName = card.dataset.psikologName || "Psikolog";
+                        const avatarUrl = card.dataset.avatarUrl || "";
+                        const chatUrl = card.dataset.chatUrl || "#";
 
-                if (name.includes(searchTerm) || email.includes(searchTerm)) {
-                    card.classList.remove('d-none');
-                    visibleCount++;
-                } else {
-                    card.classList.add('d-none');
+                        showToast(senderName, message, avatarUrl, chatUrl);
+
+                        card.classList.add('new-msg');
+                        setTimeout(() => card.classList.remove('new-msg'), 3000);
+                    }
                 }
-            });
+            }
 
-            // Show/hide no results message
-            const noResults = document.getElementById('noResults');
-            if (visibleCount === 0) {
-                noResults.classList.remove('d-none');
-            } else {
-                noResults.classList.add('d-none');
+            if (typeof Echo !== "undefined") {
+                window.Echo.join('presence-chat')
+                    .listen('.user.status', (e) => {
+                        if (e && e.userId) updateStatusUI(e.userId, e.status == 1);
+                    })
+                    .here((users) => {
+                        users.forEach(user => {
+                            const uid = user.user_id || user.id;
+                            updateStatusUI(uid, true);
+                        });
+                    });
+
+                window.Echo.private(`chat.user.${currentUserId}`)
+                    .listen('.message.sent', (e) => {
+                        updateLastMessageUI(e.chat.sender_id, e.chat.message, false);
+                    });
             }
         });
-
-        // ===========================
-        // CARD HOVER EFFECT
-        // ===========================
-        document.querySelectorAll('.card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-8px)';
-            });
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-            });
-        });
-
-        // ===========================
-        // INITIALIZE ON PAGE LOAD
-        // ===========================
-        requestNotificationPermission();
-
-        if (psikologData.size > 0) {
-            initializeMessageTracking();
-        } else {
-            console.log('⚠️ No psikolog found');
-        }
-
-        console.log('✅ Notification system initialized');
     </script>
-    @endforeach
 </body>
 
 </html>
