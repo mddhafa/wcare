@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SelfHealingController;
 use App\Http\Controllers\ChatbotController;
@@ -9,11 +11,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ChatController;
-use App\Http\Controllers\HomeChatController;
 use App\Http\Controllers\PsikologChatController;
+use App\Http\Controllers\HomeChatController;
 use App\Http\Middleware\Role;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
 
 Route::get('/', function () {
     return redirect('/dashboard');
@@ -35,8 +35,6 @@ Route::middleware(['auth'])->group(function () {
     // --- ADMIN ---
     Route::middleware([Role::class . ':admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-
-        // [ADDED] Profile Admin Route
         Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
 
         // Data User
@@ -68,31 +66,29 @@ Route::middleware(['auth'])->group(function () {
 
         Route::get('/check-assigned-reports', function (Request $request) {
             $psikologId = Auth::user()->psikolog->id;
-
             $assignedProcessCount = \App\Models\Laporan::where('psikolog_id', $psikologId)
                 ->where('status', 'proses')
                 ->count();
-
-            return response()->json([
-                'assigned_process_count' => $assignedProcessCount
-            ]);
+            return response()->json(['assigned_process_count' => $assignedProcessCount]);
         })->name('api.check-assigned-reports');
 
         Route::get('/profile', [ProfileController::class, 'show'])->name('profilepsikolog');
 
-        // Chat Psikolog
+        // === CHAT PSIKOLOG ===
         Route::get('/chat', [PsikologChatController::class, 'index'])->name('chat');
-        Route::get('/chat/{user}', [PsikologChatController::class, 'showJson'])->name('chat.show');
+        Route::get('/chat/get/{user}', [PsikologChatController::class, 'showJson'])->name('chat.show');
         Route::post('/chat/send', [PsikologChatController::class, 'send'])->name('chat.send');
+        Route::post('/chat/mark-read', [PsikologChatController::class, 'markAsRead'])->name('chat.markRead');
     });
 
     // --- KORBAN / MAHASISWA ---
     Route::middleware([Role::class . ':korban'])->group(function () {
-        // Cek Notifikasi Pesan Baru
-        Route::get('/chat/check', [ChatController::class, 'checkNewMessage'])
-            ->name('chat.check');
 
-        // Chatbot
+        // Emosi & Profil
+        Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');
+        Route::get('/profile', [ProfileController::class, 'show'])->name('korban.profilekorban');
+
+        // Chatbot AI
         Route::get('/chatbot', function () {
             return view('chatbot');
         });
@@ -100,29 +96,21 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/chat/sessions', [ChatbotController::class, 'sessions']);
         Route::get('/chat/messages/{id}', [ChatbotController::class, 'messages']);
         Route::post('/chat/generate', [ChatbotController::class, 'send']);
-        Route::post('/homechat/send', [HomeChatController::class, 'sendChat'])->name('homechat.send');
-        Route::post('/pilih-emosi', [EmosiController::class, 'pilihEmosi'])->name('emosi.pilih');
 
-        Route::get('/profile', [ProfileController::class, 'show'])->name('korban.profilekorban');
+        // 1. Halaman Daftar Chat (Inbox)
+        Route::get('/konsultasi', [ChatController::class, 'homechat'])->name('korban.chat.index');
 
-        // Chat dengan Psikolog
-        Route::get('/api/check-psikolog-started/{psikologId}', function ($psikologId) {
-            $korbanId = auth()->user()->user_id;
+        // 2. Halaman Detail Chat dengan Psikolog
+        Route::get('/chat/psikolog/{id}', [ChatController::class, 'index'])->name('korban.chat.show');
 
-            $started = \App\Models\Chat::where('sender_id', $psikologId)
-                ->where('receiver_id', $korbanId)
-                ->exists();
-
-            return response()->json(['started' => $started]);
-        })->middleware(['auth', \App\Http\Middleware\Role::class . ':korban']);
-
-        Route::get('/homechat', [HomeChatController::class, 'index'])->name('homechat');
-        Route::get('/chat/{id_psikolog}', [ChatController::class, 'index'])->name('chat.psikolog');
-        Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+        // 3. API Chat
+        Route::post('/chat/send', [ChatController::class, 'send'])->name('korban.chat.send');
         Route::get('/chat/refresh/{id}', [ChatController::class, 'refresh'])->name('chat.refresh');
+        Route::post('/chat/mark-read', [ChatController::class, 'markAsRead'])->name('korban.chat.markRead');
+        Route::get('/chat/check', [ChatController::class, 'checkNewMessage'])->name('chat.check'); // Global check
     });
 
-    // --- GLOBAL AUTH ROUTES (Bisa diakses Psikolog & Korban) ---
+    // --- GLOBAL AUTH ROUTES ---
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update.data');
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.update.avatar');
