@@ -48,7 +48,7 @@
 
                     <div>
                         <h1 class="text-2xl font-bold">Edit Data
-                            @if($user->role_id == 3) Mahasiswa
+                            @if($user->role_id == 3) Korban
                             @elseif($user->role_id == 2) Psikolog
                             @else Admin
                             @endif
@@ -110,7 +110,7 @@
                     <div class="space-y-6">
 
                         @if($user->role_id == 3)
-                        <h3 class="text-lg font-bold text-primary border-b border-gray-100 pb-2 mb-4">Data Mahasiswa</h3>
+                        <h3 class="text-lg font-bold text-primary border-b border-gray-100 pb-2 mb-4">Data Korban</h3>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>

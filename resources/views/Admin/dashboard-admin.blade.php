@@ -327,7 +327,7 @@
             <i class="bi bi-grid-fill"></i>Dashboard
         </a>
         <a href="{{ route('admin.mahasiswa') }}" class="nav-link-custom">
-            <i class="bi bi-people-fill"></i>Data Mahasiswa
+            <i class="bi bi-people-fill"></i>Data Korban
         </a>
         <a href="{{ route('admin.psikolog') }}" class="nav-link-custom">
             <i class="bi bi-person-heart"></i>Data Psikolog
@@ -367,7 +367,7 @@
             <div class="col-md-3">
                 <div class="stat-card bg-gradient-info">
                     <div class="stat-number">{{ $stats['total_korban'] }}</div>
-                    <div class="stat-label">Pengguna (Mahasiswa)</div>
+                    <div class="stat-label">Pengguna (Korban)</div>
                     <i class="bi bi-people-fill stat-icon"></i>
                 </div>
             </div>

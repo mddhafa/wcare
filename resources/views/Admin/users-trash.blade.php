@@ -45,7 +45,7 @@
 
                     @php
                     $backUrl = route('admin.dashboard');
-                    if(request('source') == 'mahasiswa') $backUrl = route('admin.mahasiswa');
+                    if(request('source') == 'korban') $backUrl = route('admin.mahasiswa');
                     elseif(request('source') == 'psikolog') $backUrl = route('admin.psikolog');
                     @endphp
 
@@ -89,7 +89,7 @@
                                     </span>
                                     @elseif($user->role_id == 3)
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                        Mahasiswa
+                                        Korban
                                     </span>
                                     @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
