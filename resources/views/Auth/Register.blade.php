@@ -8,6 +8,7 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="icon" href="{{ asset('images/WeCare.jpeg') }}" type="image/png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
     body {
       background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
