@@ -51,6 +51,22 @@
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
     }
 
+    .carousel-item {
+      height: 420px;           
+    }
+    
+    .banner-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;        
+      object-position: center;  
+      border-radius: 12px;      
+    }
+
+    @media (max-width: 768px) {
+      .carousel-item { height: 240px; }
+    }
+
     .hero-section {
       background-color: #ffffff;
       border-bottom: 1px solid #e5e7eb;
@@ -361,13 +377,13 @@
             </div>
             <div class="carousel-inner">
               <div class="carousel-item active">
-                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 1">
+                <img src="{{ asset('images/bullying.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 1">
               </div>
               <div class="carousel-item">
-                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 2">
+                <img src="{{ asset('images/kekerasan.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 2">
               </div>
               <div class="carousel-item">
-                <img src="{{ asset('images/banner2.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 3">
+                <img src="{{ asset('images/Pelecehan.png') }}" class="d-block w-100 banner-img shadow" alt="Banner 3">
               </div>
             </div>
           </div>

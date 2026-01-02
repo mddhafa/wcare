@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Mahasiswa - Admin</title>
+    <title>Data Korban - Admin</title>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -168,7 +168,7 @@
                             <i class="bi bi-arrow-left"></i>
                         </a>
                         <div>
-                            <h4 class="fw-bold mb-0 text-white">Data Mahasiswa</h4>
+                            <h4 class="fw-bold mb-0 text-white">Data Korban</h4>
                             <div class="d-flex align-items-center gap-2 text-white text-opacity-75 small">
                                 <i class="bi bi-mortarboard-fill"></i>
                                 <span id="totalCount">{{ $users->count() }}</span><span> akun terdaftar</span>
@@ -194,7 +194,7 @@
                         <thead>
                             <tr>
                                 <th class="text-center" width="5%">No</th>
-                                <th width="30%">Mahasiswa</th>
+                                <th width="30%">Korban</th>
                                 <th width="25%">Email</th>
                                 <th width="20%">Bergabung</th>
                                 <th width="10%" class="text-center">Status</th>
@@ -267,7 +267,7 @@
                                     <div class="d-flex flex-column align-items-center justify-content-center py-4">
                                         <div class="bg-white p-3 rounded-circle shadow-sm mb-3"><i class="bi bi-mortarboard text-secondary display-6"></i></div>
                                         <h6 class="fw-bold text-dark">Data Kosong</h6>
-                                        <p class="mb-0 small">Belum ada mahasiswa yang terdaftar.</p>
+                                        <p class="mb-0 small">Belum ada Korban yang terdaftar.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -277,7 +277,7 @@
                                     <div class="d-flex flex-column align-items-center justify-content-center py-4">
                                         <i class="bi bi-search text-secondary fs-1 mb-3 opacity-50"></i>
                                         <h6 class="fw-bold text-dark">Tidak Ditemukan</h6>
-                                        <p class="mb-0 small">Tidak ada mahasiswa dengan nama/email tersebut.</p>
+                                        <p class="mb-0 small">Tidak ada Korban dengan nama/email tersebut.</p>
                                     </div>
                                 </td>
                             </tr>

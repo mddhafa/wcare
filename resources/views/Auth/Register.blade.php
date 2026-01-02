@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="icon" href="{{ asset('images/WeCare.jpeg') }}" type="image/png">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <style>
@@ -102,6 +103,18 @@
       border-color: #059669;
       background: white;
       box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    .form-input.error {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+    }
+
+    .error-message {
+      color: #dc2626;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
     }
 
     .grid-2 {
@@ -248,7 +261,10 @@
 
         <div class="form-group">
           <label class="form-label">Nama Lengkap</label>
-          <input type="text" name="name" placeholder="Nama Anda" required class="form-input">
+          <input type="text" name="name" id="name" placeholder="Nama Anda" required class="form-input">
+          <div class="error-message" id="nameError">
+            Nama hanya boleh berisi huruf, spasi, titik, dan koma
+          </div>
         </div>
 
         <div class="form-group">
@@ -276,7 +292,7 @@
           <div class="password-container">
             <input id="password" type="password" name="password" placeholder="Minimal 6 karakter" required minlength="6" class="form-input">
             <button type="button" toggle="#password" class="toggle-password">
-              <i class="fa fa-eye"></i>
+              <i class="fas fa-eye"></i>
             </button>
           </div>
         </div>
@@ -286,7 +302,7 @@
           <div class="password-container">
             <input id="password_confirmation" type="password" name="password_confirmation" placeholder="Ulangi password" required minlength="6" class="form-input">
             <button type="button" toggle="#password_confirmation" class="toggle-password">
-              <i class="fa fa-eye"></i>
+              <i class="fas fa-eye"></i>
             </button>
           </div>
         </div>
@@ -314,6 +330,47 @@
       setTimeout(() => snackbar.classList.remove('show'), 4000);
     }
 
+    // Fungsi validasi nama
+    function isValidName(name) {
+      // Regex: hanya huruf (termasuk huruf dengan aksen), spasi, titik, dan koma
+      // Tidak boleh mengandung angka dan karakter spesial lainnya
+      const nameRegex = /^[a-zA-Z\s.,]+$/;
+      
+      // Tambahan: minimal 2 karakter dan maksimal 100 karakter
+      return nameRegex.test(name) && name.length >= 2 && name.length <= 100;
+    }
+
+    // Fungsi untuk memformat nama (huruf pertama kapital)
+    function formatName(name) {
+      return name.toLowerCase()
+        .split(' ')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    }
+
+    // Validasi input nama real-time
+    document.getElementById('name').addEventListener('input', function(e) {
+      const nameInput = e.target;
+      const nameError = document.getElementById('nameError');
+      const nameValue = nameInput.value.trim();
+      
+      if (nameValue === '') {
+        nameInput.classList.remove('error');
+        nameError.style.display = 'none';
+        return;
+      }
+      
+      if (!isValidName(nameValue)) {
+        nameInput.classList.add('error');
+        nameError.style.display = 'block';
+      } else {
+        nameInput.classList.remove('error');
+        nameError.style.display = 'none';
+        // Format nama secara otomatis
+        nameInput.value = formatName(nameValue);
+      }
+    });
+
     document.addEventListener('click', function(e) {
       if (e.target.closest('.toggle-password')) {
         const button = e.target.closest('.toggle-password');
@@ -335,6 +392,21 @@
       const submitBtn = document.getElementById('submitBtn');
       const originalText = submitBtn.innerHTML;
       const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      
+      // Validasi nama
+      const nameInput = document.getElementById('name');
+      const nameValue = nameInput.value.trim();
+      const nameError = document.getElementById('nameError');
+      
+      if (!isValidName(nameValue)) {
+        nameInput.classList.add('error');
+        nameError.style.display = 'block';
+        showSnackbar('Nama hanya boleh berisi huruf, spasi, titik, dan koma', 'error');
+        nameInput.focus();
+        return;
+      }
+      
+      // Validasi password
       const password = form.querySelector('#password').value;
       const confirmPassword = form.querySelector('#password_confirmation').value;
 

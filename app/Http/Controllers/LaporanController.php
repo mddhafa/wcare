@@ -23,13 +23,62 @@ class LaporanController extends Controller
 
     public function store(Request $request)
     {
+        // Validasi input
         $request->validate([
             'lokasi' => 'required',
             'jenis' => 'required',
             'kronologi' => 'required',
-            'tanggal' => 'required|date',
+            'tanggal' => [
+                'required',
+                'date',
+                function ($attribute, $value, $fail) {
+                    // Konversi ke Carbon object
+                    $tanggalLaporan = Carbon::parse($value);
+                    $limaTahunLalu = Carbon::now()->subYears(5);
+                    $hariIni = Carbon::now();
+                    
+                    // Reset waktu untuk perbandingan yang akurat
+                    $tanggalLaporan->setTime(0, 0, 0);
+                    $limaTahunLalu->setTime(0, 0, 0);
+                    $hariIni->setTime(0, 0, 0);
+                    
+                    // Validasi: tidak boleh lebih dari 5 tahun lalu
+                    if ($tanggalLaporan->lt($limaTahunLalu)) {
+                        $fail('Tanggal kejadian tidak boleh lebih dari 5 tahun yang lalu.');
+                    }
+                    
+                    // Validasi: tidak boleh lebih dari hari ini (masa depan)
+                    if ($tanggalLaporan->gt($hariIni)) {
+                        $fail('Tanggal kejadian tidak boleh lebih dari hari ini.');
+                    }
+                },
+            ],
         ]);
 
+        // Validasi tambahan manual
+        $tanggalLaporan = Carbon::parse($request->tanggal);
+        $limaTahunLalu = Carbon::now()->subYears(5);
+        $hariIni = Carbon::now();
+        
+        // Reset waktu untuk perbandingan
+        $tanggalLaporan->setTime(0, 0, 0);
+        $limaTahunLalu->setTime(0, 0, 0);
+        $hariIni->setTime(0, 0, 0);
+        
+        // Validasi akhir
+        if ($tanggalLaporan->lt($limaTahunLalu)) {
+            return back()->withErrors([
+                'tanggal' => 'Tanggal kejadian tidak boleh lebih dari 5 tahun yang lalu.'
+            ])->withInput();
+        }
+        
+        if ($tanggalLaporan->gt($hariIni)) {
+            return back()->withErrors([
+                'tanggal' => 'Tanggal kejadian tidak boleh lebih dari hari ini.'
+            ])->withInput();
+        }
+
+        // Buat laporan
         $laporan = Laporan::create([
             'user_id' => Auth::id(),
             'lokasi' => $request->lokasi,
@@ -137,7 +186,7 @@ class LaporanController extends Controller
                                     <div class="fw-medium text-dark">' . $nama . '</div>
                                     <small class="text-muted" style="font-size: 0.8rem;">
                                         <i class="bi bi-geo-alt me-1"></i> ' . $lokasi . '
-                                    </small>
+                                    </div>
                                 </div>
                             </div>
                         </td>
@@ -198,17 +247,49 @@ class LaporanController extends Controller
             abort(403, 'Akses Ditolak');
         }
 
+        // Validasi jika ada input tanggal pada update
+        if ($request->has('tanggal') && $request->tanggal) {
+            $request->validate([
+                'tanggal' => [
+                    'date',
+                    function ($attribute, $value, $fail) {
+                        $tanggalLaporan = Carbon::parse($value);
+                        $limaTahunLalu = Carbon::now()->subYears(5);
+                        $hariIni = Carbon::now();
+                        
+                        $tanggalLaporan->setTime(0, 0, 0);
+                        $limaTahunLalu->setTime(0, 0, 0);
+                        $hariIni->setTime(0, 0, 0);
+                        
+                        if ($tanggalLaporan->lt($limaTahunLalu)) {
+                            $fail('Tanggal kejadian tidak boleh lebih dari 5 tahun yang lalu.');
+                        }
+                        
+                        if ($tanggalLaporan->gt($hariIni)) {
+                            $fail('Tanggal kejadian tidak boleh lebih dari hari ini.');
+                        }
+                    },
+                ],
+            ]);
+        }
+
         $laporan = Laporan::findOrFail($id);
-        $laporan->update([
-            'status' => $request->status
-        ]);
+        
+        // Update data
+        $updateData = ['status' => $request->status];
+        
+        // Tambahkan tanggal jika ada
+        if ($request->has('tanggal') && $request->tanggal) {
+            $updateData['tanggal'] = $request->tanggal;
+        }
+        
+        $laporan->update($updateData);
 
         return back()->with('success', 'Status laporan diperbarui.');
     }
 
     public function assign(Request $request, Laporan $laporan)
     {
-
         $psikologId = $request->id_psikolog;
 
         if ($psikologId) {
@@ -244,5 +325,30 @@ class LaporanController extends Controller
         event(new LaporanDibatalkan($laporan));
 
         return back()->with('success', 'Assign dibatalkan.');
+    }
+    
+    /**
+     * Validasi tanggal kejadian
+     */
+    private function validateTanggalKejadian($tanggal)
+    {
+        $tanggalLaporan = Carbon::parse($tanggal);
+        $limaTahunLalu = Carbon::now()->subYears(5);
+        $hariIni = Carbon::now();
+        
+        // Reset waktu untuk perbandingan
+        $tanggalLaporan->setTime(0, 0, 0);
+        $limaTahunLalu->setTime(0, 0, 0);
+        $hariIni->setTime(0, 0, 0);
+        
+        if ($tanggalLaporan->lt($limaTahunLalu)) {
+            throw new \Exception('Tanggal kejadian tidak boleh lebih dari 5 tahun yang lalu.');
+        }
+        
+        if ($tanggalLaporan->gt($hariIni)) {
+            throw new \Exception('Tanggal kejadian tidak boleh lebih dari hari ini.');
+        }
+        
+        return true;
     }
 }
