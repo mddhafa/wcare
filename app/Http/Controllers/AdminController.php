@@ -165,13 +165,15 @@ class AdminController extends Controller
             );
         } elseif ($user->role_id == 2) {
             $request->validate([
-                'jadwal_tersedia' => 'nullable|date',
+                'jam_mulai' => 'nullable',
+                'jam_selesai' => 'nullable',
             ]);
 
             $user->psikolog()->updateOrCreate(
                 ['user_id' => $user->user_id],
                 [
-                    'jadwal_tersedia' => $request->jadwal_tersedia
+                    'jam_mulai' => $request->jam_mulai,
+                    'jam_selesai' => $request->jam_selesai
                 ]
             );
         }

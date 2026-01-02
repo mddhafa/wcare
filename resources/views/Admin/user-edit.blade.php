@@ -9,6 +9,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ asset('images/WeCare.jpeg') }}" type="image/png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <script>
         tailwind.config = {
@@ -135,33 +136,79 @@
                         </div>
 
                         @elseif($user->role_id == 2)
-                        <h3 class="text-lg font-bold text-primary border-b border-gray-100 pb-2 mb-4">Jadwal Praktik</h3>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Jam Mulai</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
-                                        <i class="fa-regular fa-clock"></i>
-                                    </span>
-                                    <input type="time" name="jam_mulai" value="{{ old('jam_mulai', $user->psikolog->jam_mulai ?? '') }}"
-                                        class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary outline-none bg-gray-50 focus:bg-white">
-                                </div>
-                            </div>
+                        {{-- LOGIK PHP UNTUK OPSI JAM --}}
+                        @php
+                        $times = [];
+                        for($i = 7; $i <= 21; $i++) {
+                            $h=str_pad($i, 2, '0' , STR_PAD_LEFT);
+                            $times[]="$h:00" ;
+                            $times[]="$h:30" ;
+                            }
 
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-2">Jam Selesai</label>
-                                <div class="relative">
-                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
-                                        <i class="fa-solid fa-clock-rotate-left"></i>
-                                    </span>
-                                    <input type="time" name="jam_selesai" value="{{ old('jam_selesai', $user->psikolog->jam_selesai ?? '') }}"
-                                        class="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary outline-none bg-gray-50 focus:bg-white">
+                            // Mengambil data lama atau data dari database (menggunakan $user->psikolog)
+                            $jamMulaiDB = $user->psikolog ? $user->psikolog->jam_mulai : null;
+                            $jamSelesaiDB = $user->psikolog ? $user->psikolog->jam_selesai : null;
+
+                            $oldMulai = old('jam_mulai', $jamMulaiDB ? \Carbon\Carbon::parse($jamMulaiDB)->format('H:i') : '');
+                            $oldSelesai = old('jam_selesai', $jamSelesaiDB ? \Carbon\Carbon::parse($jamSelesaiDB)->format('H:i') : '');
+                            @endphp
+
+                            <div class="bg-gray-50 p-5 rounded-2xl border border-dashed border-gray-300">
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="text-sm font-bold text-primary uppercase tracking-wider">Jadwal Praktik</h3>
+                                    <div class="flex gap-2">
+                                        <button type="button" onclick="setPreset('08:00', '16:00')" class="text-xs bg-white border border-gray-200 hover:border-primary text-gray-600 hover:text-primary px-3 py-1 rounded-full transition shadow-sm">
+                                            Kantor (08-16)
+                                        </button>
+                                        <button type="button" onclick="setPreset('09:00', '17:00')" class="text-xs bg-white border border-gray-200 hover:border-primary text-gray-600 hover:text-primary px-3 py-1 rounded-full transition shadow-sm">
+                                            9 to 5
+                                        </button>
+                                    </div>
                                 </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    {{-- INPUT JAM MULAI --}}
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Jam Mulai</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-primary">
+                                                <i class="fa-regular fa-clock"></i>
+                                            </div>
+                                            <select id="jam_mulai" name="jam_mulai" class="w-full pl-10 pr-8 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary outline-none bg-white appearance-none cursor-pointer">
+                                                <option value="" selected disabled>--:--</option>
+                                                @foreach($times as $time)
+                                                <option value="{{ $time }}" {{ $oldMulai == $time ? 'selected' : '' }}>{{ $time }} WIB</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- INPUT JAM SELESAI --}}
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Jam Selesai</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-primary">
+                                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                            </div>
+                                            <select id="jam_selesai" name="jam_selesai" class="w-full pl-10 pr-8 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary outline-none bg-white appearance-none cursor-pointer">
+                                                <option value="" selected disabled>--:--</option>
+                                                @foreach($times as $time)
+                                                <option value="{{ $time }}" {{ $oldSelesai == $time ? 'selected' : '' }}>{{ $time }} WIB</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p class="text-xs text-gray-400 mt-3 text-center">Pilih jam operasional agar status psikolog "Available".</p>
                             </div>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-2">*Jadwal praktik harian (WIB)</p>
-                        @endif
+                            @endif
 
                     </div>
                 </div>
@@ -178,6 +225,19 @@
             </form>
         </div>
     </div>
+
+    {{-- SCRIPT UNTUK PRESET JAM --}}
+    <script>
+        function setPreset(start, end) {
+            const startSelect = document.getElementById('jam_mulai');
+            const endSelect = document.getElementById('jam_selesai');
+
+            if (startSelect && endSelect) {
+                startSelect.value = start;
+                endSelect.value = end;
+            }
+        }
+    </script>
 
 </body>
 
