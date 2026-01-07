@@ -141,6 +141,13 @@
             justify-content: center;
             font-weight: 700;
             font-size: 1rem;
+            overflow: hidden;
+        }
+
+        .avatar-circle img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
     </style>
 </head>
@@ -214,7 +221,11 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <div class="avatar-circle me-3 flex-shrink-0 border border-success border-opacity-25">
+                                            @if($l->korban && $l->korban->avatar && file_exists(public_path('storage/' . $l->korban->avatar)))
+                                            <img src="{{ asset('storage/' . $l->korban->avatar) }}" alt="{{ $l->korban->name }}">
+                                            @else
                                             {{ strtoupper(substr($l->korban->name ?? 'A', 0, 1)) }}
+                                            @endif
                                         </div>
                                         <div>
                                             <div class="fw-medium text-dark">{{ $l->korban->name ?? 'Anonim' }}</div>
@@ -272,6 +283,13 @@
 
     <script>
         $(document).ready(function() {
+            // Tambahkan CSRF Token setup agar Ajax aman
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
             $('#search').on('keyup', function() {
                 var query = $(this).val();
                 $('#loading-spinner').removeClass('d-none');
