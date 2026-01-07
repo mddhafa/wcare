@@ -68,7 +68,7 @@ class SelfHealingController extends Controller
             'deskripsi'    => 'required|string',
             'gambar'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:5120',
 
-            'audio'        => 'nullable|file|mimes:mp3,wav,ogg,m4a|max:20480',
+            'audio'        => 'nullable|file|mimes:mp3,wav,ogg,m4a,mpeg,bin,mp4|max:20480',
         ]);
 
         try {

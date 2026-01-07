@@ -300,21 +300,29 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  @if(session('success'))
+
   <script>
     function previewImage(input) {
       if (input.files && input.files[0]) {
         document.getElementById('fileName').innerText = input.files[0].name;
+
+        input.parentElement.style.borderColor = '#059669';
+        input.parentElement.style.backgroundColor = '#f0fdf4';
       }
     }
 
     function previewAudio(input) {
       if (input.files && input.files[0]) {
         document.getElementById('audioName').innerText = input.files[0].name;
+
+        input.parentElement.style.borderColor = '#059669';
+        input.parentElement.style.backgroundColor = '#f0fdf4';
       }
     }
+  </script>
 
-
+  @if(session('success'))
+  <script>
     Swal.fire({
       title: "Berhasil!",
       text: "{{ session('success') }}",
