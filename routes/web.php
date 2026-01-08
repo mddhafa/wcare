@@ -89,9 +89,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile', [ProfileController::class, 'show'])->name('korban.profilekorban');
 
         // Chatbot AI
-        Route::get('/chatbot', function () {
-            return view('chatbot');
-        });
+        Route::get('/chatbot', [ChatbotController::class, 'index'])->name('chatbot');
         Route::post('/chat/session', [ChatbotController::class, 'newSession']);
         Route::get('/chat/sessions', [ChatbotController::class, 'sessions']);
         Route::get('/chat/messages/{id}', [ChatbotController::class, 'messages']);

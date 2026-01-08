@@ -336,6 +336,50 @@
       flex-shrink: 0;
       border: 1px solid #e5e7eb;
     }
+
+    /* ====== Mobile swipe slider for psikolog ====== */
+@media (max-width: 768px) {
+  .psikolog-slider-container { overflow: visible; }
+
+  .psikolog-slider-wrapper{
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;          /* Firefox hide */
+    padding-bottom: 6px;
+  }
+  .psikolog-slider-wrapper::-webkit-scrollbar{ display:none; } /* Chrome hide */
+
+  .psikolog-slider{
+    width: max-content;
+    display:flex;
+    gap: 14px;
+    padding: 6px 6px 10px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .psikolog-slider-item{
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  /* ukuran card di HP: 1 card per “snap” (sedikit peek) */
+  .psikolog-card{
+    min-width: 84vw;
+    max-width: 84vw;
+  }
+
+  /* tombol slider disembunyikan di HP (swipe aja) */
+  .slider-controls{ display:none !important; }
+}
+
+/* Tablet: 2 card terlihat */
+@media (min-width: 769px) and (max-width: 992px){
+  .psikolog-card{
+    min-width: 340px;
+  }
+}
+
   </style>
 </head>
 
@@ -463,7 +507,7 @@
             <div class="icon-wrapper"><i class="bi bi-robot"></i></div>
             <h5 class="fw-bold mb-2">AI Chatbot</h5>
             <p class="text-muted small mb-4">Teman curhat virtual yang siap mendengarkanmu kapan saja tanpa menghakimi.</p>
-            <a href="{{ url('/chatbot') }}" class="btn btn-custom-outline btn-sm w-100 stretched-link">Mulai Chat</a>
+            <a href="{{ route('chatbot') }}" class="btn btn-custom-outline btn-sm w-100 stretched-link">Mulai Chat</a>
           </div>
         </div>
 
@@ -490,7 +534,7 @@
             <div class="icon-wrapper"><i class="bi bi-journal-album"></i></div>
             <h5 class="fw-bold mb-2">Self Healing</h5>
             <p class="text-muted small mb-4">Konten video dan artikel relaksasi yang dikurasi khusus untuk mood kamu.</p>
-            <a href="{{ url('/selfhealing') }}" class="btn btn-custom-outline btn-sm w-100 stretched-link">Jelajahi</a>
+            <a href="{{ route('halamanselfhealing') }}" class="btn btn-custom-outline btn-sm w-100 stretched-link">Jelajahi</a>
           </div>
         </div>
       </div>
@@ -602,45 +646,77 @@
     document.addEventListener('DOMContentLoaded', function() {
 
       const slider = document.getElementById('psychologistSlider');
+      const wrapper = slider ? slider.closest('.psikolog-slider-wrapper') : null;
       const prevBtn = document.getElementById('sliderPrevBtn');
       const nextBtn = document.getElementById('sliderNextBtn');
 
-      if (slider && prevBtn && nextBtn) {
+      function isMobile(){
+        return window.matchMedia("(max-width: 768px)").matches;
+      }
+
+      function setupDesktopButtons(){
+        if (!slider || !prevBtn || !nextBtn) return;
+
         const cards = slider.querySelectorAll('.psikolog-slider-item');
-        const cardWidth = cards[0].offsetWidth + 24;
+        if (!cards.length) return;
+
+        const cardWidth = cards[0].offsetWidth;
+        const gap = parseFloat(getComputedStyle(slider).gap || "0");
+        const step = cardWidth + gap;
+
         const containerWidth = slider.parentElement.offsetWidth;
-        const totalCards = cards.length;
-        const visibleCards = Math.floor(containerWidth / cardWidth);
+        const visibleCards = Math.max(1, Math.floor(containerWidth / step));
         let currentPosition = 0;
 
-        function updateSliderPosition() {
+        function updateSliderPosition(){
           slider.style.transform = `translateX(-${currentPosition}px)`;
+
+          const maxScroll = Math.max(0, (cards.length - visibleCards) * step);
           prevBtn.disabled = currentPosition <= 0;
-          const maxScroll = (totalCards - visibleCards) * cardWidth;
           nextBtn.disabled = currentPosition >= maxScroll;
         }
 
-        function nextSlide() {
-          const maxScroll = (totalCards - visibleCards) * cardWidth;
-          if (currentPosition < maxScroll) {
-            currentPosition += cardWidth * visibleCards;
-            if (currentPosition > maxScroll) currentPosition = maxScroll;
-            updateSliderPosition();
-          }
+        function nextSlide(){
+          const maxScroll = Math.max(0, (cards.length - visibleCards) * step);
+          currentPosition = Math.min(maxScroll, currentPosition + step * visibleCards);
+          updateSliderPosition();
         }
 
-        function prevSlide() {
-          if (currentPosition > 0) {
-            currentPosition -= cardWidth * visibleCards;
-            if (currentPosition < 0) currentPosition = 0;
-            updateSliderPosition();
-          }
+        function prevSlide(){
+          currentPosition = Math.max(0, currentPosition - step * visibleCards);
+          updateSliderPosition();
         }
 
-        prevBtn.addEventListener('click', prevSlide);
-        nextBtn.addEventListener('click', nextSlide);
+        prevBtn.onclick = prevSlide;
+        nextBtn.onclick = nextSlide;
+
+        currentPosition = 0;
         updateSliderPosition();
       }
+
+      function teardownDesktopButtons(){
+        if (!slider) return;
+        slider.style.transform = ""; 
+        if (prevBtn) prevBtn.onclick = null;
+        if (nextBtn) nextBtn.onclick = null;
+      }
+
+      function applySliderMode(){
+        if (!slider) return;
+
+        if (isMobile()){
+          teardownDesktopButtons();
+        } else {
+          setupDesktopButtons();
+        }
+      }
+
+      window.addEventListener("load", applySliderMode);
+      window.addEventListener("resize", () => {
+        clearTimeout(window.__sliderResizeT);
+        window.__sliderResizeT = setTimeout(applySliderMode, 120);
+      });
+
 
       const audioContext = new(window.AudioContext || window.webkitAudioContext)();
 

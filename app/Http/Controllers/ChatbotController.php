@@ -14,6 +14,11 @@ use App\Models\ChatBotMessage;
 class ChatbotController extends Controller
 {
 
+    public function index()
+    {
+        return view('chatbot');
+    }
+    
     public function newSession()
     {
         $user = Auth::user();
@@ -191,7 +196,7 @@ class ChatbotController extends Controller
             'generationConfig' => [
                 'temperature' => 0.7,
                 'candidateCount' => 1,
-                'maxOutputTokens' => 512,
+                'maxOutputTokens' => 2048,
             ],
         ];
 
