@@ -284,34 +284,40 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @foreach($selfHealings as $content)
             @php
-            $videoID = null;
-            $isYoutube = false;
-            $isAudio = false;
-            $audioUrl = '';
-            $hasFile = false;
+                $contentId = $content->id_selfhealing;
 
-            $jenis = strtolower($content->jenis_konten ?? '');
+                $isAudio = false;
+                $audioUrl = '';
+                $hasFile = false;
 
-            if ($jenis == 'audio' || $content->audio) {
-            $isAudio = true;
-            if($content->audio) {
-            $audioUrl = asset('storage/' . $content->audio);
-            $hasFile = true;
-            }
-            }
-            elseif ($jenis == 'video' || ($content->link_konten && strpos($content->link_konten, 'youtube') !== false)) {
-            if ($content->link_konten && preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/', $content->link_konten, $matches)) {
-            $videoID = $matches[1];
-            $isYoutube = true;
-            $hasFile = true;
-            }
-            }
+                $videoID = null;
+                $isYoutube = false;
+                $thumb = null;
 
-            $contentId = $content->id_selfhealing;
+                $jenis = strtolower($content->jenis_konten ?? '');
 
-            $gambarUrl = $content->gambar ? asset('storage/' . $content->gambar) : '';
-            $emosiName = $content->emosi->nama_emosi ?? '';
+                // AUDIO (BLOB route)
+                if ($jenis === 'audio' || !empty($content->audio)) {
+                    $isAudio = true;
+                    if (!empty($content->audio)) {
+                        $audioUrl = route('selfhealing.audio', $contentId);
+                        $hasFile = true;
+                    }
+                }
+                // YOUTUBE: pakai regex langsung (tanpa strpos)
+                elseif (!empty($content->link_konten) && preg_match('~(?:youtu\.be/|youtube\.com/(?:watch\?v=|embed/|v/|shorts/))([A-Za-z0-9_-]{11})~', $content->link_konten, $m)) {
+                    $videoID = $m[1];
+                    $isYoutube = true;
+                    $hasFile = true;
+                    $thumb = "https://img.youtube.com/vi/{$videoID}/hqdefault.jpg";
+                }
+
+                // GAMBAR (BLOB route)
+                $gambarUrl = !empty($content->gambar) ? route('selfhealing.gambar', $contentId) : '';
+
+                $emosiName = $content->emosi->nama_emosi ?? '';
             @endphp
+
 
             <div class="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden group flex flex-col h-full border border-gray-100 content-card"
                 data-id="{{ $contentId }}"
@@ -319,7 +325,7 @@
                 data-link="{{ $content->link_konten ?? '' }}"
                 data-gambar="{{ $gambarUrl }}"
                 data-audio="{{ $audioUrl }}"
-                data-youtube="{{ $isYoutube ? $videoID : '' }}"
+                data-youtube="{{ ($isYoutube && $videoID && strlen($videoID) === 11) ? $videoID : '' }}"
                 data-emosi="{{ e($emosiName) }}">
 
                 <div class="relative w-full h-56 bg-gray-900 group-hover:opacity-100 transition-opacity">
@@ -352,14 +358,15 @@
                     </div>
 
                     @elseif($isYoutube && $videoID)
-                    <iframe
-                        class="w-full h-full pointer-events-auto"
-                        src="https://www.youtube.com/embed/{{ $videoID }}?rel=0&modestbranding=1"
-                        title="{{ $content->judul }}"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen>
-                    </iframe>
+                    <img src="{{ $thumb }}"
+                        alt="{{ $content->judul }}"
+                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700 card-image">
+
+                    <div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <div class="bg-white text-gray-900 rounded-full p-4 shadow-lg">
+                            <i class="fas fa-play text-xl text-red-500"></i>
+                        </div>
+                    </div>
                     @elseif($content->gambar)
                     <img src="{{ $gambarUrl }}"
                         alt="{{ $content->judul }}"
@@ -581,8 +588,8 @@
                         '</div>';
                 } else if (youtube) {
                     html += '<div class="video-container mb-4">' +
-                        '<iframe src="https://www.youtube.com/embed/' + escapeHtml(youtube) + '?rel=0&modestbranding=1" frameborder="0" allowfullscreen></iframe>' +
-                        '</div>';
+                        '<iframe src="https://www.youtube.com/embed/' + escapeHtml(youtube) + '?autoplay=1&rel=0&modestbranding=1" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>' +
+                    '</div>';
                 } else if (gambar) {
                     html += '<div class="mb-4 text-center">' +
                         '<img id="modalImageClickable" src="' + escapeHtml(gambar) + '" alt="' + escapeHtml(title) + '" class="modal-image img-fluid">' +

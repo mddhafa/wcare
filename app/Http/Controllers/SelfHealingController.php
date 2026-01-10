@@ -80,13 +80,15 @@ class SelfHealingController extends Controller
             $selfHealing->deskripsi    = $request->deskripsi;
 
             if ($request->hasFile('gambar')) {
-                $path = $request->file('gambar')->store('selfhealing', 'public');
-                $selfHealing->gambar = $path;
+                $file = $request->file('gambar');
+                $selfHealing->gambar = file_get_contents($file->getRealPath());
+                $selfHealing->gambar_mime = $file->getMimeType();
             }
 
             if ($request->hasFile('audio')) {
-                $audioPath = $request->file('audio')->store('selfhealing/audio', 'public');
-                $selfHealing->audio = $audioPath;
+                $file = $request->file('audio');
+                $selfHealing->audio = file_get_contents($file->getRealPath());
+                $selfHealing->audio_mime = $file->getMimeType();
             }
 
             $selfHealing->save();
@@ -97,6 +99,27 @@ class SelfHealingController extends Controller
         }
     }
 
+    public function gambar($id)
+    {
+        $row = SelfHealing::findOrFail($id);
+        if (!$row->gambar) abort(404);
+        
+        $mime = $row->gambar_mime ?? 'image/jpeg';
+
+        return response($row->gambar)
+            ->header('Content-Type', 'image/jpeg');
+    }
+
+    public function audio($id)
+    {
+        $row = SelfHealing::findOrFail($id);
+        if (!$row->audio) abort(404);
+
+        return response($row->audio)
+            ->header('Content-Type', 'audio/mpeg');
+    }
+
+
     public function destroy($id)
     {
         if (Auth::user()->role_id != 1) {
@@ -104,17 +127,8 @@ class SelfHealingController extends Controller
         }
 
         try {
-            $selfHealing = SelfHealing::findOrFail($id);
-
-            if ($selfHealing->gambar && Storage::disk('public')->exists($selfHealing->gambar)) {
-                Storage::disk('public')->delete($selfHealing->gambar);
-            }
-            if ($selfHealing->audio && Storage::disk('public')->exists($selfHealing->audio)) {
-                Storage::disk('public')->delete($selfHealing->audio);
-            }
-
+           $selfHealing = SelfHealing::findOrFail($id);
             $selfHealing->delete();
-
             return back()->with('success', 'Konten berhasil dihapus!');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Gagal menghapus konten: ' . $e->getMessage()]);

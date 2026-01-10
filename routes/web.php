@@ -114,7 +114,9 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/avatar', [ProfileController::class, 'updateAvatar'])->name('profile.update.avatar');
 
     Route::get('/selfhealing', [SelfHealingController::class, 'index'])->name('halamanselfhealing');
-
+    Route::get('/selfhealing/{id}/gambar', [SelfHealingController::class, 'gambar'])->name('selfhealing.gambar');
+    Route::get('/selfhealing/{id}/audio',  [SelfHealingController::class, 'audio'])->name('selfhealing.audio');
+    
     Route::get('/lapor/arsip', [LaporanController::class, 'arsip'])->name('lapor.arsip');
     Route::get('/lapor/riwayat', [LaporanController::class, 'index'])->name('lapor.index');
     Route::get('/lapor/buat', [LaporanController::class, 'create'])->name('lapor.create');

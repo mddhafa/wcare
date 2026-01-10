@@ -15,8 +15,8 @@ return new class extends Migration
             $table->string('judul');
             $table->string('link_konten')->nullable();
             $table->text('deskripsi');
-            $table->string('gambar')->nullable();
-            $table->string('audio')->nullable();
+            $table->binary('gambar')->nullable();
+            $table->binary('audio')->nullable();
             $table->timestamps();
 
             $table->foreign('id_emosi')->references('id_emosi')->on('emosi')->onDelete('cascade');
