@@ -1,0 +1,27 @@
+======================================
+
+AKUN USER WECARE
+
+bisa lakukan seeders dengan perintah php artisan db:seeders atau coba akun di bawah
+
+======================================
+PASIEN
+
+Name: User Pertama (Anonim)
+Email: user1@gmail.com
+Password: password
+======================================
+
+PSIKOLOG
+
+Name: Ahmad Fauzan, M.Psi
+Email: fauzan@psikolog.com
+Password: password
+=======================================
+
+ADMIN
+
+Name: Super Admin
+Email: admin@gmail.com
+Password: password
+=======================================

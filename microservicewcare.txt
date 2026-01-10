@@ -1,0 +1,8 @@
+
+Laravel Framework 12.34.0
+
+cara menjalankan di terminal
+
+1. php artisan serve
+2. php artisan queue:work
+3. php artisan reverb:start
